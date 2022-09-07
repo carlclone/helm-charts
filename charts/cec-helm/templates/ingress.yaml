@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: wmc-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+#    service.kubernetes.io/qcloud-loadbalancer-internal-subnetid: subnet-jwi98d2u # value 替换为集群所在 vpc 的其中一个子网 id
+spec:
+  rules:
+    #- host: {{.Values.stack_name}}.boost.saas.fiicloud.foxconn.com
+    - host: {{.Values.parameters.network.custom_subdomain}}.boost.saas.fiicloud.foxconn.com
+      http:
+        paths:
+          {{- range .Values.parameters.ingress }}
+          - path: {{.path}}
+            backend:
+              serviceName: {{.service_name}}
+              servicePort: {{.target_port}}
+          {{- end }}

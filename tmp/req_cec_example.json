@@ -1,0 +1,223 @@
+{
+  "parameters": {
+    "cloud_block_storage": {
+      "enabled": true,
+      "size": 50,
+      "init_files_url": "http://bucket-1255000339.cos.shenzhen.cos.fii-foxconn.com/init3.tar.gz"
+    },
+    "common": {
+      "tenant_id": 1
+    },
+    "database": {
+      "account": "root",
+      "enabled": true,
+      "db_name": "cec",
+      "init_sql_url": "http://bucket-1255000339.cos.shenzhen.cos.fii-foxconn.com/cec.sql",
+      "instance": "advanced",
+      "password": "123456",
+      "type": "mysql",
+      "version": "5.7"
+    },
+    "ingress": [
+      {
+        "path": "/",
+        "port": 80,
+        "service_name": "cfcweb",
+        "target_port": 80
+      }
+    ],
+    "network": {
+      "custom_subdomain": "tenant1",
+      "enabled": true
+    },
+    "services": [
+      {
+        "container_img_url": "ccr.fiicloud.foxconn.com/ops_zyy/cec:latest",
+        "service_name": "cec",
+        "envs": [
+          {
+            "name": "TZ",
+            "value": "Asia/Shanghai"
+          },
+          {
+            "name": "CONF_MYSQL_HOST",
+            "value": "mysql"
+          },
+          {
+            "name": "CONF_MYSQL_PORT",
+            "value": "3306"
+          },
+          {
+            "name": "CONF_MYSQL_DBNAME",
+            "value": "cec"
+          },
+          {
+            "name": "CONF_MYSQL_USER",
+            "value": "root"
+          },
+          {
+            "name": "CONF_MYSQL_PASSWORD",
+            "value": "123456"
+          },
+          {
+            "name": "CONF_REDIS_HOST",
+            "value": "redis"
+          },
+          {
+            "name": "CONF_REDIS_PORT",
+            "value": "6379"
+          },
+          {
+            "name": "CONF_MINIO_HOST",
+            "value": "minio"
+          },
+          {
+            "name": "CONF_MINIO_PORT",
+            "value": "9012"
+          },
+          {
+            "name": "CONF_MINIO_ENDPOINT",
+            "value": "http://minio:9012"
+          }
+        ],
+        "entrypoint": {
+          "enabled": true,
+          "command": [
+            "java"
+          ],
+          "args": [
+            "-jar",
+            "-Xms1000M",
+            "-Xmx1000M",
+            "-Xmn700M",
+            "-Xss300K",
+            "-XX:SurvivorRatio=6",
+            "-XX:+UseParNewGC",
+            "-XX:MaxMetaspaceSize=128m",
+            "-XX:MetaspaceSize=128m",
+            "-XX:+UseConcMarkSweepGC",
+            "-XX:+CMSParallelRemarkEnabled",
+            "-XX:+UseCMSCompactAtFullCollection",
+            "-XX:CMSFullGCsBeforeCompaction=0",
+            "-XX:LargePageSizeInBytes=128M",
+            "-XX:CMSInitiatingOccupancyFraction=70",
+            "-XX:+UseCMSInitiatingOccupancyOnly",
+            "-Xloggc:./gc-cec.log",
+            "-XX:+PrintGCDateStamps",
+            "-XX:+PrintGCDetails",
+            "-XX:-UseGCOverheadLimit",
+            "-XX:+HeapDumpOnOutOfMemoryError",
+            "-XX:OnOutOfMemoryError=./heapDump.hprof",
+            "/cec-0.0.1-SNAPSHOT-exe.jar"
+          ]
+        },
+        "mount_path": [],
+        "ports": [
+          {
+            "port": 9020,
+            "target_port": 9020,
+            "name": "a"
+          }
+        ]
+      },
+      {
+        "container_img_url": "ccr.fiicloud.foxconn.com/ops_zyy/redis:latest",
+        "service_name": "redis",
+        "envs": [
+          {
+            "name": "TZ",
+            "value": "Asia/Shanghai"
+          }
+        ],
+        "entrypoint": {
+          "enabled": true,
+          "command": [
+            "redis-server"
+          ],
+          "args": [
+            "/etc/redis/redis.conf",
+            "--requirepass",
+            "asdwsx"
+          ]
+        },
+        "mount_path": [
+          "/data",
+          "/etc/redis/"
+        ],
+        "ports": [
+          {
+            "port": 6379,
+            "target_port": 6379,
+            "name": "a"
+          }
+        ]
+      },
+      {
+        "container_img_url": "ccr.fiicloud.foxconn.com/ops_zyy/nginx:latest",
+        "service_name": "cfcweb",
+        "envs": [
+          {
+            "name": "TZ",
+            "value": "Asia/Shanghai"
+          }
+        ],
+        "entrypoint": {
+          "enabled": true,
+          "command": []
+        },
+        "mount_path": [
+          "/etc/nginx/conf.d/"
+        ],
+        "ports": [
+          {
+            "port": 80,
+            "target_port": 80,
+            "name": "a"
+          }
+        ]
+      },
+      {
+        "container_img_url": "ccr.fiicloud.foxconn.com/ops_zyy/minio:latest",
+        "service_name": "minio",
+        "envs": [
+          {
+            "name": "MINIO_ACCESS_KEY",
+            "value": "guangqiminio"
+          },
+          {
+            "name": "MINIO_SECRET_KEY",
+            "value": "guangqimimafushikang"
+          }
+        ],
+        "entrypoint": {
+          "enabled": true,
+          "command": [
+            "minio"
+          ],
+          "args": [
+            "server",
+            "/data",
+            "--console-address",
+            ":9012"
+          ]
+        },
+        "mount_path": [
+          "/data"
+        ],
+        "ports": [
+          {
+            "port": 9000,
+            "target_port": 9000,
+            "name": "a"
+          },
+          {
+            "port": 9012,
+            "target_port": 9012,
+            "name": "b"
+          }
+        ]
+      }
+    ]
+  },
+  "preset_template": "complex_service_deployment_template"
+}

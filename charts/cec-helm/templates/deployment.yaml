@@ -1,0 +1,128 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wmc-deploy
+  labels:
+    app: wmc
+spec:
+  selector:
+    matchLabels:
+      app: wmc
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: wmc
+    spec:
+      initContainers:
+        # 初始化数据库和磁盘容器
+        - image: ccr.fiicloud.foxconn.com/boost/wget
+          name: wget
+          securityContext:
+            privileged: true
+          command:
+            - "sh"
+            - "-c"
+            - >
+            {{if .Values.parameters.database.init_sql_url }}  wget {{.Values.parameters.database.init_sql_url}} -O /docker-entrypoint-initdb.d/init.sql; {{end }} {{if .Values.parameters.cloud_block_storage.init_files_url }} wget {{.Values.parameters.cloud_block_storage.init_files_url}} -O ./init.tar.gz && tar -xzvf init.tar.gz -C /; {{end}}
+          volumeMounts:
+#            - name: wmc-persistent-storage
+#              mountPath: "/saas-init-file"
+            - name: wmc-persistent-storage
+              mountPath: "/docker-entrypoint-initdb.d"
+              subPath: "saas-mysql/docker-entrypoint-initdb.d"
+            {{- range .Values.parameters.services }}
+            - name: wmc-persistent-storage
+              mountPath: {{.service_name}}
+              subPath: {{.service_name }}
+            {{- end }}
+      containers:
+        # debug 用
+        - image: ccr.fiicloud.foxconn.com/dev_lcc/busybox
+          name: busybox
+          command:
+            - sleep
+            - "3600"
+        # built-in db
+          volumeMounts:
+            - name: wmc-persistent-storage
+              mountPath: "/docker-entrypoint-initdb.d"
+              subPath: "saas-mysql/docker-entrypoint-initdb.d"
+            {{- range .Values.parameters.services }}
+            - name: wmc-persistent-storage
+              mountPath: {{.service_name}}
+              subPath: {{.service_name }}
+            {{- end }}
+        - image: ccr.fiicloud.foxconn.com/dev_lcc/mysql:{{.Values.parameters.database.version}}
+          name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: {{.Values.parameters.database.password | quote}}
+            - name: MYSQL_DATABASE
+              value: {{.Values.parameters.database.db_name | quote}}
+              {{ if ne .Values.parameters.database.account "root" }}
+            - name: MYSQL_USER
+              value: {{.Values.parameters.database.account | quote}}
+            - name: MYSQL_PASSWORD
+              value: {{.Values.parameters.database.password | quote}}
+              {{end }}
+          volumeMounts:
+            - name: wmc-persistent-storage
+              mountPath: "/var/lib/mysql"
+              subPath: "saas-mysql/var/lib/mysql"
+            - name: wmc-persistent-storage
+              mountPath: "/docker-entrypoint-initdb.d"
+              subPath: "saas-mysql/docker-entrypoint-initdb.d"
+#            - name: wmc-persistent-storage
+#              mountPath: "/saas-init-file"
+#          lifecycle:
+#            postStart:
+#              exec:
+#                command:
+#                  - "sh"
+#                  - "-c"
+#                  - >
+#                    sleep 20 ;while [ ! -f /saas-init-file/init.sql ]; do sleep 1; done ; echo sleep ended;  mysql --user=root --database={{.Values.parameters.database.db_name}} --password={{.Values.parameters.database.password}} < /saas-init-file/init.sql
+      {{- range .Values.parameters.services }}
+        - image: {{.container_img_url}}
+          name: {{.service_name}}
+          {{- if .entrypoint.enabled }}
+          command: 
+          {{- range .entrypoint.command }}
+            - {{ . | quote }}
+          {{- end }}
+          args: 
+        {{- range .entrypoint.args }}
+            - {{ . | quote }}
+        {{- end }}
+          {{- end }}
+          securityContext:
+            privileged: true
+          env:
+            - name: DB_MASTER_PASSWORD
+              value: {{$.Values.parameters.database.password | quote}}
+            - name: DB_MASTER_USERNAME
+              value: {{$.Values.parameters.database.account | quote}}
+            - name: DB_MASTER_HOST
+              value: mysql
+            - name: DB_NAME
+              value: {{$.Values.parameters.database.db_name | quote }}
+
+      {{- range .envs}}
+            - name: {{.name}}
+              value: {{ .value | quote }}
+            {{- end }}
+          volumeMounts:
+            {{- $sname := .service_name -}}
+            {{- range .mount_path}}
+            - name: wmc-persistent-storage
+              mountPath: {{.}}
+              subPath: {{ $sname}}{{.}}
+            {{- end }}
+        {{- end }}
+      volumes:
+        - name: wmc-persistent-storage
+          persistentVolumeClaim:
+            claimName: wmc-pv-claim

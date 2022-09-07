@@ -1,0 +1,58 @@
+{
+  "parameters": {
+    "cloud_block_storage": {
+      "enabled": true,
+      "size": 50,
+      "init_files_url": ""
+    },
+    "common": {
+      "tenant_id": 1
+    },
+    "database": {
+      "account": "root",
+      "enabled": true,
+      "db_name": "cec",
+      "init_sql_url": "",
+      "instance": "advanced",
+      "password": "123456",
+      "type": "mysql",
+      "version": "5.7"
+    },
+    "ingress": [
+      {
+        "path": "/",
+        "port": 80,
+        "service_name": "testgo",
+        "target_port": 80
+      }
+    ],
+    "network": {
+      "custom_subdomain": "tenant1",
+      "enabled": true
+    },
+    "services": [
+      {
+        "container_img_url": "ccr.fiicloud.foxconn.com/dev_lcc/docker-gs-ping",
+        "service_name": "testgo",
+        "envs": [],
+        "entrypoint": {
+          "enabled": false,
+          "command": [],
+          "args": []
+        },
+        "mount_path": [
+          "/home/saas-boost-data1/"
+        ],
+        "ports": [
+          {
+            "port": 80,
+            "target_port": 8080,
+            "name": "a"
+          }
+        ]
+      }
+    ]
+  },
+  "preset_template": "complex_service_deployment_template",
+  "desc":"这是测试 testgo"
+}

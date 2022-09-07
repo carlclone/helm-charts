@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wmc-pv-claim
+  labels:
+    app: wmc
+spec:
+  storageClassName: cbs
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{.Values.parameters.cloud_block_storage.size}}Gi

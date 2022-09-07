@@ -1,0 +1,45 @@
+{{- range .Values.parameters.services }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.service_name}}
+
+  labels:
+    app: wmc
+spec:
+  clusterIP: None
+  selector:
+    app: wmc
+  ports:
+    {{- range .ports }}
+    - port: {{.port}}
+      targetPort: {{.target_port}}
+      name: {{.target_port | quote }}
+      {{- end }}
+#  type: ClusterIP
+  {{- end }}
+
+
+
+---
+# built-in db
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+#  annotations:
+#    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  labels:
+    app: wmc
+spec:
+  clusterIP: None
+  selector:
+    app: wmc
+  ports:
+
+    - port: 3306
+      targetPort: 3306
+      name: mysql
+
+  type: ClusterIP
