@@ -21,4 +21,25 @@ entries:
     urls:
     - https://carlclone.github.io/helm-charts/gsping-1.0.5.tgz
     version: 0.19.0
+  cec:
+    - apiVersion: v2
+      appVersion: v0.23.0
+      created: "2022-07-20T22:11:56.290427268Z"
+      description: The Alertmanager handles alerts sent by client applications such
+        as the Prometheus server.
+      digest: 7b4a0dda177a9b13af5ce3f66a285c868e6be564abf3b17ac8aded15a46840ae
+      home: https://prometheus.io/
+      icon: https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png
+      maintainers:
+        - email: monotek23@gmail.com
+          name: monotek
+        - email: naseem@transit.app
+          name: naseemkullah
+      name: cec program
+      sources:
+        - https://github.com/prometheus/alertmanager
+      type: application
+      urls:
+        - https://carlclone.github.io/helm-charts/cec-1.0.6.tgz
+      version: 0.19.0
 generated: "2022-09-04T18:40:30.706944595Z"
