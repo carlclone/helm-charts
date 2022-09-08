@@ -40,6 +40,6 @@ entries:
         - https://github.com/prometheus/alertmanager
       type: application
       urls:
-        - https://carlclone.github.io/helm-charts/cec-1.0.6.tgz
+        - https://carlclone.github.io/helm-charts/cec-1.0.7.tgz
       version: 0.19.0
 generated: "2022-09-04T18:40:30.706944595Z"
