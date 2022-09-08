@@ -14,7 +14,7 @@ entries:
       name: monotek
     - email: naseem@transit.app
       name: naseemkullah
-    name: alertmanager
+    name: gsping 程序
     sources:
     - https://github.com/prometheus/alertmanager
     type: application
