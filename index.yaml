@@ -3,10 +3,10 @@ entries:
   gsping-helm:
   - apiVersion: v1
     appVersion: v1.0.0
-    created: "2022-09-09T14:20:54.689203+08:00"
-    digest: 80c8f6dd83551d11381623e7e8c9feceba7f2a00c2567251ef327eb02009f578
+    created: "2022-09-09T14:22:01.793279+08:00"
+    digest: 4249e879b54bb4ccbd0e8af9b0706194f9bd85c55d8448dc294e180b0a31c559
     name: gsping-helm
     urls:
-    - gsping-20220909142054.tgz
+    - gsping-20220909142201.tgz
     version: 1.0.5
-generated: "2022-09-09T14:20:54.688289+08:00"
+generated: "2022-09-09T14:22:01.792211+08:00"
