@@ -1,45 +1,20 @@
 apiVersion: v1
 entries:
-  alertmanager:
-    - apiVersion: v2
-      appVersion: v0.23.0
-      created: "2022-07-20T22:11:56.290427268Z"
-      description: The Alertmanager handles alerts sent by client applications such
-        as the Prometheus server.
-      digest: 7b4a0dda177a9b13af5ce3f66a285c868e6be564abf3b17ac8aded15a46840ae
-      home: https://prometheus.io/
-      icon: https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png
-      maintainers:
-        - email: monotek23@gmail.com
-          name: monotek
-        - email: naseem@transit.app
-          name: naseemkullah
-      name: gsping program
-      sources:
-        - https://github.com/prometheus/alertmanager
-      type: application
-      urls:
-        - https://carlclone.github.io/helm-charts/gsping-1.0.5.tgz
-      version: 0.19.0
-  cec:
-    - apiVersion: v2
-      appVersion: v0.23.0
-      created: "2022-07-20T22:11:56.290427268Z"
-      description: The Alertmanager handles alerts sent by client applications such
-        as the Prometheus server.
-      digest: 7b4a0dda177a9b13af5ce3f66a285c868e6be564abf3b17ac8aded15a46840ae
-      home: https://prometheus.io/
-      icon: https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png
-      maintainers:
-        - email: monotek23@gmail.com
-          name: monotek
-        - email: naseem@transit.app
-          name: naseemkullah
-      name: cec program
-      sources:
-        - https://github.com/prometheus/alertmanager
-      type: application
-      urls:
-        - https://carlclone.github.io/helm-charts/cec-1.0.8.tgz
-      version: 0.19.0
-generated: "2022-09-04T18:40:30.706944595Zx"
+  gsping-helm:
+  - apiVersion: v1
+    appVersion: v1.0.0
+    created: "2022-09-09T11:51:15.888279+08:00"
+    digest: 14bf85b347cfa1db00fc21df7cd147a30e16df0ff57b11a3ee14641a087b3f05
+    name: gsping-helm
+    urls:
+    - gsping-20220909115047.tgz
+    version: 1.0.5
+  - apiVersion: v1
+    appVersion: v1.0.0
+    created: "2022-09-09T11:51:15.888851+08:00"
+    digest: fb5ba88e3a470252617d9ebf76fd43daab4839864d292a4ab2d7a2b5f15145fe
+    name: gsping-helm
+    urls:
+    - gsping-20220909115115.tgz
+    version: 1.0.5
+generated: "2022-09-09T11:51:15.887363+08:00"
