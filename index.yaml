@@ -1,22 +1,24 @@
 apiVersion: v1
 entries:
+  CFC:
+  - apiVersion: v1
+    appVersion: v1.0.0
+    created: "2022-09-14T13:39:18.385491+08:00"
+    description: Fii的碳管家Carbon Assistant（CA-by-Fii）通过0门槛的表单式操作引导企业计算直接控制下的温室气体排放（范围1）以及间接温室气体排放（范围2和范围3）。对于跨国公司，碳管家支持管理员发布自上而下的碳盘查任务，允许多个组织协作进行填报，同时可根据区域要求实现完整的碳盘查和分析，通过业务活动数据输入自动生成符合
+      ISO14064 / GHG 协议的报告。
+    digest: 1649ca5b8fbd78d2c4f6f572cdee008fe103d3d047eeb5f0cbb46126d84b1c3a
+    icon: https://carlclone.github.io/helm-charts/cec.png
+    name: CFC
+    urls:
+    - cec-20220914133917.tgz
+    version: 1.0.5
   gsping-helm:
   - apiVersion: v1
     appVersion: v1.0.0
-    created: "2022-09-14T13:33:21.394539+08:00"
-    description: Fii的碳管家Carbon Assistant（CA-by-Fii）通过0门槛的表单式操作引导企业计算直接控制下的温室气体排放（范围1）以及间接温室气体排放（范围2和范围3）。对于跨国公司，碳管家支持管理员发布自上而下的碳盘查任务，允许多个组织协作进行填报，同时可根据区域要求实现完整的碳盘查和分析，通过业务活动数据输入自动生成符合
-      ISO14064 / GHG 协议的报告。
-    digest: 4dbf66e004b120a4abce118966be464837bd1860f43addc7d9343bcf79df736f
-    name: gsping-helm
-    urls:
-    - https://carlclone.github.io/helm-charts/cec-20220914133320.tgz
-    version: 1.0.5
-  - apiVersion: v1
-    appVersion: v1.0.0
-    created: "2022-09-14T13:33:21.395711+08:00"
+    created: "2022-09-14T13:39:18.388924+08:00"
     digest: 3ef8389800e9c3ef41aa17413c094a8a72bd9c97f1b3a4b7b41eaa3530a437ca
     name: gsping-helm
     urls:
-    - https://carlclone.github.io/helm-charts/gsping-20220909142218.tgz
+    - gsping-20220909142218.tgz
     version: 1.0.5
-generated: "2022-09-14T13:33:21.392082+08:00"
+generated: "2022-09-14T13:39:18.381401+08:00"
