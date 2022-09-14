@@ -3,10 +3,10 @@ entries:
   CEC-S:
   - apiVersion: v1
     appVersion: 7.13.2
-    created: "2022-09-14T14:27:07.765817+08:00"
+    created: "2022-09-14T14:27:15.340583+08:00"
     description: Fii的碳管家Carbon Assistant（CA-by-Fii）通过0门槛的表单式操作引导企业计算直接控制下的温室气体排放（范围1）以及间接温室气体排放（范围2和范围3）。对于跨国公司，碳管家支持管理员发布自上而下的碳盘查任务，允许多个组织协作进行填报，同时可根据区域要求实现完整的碳盘查和分析，通过业务活动数据输入自动生成符合
       ISO14064 / GHG 协议的报告。
-    digest: ea3ca23e75399fd17fb88a40b39639f544420c8360fa621bda728cf9406f1d96
+    digest: d3fdd6fa5984d921ad2c45db8158d9ac13313a896a3d29d44706984ec6e5447a
     home: https://github.com/elastic/helm-charts
     icon: https://bitnami.com/assets/stacks/cassandra/img/cassandra-stack-220x234.png
     keywords:
@@ -21,15 +21,15 @@ entries:
     sources:
     - https://github.com/elastic/apm
     urls:
-    - https://carlclone.github.io/helm-charts/cec-20220914142707.tgz
+    - https://carlclone.github.io/helm-charts/cec-20220914142715.tgz
     version: 7.13.2
   gsping-helm:
   - apiVersion: v1
     appVersion: v1.0.0
-    created: "2022-09-14T14:27:07.771355+08:00"
+    created: "2022-09-14T14:27:15.341184+08:00"
     digest: 3ef8389800e9c3ef41aa17413c094a8a72bd9c97f1b3a4b7b41eaa3530a437ca
     name: gsping-helm
     urls:
     - https://carlclone.github.io/helm-charts/gsping-20220909142218.tgz
     version: 1.0.5
-generated: "2022-09-14T14:27:07.76358+08:00"
+generated: "2022-09-14T14:27:15.339139+08:00"
