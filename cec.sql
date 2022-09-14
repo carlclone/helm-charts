@@ -1,4712 +1,2671 @@
-create table attachment
-(
-    id            bigint                  not null comment '主键id'
-        primary key,
-    origin_name   varchar(255) default '' not null comment '原文件名',
-    new_file_name varchar(255) default '' not null comment '新文件名',
-    url           varchar(255) default '' not null comment '链接',
-    tenant_id     varchar(32)             not null comment '租户号',
-    created_by    varchar(32)             not null comment '创建人工号',
-    created_time  datetime                not null comment '创建时间'
-)
-    comment '附件表' charset = utf8;
+/*
+ Navicat Premium Data Transfer
 
-create table baseline_year
-(
-    id           bigint           not null comment '主键'
-        primary key,
-    org_id       bigint           not null comment '组织id',
-    year         int(4)           not null comment '年份',
-    revision     int(10)          not null comment '乐观锁',
-    created_by   varchar(32)      not null comment '创建人工号',
-    created_time datetime         not null comment '创建时间',
-    updated_by   varchar(20)      not null comment '更新人工号',
-    updated_time datetime         not null comment '更新时间',
-    tenant_id    varchar(32)      not null comment '租户号',
-    delete_flag  bigint default 0 not null comment '逻辑删除'
-)
-    comment '组织基线年' charset = utf8;
+ Source Server         : 106.52.232.176
+ Source Server Type    : MySQL
+ Source Server Version : 50732
+ Source Host           : 106.52.232.176:8006
+ Source Schema         : cec
 
-create table carbon_inventory
-(
-    id           bigint(64)                      not null comment '主键id'
-        primary key,
-    org_id       bigint(64)                      not null comment '组织id',
-    org_name     varchar(300)   default ''       not null comment '组织名称',
-    year         int(4)                          not null comment '年份',
-    quarter      int(2)                          not null comment '季度',
-    status       int(2)                          not null comment '状态',
-    scope_one    decimal(24, 6) default 0.000000 not null comment '范围一排放',
-    scope_two    decimal(24, 6) default 0.000000 not null comment '范围二排放',
-    scope_three  decimal(24, 6) default 0.000000 not null comment '范围三排放',
-    deadline     datetime                        null comment '截止日期',
-    unit         varchar(20)    default ''       not null comment '碳盘查二氧化碳当量单位',
-    tenant_id    varchar(32)                     not null comment '租户号',
-    revision     int(10)                         not null comment '乐观锁',
-    created_by   varchar(32)                     not null comment '创建人工号',
-    created_time datetime                        not null comment '创建时间',
-    updated_by   varchar(20)                     not null comment '更新人工号',
-    updated_time datetime                        not null comment '更新时间',
-    delete_flag  bigint         default 0        not null comment '逻辑删除'
-)
-    comment '碳盘查总报告' charset = utf8;
+ Target Server Type    : MySQL
+ Target Server Version : 50732
+ File Encoding         : 65001
 
-create table carbon_inventory_task
-(
-    id            bigint            not null comment '主键id'
-        primary key,
-    year          int(4)            not null comment '年份',
-    quarter       int(2)            not null comment '季度',
-    org_id        bigint            not null comment '组织id',
-    is_root       int               null comment '是否是根节点',
-    deadline      datetime          not null comment '截止日期',
-    report_status int(2)  default 0 not null comment '报告状态',
-    task_status   int(2)  default 0 null comment '任务状态',
-    created_by    varchar(32)       not null comment '创建人id',
-    created_time  datetime          not null comment '创建时间',
-    updated_by    varchar(32)       not null comment '更新人id',
-    updated_time  datetime          not null comment '更新时间',
-    tenant_id     varchar(32)       not null comment '租户号',
-    revision      int(10) default 1 not null comment '乐观锁',
-    delete_flag   bigint  default 0 not null comment '逻辑删除'
-)
-    comment '碳盘查任务' charset = utf8;
+ Date: 09/03/2022 17:44:40
+*/
+-- create database `cec` default character set utf8 collate utf8_general_ci;
+-- use cec;
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
 
-create table cec_message
-(
-    id           bigint                      not null comment '主键id'
-        primary key,
-    content      varchar(1000) default '0.0' not null comment '消息内容',
-    type         varchar(10)   default ''    not null comment '消息类型',
-    org_id       decimal(24, 6)              not null comment '组织id',
-    tenant_id    varchar(32)                 not null comment '租户号',
-    created_by   varchar(32)                 not null comment '创建人工号',
-    created_time datetime                    not null comment '创建时间'
-)
-    comment '消息通知' charset = utf8;
+-- ----------------------------
+-- Table structure for attachment
+-- ----------------------------
+DROP TABLE IF EXISTS `attachment`;
+CREATE TABLE `attachment` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `origin_name` varchar(255) NOT NULL DEFAULT '' COMMENT '原文件名',
+  `new_file_name` varchar(255) NOT NULL DEFAULT '' COMMENT '新文件名',
+  `url` varchar(255) NOT NULL DEFAULT '' COMMENT '链接',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='附件表';
 
-create table custom_factor
-(
-    id            bigint                          not null comment '主键id'
-        primary key,
-    type          varchar(100)   default ''       not null comment '自定义碳排因子类型',
-    org_id        bigint                          not null comment '组织id',
-    factor        decimal(24, 6) default 0.000000 not null comment '因子数值',
-    factor_name   varchar(30)    default ''       not null comment '因子名称',
-    factor_unit   varchar(30)    default ''       not null comment '排放因子单位',
-    fuel_unit     varchar(30)    default ''       not null comment '燃料单位',
-    source_desc   varchar(255)   default ''       not null comment '来源描述',
-    attachment_id bigint                          null comment '证明文件id',
-    tenant_id     varchar(32)                     not null comment '租户号',
-    created_by    varchar(32)                     not null comment '创建人工号',
-    created_time  datetime                        not null comment '创建时间'
-)
-    comment '自定义碳排放因子表' charset = utf8;
+-- ----------------------------
+-- Records of attachment
+-- ----------------------------
+BEGIN;
+INSERT INTO `attachment` VALUES (1491215980918083584, 'InspectionEquipmentPlan.pdf', '9815aa53191c4b21b7899b3fe7561cf1', 'http://1.14.160.49:8008/cec/9815aa53191c4b21b7899b3fe7561cf1/InspectionEquipmentPlan.pdf', 'fii', 'A0234353', '2022-02-09 09:02:50');
+INSERT INTO `attachment` VALUES (1491216270010486784, 'InspectionEquipmentPlan.pdf', '773a83bc51ba459fb53b2d059afc96c5', 'http://1.14.160.49:8008/cec/773a83bc51ba459fb53b2d059afc96c5/InspectionEquipmentPlan.pdf', 'fii', 'A0234353', '2022-02-09 09:03:59');
+INSERT INTO `attachment` VALUES (1491217067586752512, 'emission-factors_apr2021.pdf', 'db6e76170c7645f5aed4a4d084edb764', 'http://1.14.160.49:8008/cec/db6e76170c7645f5aed4a4d084edb764/emission-factors_apr2021.pdf', 'fii', 'A0234353', '2022-02-09 09:07:09');
+INSERT INTO `attachment` VALUES (1491217792970657792, 'InspectionEquipmentPlan.pdf', 'c1155fdc35974a7ca7d4f5269d9d8c15', 'http://1.14.160.49:8008/cec/c1155fdc35974a7ca7d4f5269d9d8c15/InspectionEquipmentPlan.pdf', 'fii', 'A0234353', '2022-02-09 09:10:02');
+INSERT INTO `attachment` VALUES (1491291652504031232, 'test.pdf', 'e0231254c74a4ad895b33f1793b81305', 'http://1.14.160.49:8008/cec/e0231254c74a4ad895b33f1793b81305/test.pdf', 'fii', 'A0234353', '2022-02-09 14:03:31');
+INSERT INTO `attachment` VALUES (1491292392714801152, 'test.pdf', '7951ecff4ef24d0d931add47b94c46ba', 'http://1.14.160.49:8008/cec/7951ecff4ef24d0d931add47b94c46ba/test.pdf', 'fii', 'A0234353', '2022-02-09 14:06:28');
+INSERT INTO `attachment` VALUES (1491292611951071232, 'test.pdf', 'eb035a4e6f0540c1b7a8fa74071b6ed9', 'http://1.14.160.49:8008/cec/eb035a4e6f0540c1b7a8fa74071b6ed9/test.pdf', 'fii', 'A0234353', '2022-02-09 14:07:20');
+INSERT INTO `attachment` VALUES (1493877471534256128, '设备-Oauth接口对接.pdf', '1d918c3571b24cb59105cb9b150d2c1f', 'http://1.14.160.49:8008/cec/1d918c3571b24cb59105cb9b150d2c1f/设备-Oauth接口对接.pdf', 'fii', 'A0234353', '2022-02-16 17:18:39');
+INSERT INTO `attachment` VALUES (1493877929204125696, 'FlowController.pdf', '6c0c826cf596454d811bd4f3eb367516', 'http://1.14.160.49:8008/cec/6c0c826cf596454d811bd4f3eb367516/FlowController.pdf', 'fii', 'A0234353', '2022-02-16 17:20:28');
+INSERT INTO `attachment` VALUES (1498554389269450752, 'emission-factors_apr2021.pdf', 'ac014448d7324b2b80da23773acee90f', 'http://1.14.160.49:8008/cec/ac014448d7324b2b80da23773acee90f/emission-factors_apr2021.pdf', 'fii', 'A0234353', '2022-03-01 15:03:03');
+INSERT INTO `attachment` VALUES (1498558489033838592, 'emission-factors_apr2021.pdf', '1820622dc797464ab2df7a0d8e2aad2d', 'http://1.14.160.49:8008/cec/1820622dc797464ab2df7a0d8e2aad2d/emission-factors_apr2021.pdf', 'fii', 'A0234353', '2022-03-01 15:19:20');
+INSERT INTO `attachment` VALUES (1498588540806762496, 'emission-factors_apr2021.pdf', '0504c6ffe0f24f4baecdf4d463b11021', 'http://1.14.160.49:8008/cec/0504c6ffe0f24f4baecdf4d463b11021/emission-factors_apr2021.pdf', 'fii', 'A0234353', '2022-03-01 17:18:45');
+INSERT INTO `attachment` VALUES (1498867791145603072, 'emission-factors_apr2021.pdf', 'e611ca65722d406c87e6f5b4217eea66', 'http://1.14.160.49:8008/cec/e611ca65722d406c87e6f5b4217eea66/emission-factors_apr2021.pdf', 'fii', 'A0234353', '2022-03-02 11:48:24');
+INSERT INTO `attachment` VALUES (1501105777279111168, 'FlowController.pdf', '7df418a844ad4b278dfb5cf89e4120d9', 'http://1.14.160.49:8008/cec/7df418a844ad4b278dfb5cf89e4120d9/FlowController.pdf', 'fii', 'A0234353', '2022-03-08 16:01:21');
+COMMIT;
 
-create table dynamic_message
-(
-    id           bigint                  not null comment '主键id'
-        primary key,
-    year         int(4)                  null comment '年份',
-    quarter      int(2)                  null comment '季度',
-    org_id       bigint                  not null comment '组织id',
-    content      varchar(200)            not null comment '内容',
-    url          varchar(300) default '' not null comment 'url',
-    created_by   varchar(32)             not null comment '创建人id',
-    created_time datetime                not null comment '创建时间',
-    tenant_id    varchar(32)             not null comment '租户号',
-    revision     int(10)      default 1  not null comment '乐观锁',
-    delete_flag  bigint       default 0  not null comment '逻辑删除'
-)
-    comment '动态' charset = utf8;
+-- ----------------------------
+-- Table structure for baseline_year
+-- ----------------------------
+DROP TABLE IF EXISTS `baseline_year`;
+CREATE TABLE `baseline_year` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `org_id` bigint(20) NOT NULL COMMENT '组织id',
+  `year` int(4) NOT NULL COMMENT '年份',
+  `revision` int(10) NOT NULL COMMENT '乐观锁',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(20) NOT NULL COMMENT '更新人工号',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='组织基线年';
 
-create table emission_reduction_target
-(
-    id                   bigint                          not null comment '主键'
-        primary key,
-    org_id               bigint                          not null comment '组织id',
-    year                 int(4)                          not null comment '年份',
-    carbon_emission      decimal(24, 6) default 0.000000 not null comment '二氧化碳排放减少量',
-    carbon_emission_unit varchar(30)    default ''       not null comment '二氧化碳排放单位',
-    reduction_ratio      decimal(10, 4)                  null comment '计划减碳比例',
-    revision             int(10)                         not null comment '乐观锁',
-    created_by           varchar(32)                     not null comment '创建人工号',
-    created_time         datetime                        not null comment '创建时间',
-    updated_by           varchar(20)                     not null comment '更新人工号',
-    updated_time         datetime                        not null comment '更新时间',
-    tenant_id            varchar(32)                     not null comment '租户号',
-    delete_flag          bigint         default 0        not null comment '逻辑删除'
-)
-    comment '组织减排目标' charset = utf8;
+-- ----------------------------
+-- Records of baseline_year
+-- ----------------------------
+BEGIN;
+INSERT INTO `baseline_year` VALUES (1496317529633722368, 1485429848393519104, 2020, 1, '1485787600533983232', '2022-02-23 10:54:34', '1485787600533983232', '2022-02-23 10:54:34', 'fii', 0);
+COMMIT;
 
-create table exchange_rate
-(
-    id           bigint            not null comment '主键id'
-        primary key,
-    rate         decimal(10, 6)    not null comment '汇率',
-    year         int(4)            not null comment '年份',
-    created_by   varchar(32)       not null comment '创建人工号',
-    created_time datetime          not null comment '创建时间',
-    updated_by   varchar(32)       not null comment '更新人工号',
-    updated_time datetime          not null comment '更新时间',
-    tenant_id    varchar(32)       not null comment '租户号',
-    revision     int(10) default 1 not null comment '乐观锁',
-    delete_flag  bigint  default 0 not null comment '逻辑删除'
-)
-    comment '美元与人民币汇率信息' charset = utf8;
+-- ----------------------------
+-- Table structure for carbon_inventory
+-- ----------------------------
+DROP TABLE IF EXISTS `carbon_inventory`;
+CREATE TABLE `carbon_inventory` (
+  `id` bigint(64) NOT NULL COMMENT '主键id',
+  `org_id` bigint(64) NOT NULL COMMENT '组织id',
+  `org_name` varchar(300) NOT NULL DEFAULT '' COMMENT '组织名称',
+  `year` int(4) NOT NULL COMMENT '年份',
+  `quarter` int(2) NOT NULL COMMENT '季度',
+  `status` int(2) NOT NULL COMMENT '状态',
+  `scope_one` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '范围一排放',
+  `scope_two` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '范围二排放',
+  `scope_three` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '范围三排放',
+  `deadline` datetime DEFAULT NULL COMMENT '截止日期',
+  `unit` varchar(20) NOT NULL DEFAULT '' COMMENT '碳盘查二氧化碳当量单位',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `revision` int(10) NOT NULL COMMENT '乐观锁',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(20) NOT NULL COMMENT '更新人工号',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='碳盘查总报告';
 
-create table fixed_combustion
-(
-    id                   bigint                          not null comment '主键'
-        primary key,
-    inventory_id         bigint                          not null comment '碳盘查报告id',
-    quantity             decimal(24, 6) default 0.000000 not null comment '数量',
-    type                 varchar(30)    default ''       not null comment '燃料类型',
-    fuel_unit            varchar(30)    default ''       not null comment '燃料单位',
-    carbon_emission      decimal(24, 6) default 0.000000 not null comment '二氧化碳排放',
-    carbon_emission_unit varchar(30)    default ''       not null comment '二氧化碳排放单位',
-    data_source          varchar(200)   default ''       not null comment '数据来源',
-    revision             int(10)                         not null comment '乐观锁',
-    created_by           varchar(32)                     not null comment '创建人工号',
-    created_time         datetime                        not null comment '创建时间',
-    updated_by           varchar(20)                     not null comment '更新人工号',
-    updated_time         datetime                        not null comment '更新时间',
-    tenant_id            varchar(32)                     not null comment '租户号',
-    delete_flag          bigint         default 0        not null comment '逻辑删除',
-    attachment_id        bigint                          null comment '附件id'
-)
-    comment '固定燃烧排放' charset = utf8;
+-- ----------------------------
+-- Records of carbon_inventory
+-- ----------------------------
+BEGIN;
+INSERT INTO `carbon_inventory` VALUES (1483351979618078720, 1478968649799831552, '深圳富联富桂精密工业有限公司', 2019, 1, 2, 645656.820000, 18123255.250000, 539.476442, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 11, '', '2022-01-18 16:14:06', '1482881351152701440', '2022-01-18 16:14:06', 0);
+INSERT INTO `carbon_inventory` VALUES (1483377015712256000, 1478968649799831552, '深圳富联富桂精密工业有限公司', 2023, 1, 2, 918.200000, 29922.200000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 8, '', '2022-01-18 17:53:35', '1482881351152701440', '2022-01-18 17:53:35', 0);
+INSERT INTO `carbon_inventory` VALUES (1483378067001970688, 1478968649799831552, '深圳富联富桂精密工业有限公司', 2023, 2, 2, 384.400000, 562.800000, 84.075163, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 12, '', '2022-01-18 17:57:46', '1482911390023946240', '2022-01-18 17:57:46', 0);
+INSERT INTO `carbon_inventory` VALUES (1483624843327967232, 1478968649799831552, '深圳富联富桂精密工业有限公司', 2023, 3, 2, 874.680000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1482881351152701440', '2022-01-19 10:18:22', '1482881351152701440', '2022-01-19 10:18:22', 0);
+INSERT INTO `carbon_inventory` VALUES (1483650714969444352, 1478968649799831552, '深圳富联富桂精密工业有限公司', 2023, 4, 1, 20597.940000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 4, '1482881351152701440', '2022-01-19 12:01:10', '1482881351152701440', '2022-01-19 12:01:10', 0);
+INSERT INTO `carbon_inventory` VALUES (1483676758564802560, 1478968649799831552, '深圳富联富桂精密工业有限公司', 2024, 1, 1, 710.700000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 4, '1482881351152701440', '2022-01-19 13:44:39', '1482881351152701440', '2022-01-19 13:44:39', 0);
+INSERT INTO `carbon_inventory` VALUES (1483698243555692544, 1478968649799831552, '深圳富联富桂精密工业有限公司', 2021, 4, 2, 7378.120000, 47454.731000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 9, '1482911390023946240', '2022-01-19 15:10:02', '1482911390023946240', '2022-01-19 15:10:02', 0);
+INSERT INTO `carbon_inventory` VALUES (1483709811030888448, 1478968651452387328, '南寧富桂精密工業有限公司', 2021, 4, 2, 302.000000, 0.340000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 6, '1483709720098377728', '2022-01-19 15:56:00', '1483709720098377728', '2022-01-19 15:56:00', 0);
+INSERT INTO `carbon_inventory` VALUES (1483727539900911616, 1478968649799831552, '深圳富联富桂精密工业有限公司', 2021, 1, 1, 42.780000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 4, '1482881351152701440', '2022-01-19 17:06:26', '1482881351152701440', '2022-01-19 17:06:26', 0);
+INSERT INTO `carbon_inventory` VALUES (1484048192327782400, 1478968649799831552, '深圳富联富桂精密工业有限公司', 2021, 3, 1, 70.040000, 4702.060000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1482881351152701440', '2022-01-20 14:20:36', '1482881351152701440', '2022-01-20 14:20:36', 0);
+INSERT INTO `carbon_inventory` VALUES (1484055064741023744, 1478968649799831552, '深圳富联富桂精密工业有限公司', 2022, 1, 1, 3.720000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 4, '1482881351152701440', '2022-01-20 14:47:55', '1482881351152701440', '2022-01-20 14:47:55', 0);
+INSERT INTO `carbon_inventory` VALUES (1484071413802471424, 1478968649799831552, '深圳富联富桂精密工业有限公司', 2019, 3, 2, 87598475.920000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1482881351152701440', '2022-01-20 15:52:52', '1482881351152701440', '2022-01-20 15:52:52', 0);
+INSERT INTO `carbon_inventory` VALUES (1484076478554574848, 1478968649799831552, '深圳富联富桂精密工业有限公司', 2021, 2, 2, 84096.250000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1482881351152701440', '2022-01-20 16:13:00', '1482881351152701440', '2022-01-20 16:13:00', 0);
+INSERT INTO `carbon_inventory` VALUES (1484076621114773504, 1478968649799831552, '深圳富联富桂精密工业有限公司', 2019, 4, 2, 12867.400000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1482881351152701440', '2022-01-20 16:13:34', '1482881351152701440', '2022-01-20 16:13:34', 0);
+INSERT INTO `carbon_inventory` VALUES (1484077077769621504, 1478968649799831552, '深圳富联富桂精密工业有限公司', 2019, 2, 2, 3794.310000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1482881351152701440', '2022-01-20 16:15:23', '1482881351152701440', '2022-01-20 16:15:23', 0);
+INSERT INTO `carbon_inventory` VALUES (1485499855588691968, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2021, 4, 2, 197.000000, 42746.000000, 2.882000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 7, '1485499720406274048', '2022-01-24 14:28:59', '1485499720406274048', '2022-01-24 14:28:59', 0);
+INSERT INTO `carbon_inventory` VALUES (1485501992657883136, 1485429852688486400, '工业富联佛山智造谷有限公司', 2021, 4, 2, 0.000000, 4.743900, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1485501854300377088', '2022-01-24 14:37:29', '1485501854300377088', '2022-01-24 14:37:29', 0);
+INSERT INTO `carbon_inventory` VALUES (1485505722472075264, 1485429855775494144, '天津佰昌', 2021, 4, 2, 0.000000, 10.514000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1485505619829067776', '2022-01-24 14:52:18', '1485505619829067776', '2022-01-24 14:52:18', 0);
+INSERT INTO `carbon_inventory` VALUES (1485517804894556160, 1485429855775494144, '天津佰昌', 2021, 3, 2, 0.000000, 427460.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1485505619829067776', '2022-01-24 15:40:19', '1485505619829067776', '2022-01-24 15:40:19', 0);
+INSERT INTO `carbon_inventory` VALUES (1485788103787548672, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2021, 3, 2, 394.000000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1485787396162326528', '2022-01-25 09:34:23', '1485787396162326528', '2022-01-25 09:34:23', 0);
+INSERT INTO `carbon_inventory` VALUES (1485796406550728704, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2022, 1, 2, 27203.060000, 186609.500000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 11, '1485796240699559936', '2022-01-25 10:07:23', '1485787396162326528', '2022-01-25 10:07:23', 0);
+INSERT INTO `carbon_inventory` VALUES (1485801327610171392, 1485429852688486400, '工业富联佛山智造谷有限公司', 2021, 3, 2, 14700.000000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1485787527892832256', '2022-01-25 10:26:56', '1485787527892832256', '2022-01-25 10:26:56', 0);
+INSERT INTO `carbon_inventory` VALUES (1485804745699495936, 1485429855775494144, '天津佰昌', 2021, 1, 2, 4132.920000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1485787600533983232', '2022-01-25 10:40:31', '1485787600533983232', '2022-01-25 10:40:31', 0);
+INSERT INTO `carbon_inventory` VALUES (1485810632379994112, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2021, 1, 2, 394.000000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1485787396162326528', '2022-01-25 11:03:54', '1485787396162326528', '2022-01-25 11:03:54', 0);
+INSERT INTO `carbon_inventory` VALUES (1485810842233606144, 1485429852688486400, '工业富联佛山智造谷有限公司', 2021, 1, 2, 4132.920000, 4702.060000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 6, '1485787527892832256', '2022-01-25 11:04:44', '1485787527892832256', '2022-01-25 11:04:44', 0);
+INSERT INTO `carbon_inventory` VALUES (1485866159176814592, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2021, 2, 2, 34.830000, 4.000000, 5.842092, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 16, '1485787396162326528', '2022-01-25 14:44:33', '1485787396162326528', '2022-01-25 14:44:33', 0);
+INSERT INTO `carbon_inventory` VALUES (1486142680944742400, 1485429852688486400, '工业富联佛山智造谷有限公司', 2022, 1, 1, 0.000000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1485787527892832256', '2022-01-26 09:03:21', '1485787527892832256', '2022-01-26 09:03:21', 1486142680944742400);
+INSERT INTO `carbon_inventory` VALUES (1486326919334072320, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2022, 2, 2, 53777.500000, 1018.125000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 16, '1485796240699559936', '2022-01-26 21:15:27', '1485787396162326528', '2022-01-26 21:15:27', 0);
+INSERT INTO `carbon_inventory` VALUES (1490884277037043712, 1485429855775494144, '天津佰昌', 2022, 3, 2, 0.890000, 8.843000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 6, '1485505619829067776', '2022-02-08 11:04:46', '1485505619829067776', '2022-02-08 11:04:46', 0);
+INSERT INTO `carbon_inventory` VALUES (1491292749218058240, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2022, 4, 2, 154874.340000, 201221.054200, 1.940640, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 12, '1490590134683439104', '2022-02-09 14:07:53', '1485787396162326528', '2022-02-09 14:07:53', 0);
+INSERT INTO `carbon_inventory` VALUES (1491305128605650944, 1485429855775494144, '天津佰昌', 2021, 2, 2, 54443.900000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1485787600533983232', '2022-02-09 14:57:04', '1485787600533983232', '2022-02-09 14:57:04', 0);
+INSERT INTO `carbon_inventory` VALUES (1491312356154806272, 1485429852688486400, '工业富联佛山智造谷有限公司', 2021, 2, 2, 0.000000, 100616.360000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 6, '1485787527892832256', '2022-02-09 15:25:48', '1485787527892832256', '2022-02-09 15:25:48', 0);
+INSERT INTO `carbon_inventory` VALUES (1494116485679943680, 1485429855775494144, '天津佰昌', 2020, 1, 2, 0.000000, 80.683532, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1485505619829067776', '2022-02-17 09:08:24', '1485505619829067776', '2022-02-17 09:08:24', 0);
+INSERT INTO `carbon_inventory` VALUES (1494495034857361408, 1485429855775494144, '天津佰昌', 2022, 4, 2, 35655.240000, 2787950.176860, 0.576400, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 16, '1485787600533983232', '2022-02-18 10:12:37', '1485787600533983232', '2022-02-18 10:12:37', 0);
+INSERT INTO `carbon_inventory` VALUES (1496726370900905984, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2022, 3, 2, 30320.000000, 2060.300000, 2262.400000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 36, '1485787396162326528', '2022-02-24 13:59:09', '1485787396162326528', '2022-02-24 13:59:09', 0);
+INSERT INTO `carbon_inventory` VALUES (1496728009439318016, 1485429852688486400, '工业富联佛山智造谷有限公司', 2022, 1, 2, 32040.000000, 3066.400000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 10, '1485787527892832256', '2022-02-24 14:05:40', '1485787527892832256', '2022-02-24 14:05:40', 0);
+INSERT INTO `carbon_inventory` VALUES (1496738640934604800, 1485429852688486400, '工业富联佛山智造谷有限公司', 2022, 2, 2, 17663.080000, 859.995000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 12, '1485787527892832256', '2022-02-24 14:47:55', '1485787527892832256', '2022-02-24 14:47:55', 0);
+INSERT INTO `carbon_inventory` VALUES (1496738968174202880, 1485429852688486400, '工业富联佛山智造谷有限公司', 2022, 3, 2, 12260.000000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 7, '1485787527892832256', '2022-02-24 14:49:13', '1485787527892832256', '2022-02-24 14:49:13', 0);
+INSERT INTO `carbon_inventory` VALUES (1496739110243667968, 1485429852688486400, '工业富联佛山智造谷有限公司', 2022, 4, 2, 14620.000000, 1533.200000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 11, '1485787527892832256', '2022-02-24 14:49:47', '1485787527892832256', '2022-02-24 14:49:47', 0);
+INSERT INTO `carbon_inventory` VALUES (1496741099325231104, 1485429855775494144, '天津佰昌', 2022, 1, 2, 17700.000000, 25438.075457, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 11, '1485787600533983232', '2022-02-24 14:57:41', '1485787600533983232', '2022-02-24 14:57:41', 0);
+INSERT INTO `carbon_inventory` VALUES (1496741862587895808, 1485429855775494144, '天津佰昌', 2022, 2, 2, 11360.000000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 9, '1485787600533983232', '2022-02-24 15:00:43', '1485787600533983232', '2022-02-24 15:00:43', 0);
+INSERT INTO `carbon_inventory` VALUES (1498554415903281152, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2023, 1, 2, 97.480000, 0.052710, 16898.862660, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 50, '1485499720406274048', '2022-03-01 15:03:09', '1485499720406274048', '2022-03-01 15:03:09', 0);
+INSERT INTO `carbon_inventory` VALUES (1498557560230383616, 1485429855775494144, '天津佰昌', 2023, 1, 1, 0.000000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1485787600533983232', '2022-03-01 15:15:39', '1485787600533983232', '2022-03-01 15:15:39', 1498557560230383616);
+INSERT INTO `carbon_inventory` VALUES (1498558509388795904, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2023, 2, 1, 266.775000, 0.000000, 107.681520, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 46, '1485499720406274048', '2022-03-01 15:19:25', '1485499720406274048', '2022-03-01 15:19:25', 0);
+INSERT INTO `carbon_inventory` VALUES (1498559703452618752, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2023, 3, 1, 7.660000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 14, '1490590134683439104', '2022-03-01 15:24:10', '1490590134683439104', '2022-03-01 15:24:10', 0);
+INSERT INTO `carbon_inventory` VALUES (1498559966678749184, 1485429855775494144, '天津佰昌', 2023, 2, 1, 0.000000, 80.683532, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1485505619829067776', '2022-03-01 15:25:13', '1485505619829067776', '2022-03-01 15:25:13', 0);
+INSERT INTO `carbon_inventory` VALUES (1498588564802375680, 1485429855775494144, '天津佰昌', 2023, 3, 1, 3020.200000, 0.000000, 762.850000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 6, '1485505619829067776', '2022-03-01 17:18:51', '1485505619829067776', '2022-03-01 17:18:51', 0);
+INSERT INTO `carbon_inventory` VALUES (1498595101868429312, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2023, 4, 1, 3.720000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 4, '1490590134683439104', '2022-03-01 17:44:49', '1490590134683439104', '2022-03-01 17:44:49', 0);
+INSERT INTO `carbon_inventory` VALUES (1498853152349360128, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2020, 4, 1, 1860.000000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 4, '1490590134683439104', '2022-03-02 10:50:14', '1490590134683439104', '2022-03-02 10:50:14', 0);
+INSERT INTO `carbon_inventory` VALUES (1498856424816644096, 1485429855775494144, '天津佰昌', 2023, 1, 1, 1970.000000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 4, '1490872547317780480', '2022-03-02 11:03:14', '1490872547317780480', '2022-03-02 11:03:14', 0);
+INSERT INTO `carbon_inventory` VALUES (1498867215917780992, 1485429855775494144, '天津佰昌', 2020, 4, 1, 0.000000, 0.000000, 0.000000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 9, '1485505619829067776', '2022-03-02 11:46:07', '1485505619829067776', '2022-03-02 11:46:07', 1498867215917780992);
+INSERT INTO `carbon_inventory` VALUES (1498867816995098624, 1485429855775494144, '天津佰昌', 2023, 4, 2, 296200.634120, 5.305800, 125450.450190, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 27, '1485505619829067776', '2022-03-02 11:48:30', '1490872547317780480', '2022-03-02 11:48:30', 0);
+INSERT INTO `carbon_inventory` VALUES (1500433928304070656, 1485429855775494144, '天津佰昌', 2024, 1, 1, 4312.000000, 1.768600, 26713.953720, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 15, '1485787600533983232', '2022-03-06 19:31:40', '1485787600533983232', '2022-03-06 19:31:40', 0);
+INSERT INTO `carbon_inventory` VALUES (1500652669772107776, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2024, 1, 2, 0.000000, 22.744365, 945.232060, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 10, '1485499720406274048', '2022-03-07 10:00:52', '1485499720406274048', '2022-03-07 10:00:52', 0);
+INSERT INTO `carbon_inventory` VALUES (1501068658473046016, 1485429855775494144, '天津佰昌', 2024, 2, 2, 9559.000000, 21053.370000, 8880.405468, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 30, '1485787600533983232', '2022-03-08 13:33:51', '1485787600533983232', '2022-03-08 13:33:51', 0);
+INSERT INTO `carbon_inventory` VALUES (1501105840944451584, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2024, 2, 1, 6506.000000, 2070.361000, 3737.469700, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 25, '1485787396162326528', '2022-03-08 16:01:36', '1485787396162326528', '2022-03-08 16:01:36', 0);
+INSERT INTO `carbon_inventory` VALUES (1501458991115538432, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2025, 1, 1, 0.000000, 0.000000, 193.800000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1485787600533983232', '2022-03-09 15:24:54', '1485787600533983232', '2022-03-09 15:24:54', 0);
+INSERT INTO `carbon_inventory` VALUES (1501460390217912320, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2025, 2, 1, 0.000000, 0.000000, 235.875000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1490590134683439104', '2022-03-09 15:30:27', '1490590134683439104', '2022-03-09 15:30:27', 0);
+INSERT INTO `carbon_inventory` VALUES (1501460592324644864, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2025, 3, 1, 0.000000, 0.000000, 193.800000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1490590134683439104', '2022-03-09 15:31:16', '1490590134683439104', '2022-03-09 15:31:16', 0);
+INSERT INTO `carbon_inventory` VALUES (1501460853898219520, 1485429851061096448, '深圳富联富桂精密工业有限公司', 2026, 3, 1, 0.000000, 0.000000, 1940.975000, '2021-12-30 11:59:59', 'tCO₂e', 'fii', 5, '1490590134683439104', '2022-03-09 15:32:18', '1490590134683439104', '2022-03-09 15:32:18', 0);
+COMMIT;
 
--- create table flyway_schema_history
--- (
---     installed_rank int                                 not null
---         primary key,
---     version        varchar(50)                         null,
---     description    varchar(200)                        not null,
---     type           varchar(20)                         not null,
---     script         varchar(1000)                       not null,
---     checksum       int                                 null,
---     installed_by   varchar(100)                        not null,
---     installed_on   timestamp default CURRENT_TIMESTAMP not null,
---     execution_time int                                 not null,
---     success        tinyint(1)                          not null
--- );
+-- ----------------------------
+-- Table structure for carbon_inventory_task
+-- ----------------------------
+DROP TABLE IF EXISTS `carbon_inventory_task`;
+CREATE TABLE `carbon_inventory_task` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `year` int(4) NOT NULL COMMENT '年份',
+  `quarter` int(2) NOT NULL COMMENT '季度',
+  `org_id` bigint(20) NOT NULL COMMENT '组织id',
+  `is_root` int(11) DEFAULT NULL COMMENT '是否是根节点',
+  `deadline` datetime NOT NULL COMMENT '截止日期',
+  `report_status` int(2) NOT NULL DEFAULT '0' COMMENT '报告状态',
+  `task_status` int(2) DEFAULT '0' COMMENT '任务状态',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人id',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(32) NOT NULL COMMENT '更新人id',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `revision` int(10) NOT NULL DEFAULT '1' COMMENT '乐观锁',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='碳盘查任务';
 
-create index flyway_schema_history_s_idx
-    on flyway_schema_history (success);
+-- ----------------------------
+-- Records of carbon_inventory_task
+-- ----------------------------
+BEGIN;
+INSERT INTO `carbon_inventory_task` VALUES (1483351805059534848, 2019, 1, 1478968647144837120, 1, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805059534849, 2019, 1, 1478968649799831552, 0, '2022-01-19 16:13:21', 2, 1, '1481900808294502400', '2022-01-18 16:13:24', 'fei', '2022-01-18 16:13:24', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923456, 2019, 1, 1478968651452387328, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923457, 2019, 1, 1478968653104943104, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923458, 2019, 1, 1478968654702972928, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923459, 2019, 1, 1478968656267448320, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923460, 2019, 1, 1478968659257987072, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923461, 2019, 1, 1478968660835045376, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923462, 2019, 1, 1478968662403715072, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923463, 2019, 1, 1478968666405081088, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923464, 2019, 1, 1478968667973750784, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923465, 2019, 1, 1478968669584363520, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923466, 2019, 1, 1478968671140450304, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923467, 2019, 1, 1478968674126794752, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923468, 2019, 1, 1478968675691270144, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923469, 2019, 1, 1478968677268328448, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923470, 2019, 1, 1478968680271450112, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923471, 2019, 1, 1478968681840119808, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923472, 2019, 1, 1478968684394450944, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483351805067923473, 2019, 1, 1478968687389184000, 0, '2022-01-19 16:13:21', 0, 1, '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080159514624, 2023, 1, 1478968647144837120, 1, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080159514625, 2023, 1, 1478968649799831552, 0, '2022-02-28 16:00:00', 2, 1, '1481532236233838592', '2022-01-18 16:42:19', 'fei', '2022-01-18 16:42:19', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708928, 2023, 1, 1478968651452387328, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708929, 2023, 1, 1478968653104943104, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708930, 2023, 1, 1478968654702972928, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708931, 2023, 1, 1478968656267448320, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708932, 2023, 1, 1478968659257987072, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708933, 2023, 1, 1478968660835045376, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708934, 2023, 1, 1478968662403715072, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708935, 2023, 1, 1478968666405081088, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708936, 2023, 1, 1478968667973750784, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708937, 2023, 1, 1478968669584363520, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708938, 2023, 1, 1478968671140450304, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708939, 2023, 1, 1478968674126794752, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708940, 2023, 1, 1478968675691270144, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708941, 2023, 1, 1478968677268328448, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708942, 2023, 1, 1478968680271450112, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708943, 2023, 1, 1478968681840119808, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708944, 2023, 1, 1478968684394450944, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483359080163708945, 2023, 1, 1478968687389184000, 0, '2022-02-28 16:00:00', 0, 1, '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740804988928, 2023, 2, 1478968647144837120, 1, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740804988929, 2023, 2, 1478968648273104896, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740804988930, 2023, 2, 1478968657831923712, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740804988931, 2023, 2, 1478968663980773376, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740804988932, 2023, 2, 1478968672713314304, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740804988933, 2023, 2, 1478968678845386752, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740804988934, 2023, 2, 1478968685992480768, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740804988935, 2023, 2, 1478968649799831552, 0, '2022-03-31 17:00:00', 2, 1, '1481532236233838592', '2022-01-18 17:52:29', 'X2000991', '2022-01-18 17:52:29', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183232, 2023, 2, 1478968651452387328, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183233, 2023, 2, 1478968653104943104, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183234, 2023, 2, 1478968654702972928, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183235, 2023, 2, 1478968656267448320, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183236, 2023, 2, 1478968659257987072, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183237, 2023, 2, 1478968660835045376, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183238, 2023, 2, 1478968662403715072, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183239, 2023, 2, 1478968666405081088, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183240, 2023, 2, 1478968667973750784, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183241, 2023, 2, 1478968669584363520, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183242, 2023, 2, 1478968671140450304, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183243, 2023, 2, 1478968674126794752, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:29', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183244, 2023, 2, 1478968675691270144, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:29', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183245, 2023, 2, 1478968677268328448, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183246, 2023, 2, 1478968680271450112, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183247, 2023, 2, 1478968681840119808, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183248, 2023, 2, 1478968684394450944, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483376740809183249, 2023, 2, 1478968687389184000, 0, '2022-03-31 17:00:00', 0, 1, '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845375901696, 2023, 3, 1478968647144837120, 1, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845375901697, 2023, 3, 1478968648273104896, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845375901698, 2023, 3, 1478968657831923712, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845375901699, 2023, 3, 1478968663980773376, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845375901700, 2023, 3, 1478968672713314304, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845375901701, 2023, 3, 1478968678845386752, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845375901702, 2023, 3, 1478968685992480768, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845375901703, 2023, 3, 1478968649799831552, 0, '2022-01-29 09:14:45', 2, 1, '1481900808294502400', '2022-01-19 09:14:48', 'fei', '2022-01-19 09:14:48', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096000, 2023, 3, 1478968651452387328, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096001, 2023, 3, 1478968653104943104, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096002, 2023, 3, 1478968654702972928, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096003, 2023, 3, 1478968656267448320, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096004, 2023, 3, 1478968659257987072, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096005, 2023, 3, 1478968660835045376, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096006, 2023, 3, 1478968662403715072, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096007, 2023, 3, 1478968666405081088, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096008, 2023, 3, 1478968667973750784, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096009, 2023, 3, 1478968669584363520, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096010, 2023, 3, 1478968671140450304, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096011, 2023, 3, 1478968674126794752, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096012, 2023, 3, 1478968675691270144, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096013, 2023, 3, 1478968677268328448, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096014, 2023, 3, 1478968680271450112, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096015, 2023, 3, 1478968681840119808, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096016, 2023, 3, 1478968684394450944, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483608845380096017, 2023, 3, 1478968687389184000, 0, '2022-01-29 09:14:45', 0, 1, '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018648723456, 2021, 4, 1478968647144837120, 1, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018652917760, 2021, 4, 1478968648273104896, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018652917761, 2021, 4, 1478968657831923712, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018652917762, 2021, 4, 1478968663980773376, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018652917763, 2021, 4, 1478968672713314304, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018652917764, 2021, 4, 1478968678845386752, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018652917765, 2021, 4, 1478968685992480768, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018652917766, 2021, 4, 1478968649799831552, 0, '2022-03-31 15:00:00', 2, 1, '1481532236233838592', '2022-01-19 15:09:08', 'X2000991', '2022-01-19 15:09:08', 'fii', 5, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112064, 2021, 4, 1478968651452387328, 0, '2022-03-31 15:00:00', 2, 1, '1481532236233838592', '2022-01-19 15:09:08', 'tsbg2', '2022-01-19 15:09:08', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112065, 2021, 4, 1478968653104943104, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112066, 2021, 4, 1478968654702972928, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112067, 2021, 4, 1478968656267448320, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112068, 2021, 4, 1478968659257987072, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112069, 2021, 4, 1478968660835045376, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112070, 2021, 4, 1478968662403715072, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112071, 2021, 4, 1478968666405081088, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112072, 2021, 4, 1478968667973750784, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112073, 2021, 4, 1478968669584363520, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112074, 2021, 4, 1478968671140450304, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112075, 2021, 4, 1478968674126794752, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112076, 2021, 4, 1478968675691270144, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112077, 2021, 4, 1478968677268328448, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112078, 2021, 4, 1478968680271450112, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112079, 2021, 4, 1478968681840119808, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112080, 2021, 4, 1478968684394450944, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698018657112081, 2021, 4, 1478968687389184000, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205760, 2021, 4, 1478968647144837120, 1, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205761, 2021, 4, 1478968648273104896, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205762, 2021, 4, 1478968657831923712, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205763, 2021, 4, 1478968663980773376, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205764, 2021, 4, 1478968672713314304, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205765, 2021, 4, 1478968678845386752, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205766, 2021, 4, 1478968685992480768, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205767, 2021, 4, 1478968649799831552, 0, '2022-03-31 15:00:00', 2, 1, '1481532236233838592', '2022-01-19 15:09:08', 'X2000991', '2022-01-19 15:09:08', 'fii', 5, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205768, 2021, 4, 1478968651452387328, 0, '2022-03-31 15:00:00', 2, 1, '1481532236233838592', '2022-01-19 15:09:08', 'tsbg2', '2022-01-19 15:09:08', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205769, 2021, 4, 1478968653104943104, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205770, 2021, 4, 1478968654702972928, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205771, 2021, 4, 1478968656267448320, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205772, 2021, 4, 1478968659257987072, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205773, 2021, 4, 1478968660835045376, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205774, 2021, 4, 1478968662403715072, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205775, 2021, 4, 1478968666405081088, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205776, 2021, 4, 1478968667973750784, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205777, 2021, 4, 1478968669584363520, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205778, 2021, 4, 1478968671140450304, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205779, 2021, 4, 1478968674126794752, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205780, 2021, 4, 1478968675691270144, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205781, 2021, 4, 1478968677268328448, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205782, 2021, 4, 1478968680271450112, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205783, 2021, 4, 1478968681840119808, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205784, 2021, 4, 1478968684394450944, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698019177205785, 2021, 4, 1478968687389184000, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:08', '1481532236233838592', '2022-01-19 15:09:08', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757824, 2021, 4, 1478968647144837120, 1, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757825, 2021, 4, 1478968648273104896, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757826, 2021, 4, 1478968657831923712, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757827, 2021, 4, 1478968663980773376, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757828, 2021, 4, 1478968672713314304, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757829, 2021, 4, 1478968678845386752, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757830, 2021, 4, 1478968685992480768, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757831, 2021, 4, 1478968649799831552, 0, '2022-03-31 15:00:00', 2, 1, '1481532236233838592', '2022-01-19 15:09:09', 'X2000991', '2022-01-19 15:09:09', 'fii', 5, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757832, 2021, 4, 1478968651452387328, 0, '2022-03-31 15:00:00', 2, 1, '1481532236233838592', '2022-01-19 15:09:09', 'tsbg2', '2022-01-19 15:09:09', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757833, 2021, 4, 1478968653104943104, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757834, 2021, 4, 1478968654702972928, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757835, 2021, 4, 1478968656267448320, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757836, 2021, 4, 1478968659257987072, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757837, 2021, 4, 1478968660835045376, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757838, 2021, 4, 1478968662403715072, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757839, 2021, 4, 1478968666405081088, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757840, 2021, 4, 1478968667973750784, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757841, 2021, 4, 1478968669584363520, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757842, 2021, 4, 1478968671140450304, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757843, 2021, 4, 1478968674126794752, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757844, 2021, 4, 1478968675691270144, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757845, 2021, 4, 1478968677268328448, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757846, 2021, 4, 1478968680271450112, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757847, 2021, 4, 1478968681840119808, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757848, 2021, 4, 1478968684394450944, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698022599757849, 2021, 4, 1478968687389184000, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:09', '1481532236233838592', '2022-01-19 15:09:09', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718720, 2021, 4, 1478968647144837120, 1, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718721, 2021, 4, 1478968648273104896, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718722, 2021, 4, 1478968657831923712, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718723, 2021, 4, 1478968663980773376, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718724, 2021, 4, 1478968672713314304, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718725, 2021, 4, 1478968678845386752, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718726, 2021, 4, 1478968685992480768, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718727, 2021, 4, 1478968649799831552, 0, '2022-03-31 15:00:00', 2, 1, '1481532236233838592', '2022-01-19 15:09:10', 'X2000991', '2022-01-19 15:09:10', 'fii', 5, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718728, 2021, 4, 1478968651452387328, 0, '2022-03-31 15:00:00', 2, 1, '1481532236233838592', '2022-01-19 15:09:10', 'tsbg2', '2022-01-19 15:09:10', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718729, 2021, 4, 1478968653104943104, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718730, 2021, 4, 1478968654702972928, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718731, 2021, 4, 1478968656267448320, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718732, 2021, 4, 1478968659257987072, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718733, 2021, 4, 1478968660835045376, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718734, 2021, 4, 1478968662403715072, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718735, 2021, 4, 1478968666405081088, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718736, 2021, 4, 1478968667973750784, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718737, 2021, 4, 1478968669584363520, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718738, 2021, 4, 1478968671140450304, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718739, 2021, 4, 1478968674126794752, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718740, 2021, 4, 1478968675691270144, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718741, 2021, 4, 1478968677268328448, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718742, 2021, 4, 1478968680271450112, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718743, 2021, 4, 1478968681840119808, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718744, 2021, 4, 1478968684394450944, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025426718745, 2021, 4, 1478968687389184000, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467456, 2021, 4, 1478968647144837120, 1, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467457, 2021, 4, 1478968648273104896, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467458, 2021, 4, 1478968657831923712, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467459, 2021, 4, 1478968663980773376, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467460, 2021, 4, 1478968672713314304, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467461, 2021, 4, 1478968678845386752, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467462, 2021, 4, 1478968685992480768, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467463, 2021, 4, 1478968649799831552, 0, '2022-03-31 15:00:00', 2, 1, '1481532236233838592', '2022-01-19 15:09:10', 'X2000991', '2022-01-19 15:09:10', 'fii', 5, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467464, 2021, 4, 1478968651452387328, 0, '2022-03-31 15:00:00', 2, 1, '1481532236233838592', '2022-01-19 15:09:10', 'tsbg2', '2022-01-19 15:09:10', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467465, 2021, 4, 1478968653104943104, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467466, 2021, 4, 1478968654702972928, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467467, 2021, 4, 1478968656267448320, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467468, 2021, 4, 1478968659257987072, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467469, 2021, 4, 1478968660835045376, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467470, 2021, 4, 1478968662403715072, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467471, 2021, 4, 1478968666405081088, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467472, 2021, 4, 1478968667973750784, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467473, 2021, 4, 1478968669584363520, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467474, 2021, 4, 1478968671140450304, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467475, 2021, 4, 1478968674126794752, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467476, 2021, 4, 1478968675691270144, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467477, 2021, 4, 1478968677268328448, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467478, 2021, 4, 1478968680271450112, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467479, 2021, 4, 1478968681840119808, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467480, 2021, 4, 1478968684394450944, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698025464467481, 2021, 4, 1478968687389184000, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720064, 2021, 4, 1478968647144837120, 1, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720065, 2021, 4, 1478968648273104896, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720066, 2021, 4, 1478968657831923712, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720067, 2021, 4, 1478968663980773376, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720068, 2021, 4, 1478968672713314304, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720069, 2021, 4, 1478968678845386752, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720070, 2021, 4, 1478968685992480768, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720071, 2021, 4, 1478968649799831552, 0, '2022-03-31 15:00:00', 2, 1, '1481532236233838592', '2022-01-19 15:09:10', 'X2000991', '2022-01-19 15:09:10', 'fii', 5, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720072, 2021, 4, 1478968651452387328, 0, '2022-03-31 15:00:00', 2, 1, '1481532236233838592', '2022-01-19 15:09:10', 'tsbg2', '2022-01-19 15:09:10', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720073, 2021, 4, 1478968653104943104, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720074, 2021, 4, 1478968654702972928, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720075, 2021, 4, 1478968656267448320, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720076, 2021, 4, 1478968659257987072, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720077, 2021, 4, 1478968660835045376, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720078, 2021, 4, 1478968662403715072, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720079, 2021, 4, 1478968666405081088, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720080, 2021, 4, 1478968667973750784, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720081, 2021, 4, 1478968669584363520, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720082, 2021, 4, 1478968671140450304, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720083, 2021, 4, 1478968674126794752, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720084, 2021, 4, 1478968675691270144, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720085, 2021, 4, 1478968677268328448, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720086, 2021, 4, 1478968680271450112, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720087, 2021, 4, 1478968681840119808, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720088, 2021, 4, 1478968684394450944, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027045720089, 2021, 4, 1478968687389184000, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922624, 2021, 4, 1478968647144837120, 1, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922625, 2021, 4, 1478968648273104896, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922626, 2021, 4, 1478968657831923712, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922627, 2021, 4, 1478968663980773376, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922628, 2021, 4, 1478968672713314304, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922629, 2021, 4, 1478968678845386752, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922630, 2021, 4, 1478968685992480768, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922631, 2021, 4, 1478968649799831552, 0, '2022-03-31 15:00:00', 2, 1, '1481532236233838592', '2022-01-19 15:09:10', 'X2000991', '2022-01-19 15:09:10', 'fii', 5, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922632, 2021, 4, 1478968651452387328, 0, '2022-03-31 15:00:00', 2, 1, '1481532236233838592', '2022-01-19 15:09:10', 'tsbg2', '2022-01-19 15:09:10', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922633, 2021, 4, 1478968653104943104, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922634, 2021, 4, 1478968654702972928, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922635, 2021, 4, 1478968656267448320, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922636, 2021, 4, 1478968659257987072, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922637, 2021, 4, 1478968660835045376, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922638, 2021, 4, 1478968662403715072, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922639, 2021, 4, 1478968666405081088, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922640, 2021, 4, 1478968667973750784, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922641, 2021, 4, 1478968669584363520, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922642, 2021, 4, 1478968671140450304, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922643, 2021, 4, 1478968674126794752, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922644, 2021, 4, 1478968675691270144, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922645, 2021, 4, 1478968677268328448, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922646, 2021, 4, 1478968680271450112, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922647, 2021, 4, 1478968681840119808, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922648, 2021, 4, 1478968684394450944, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483698027632922649, 2021, 4, 1478968687389184000, 0, '2022-03-31 15:00:00', 0, 1, '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347764039680, 2021, 1, 1478968647144837120, 1, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347764039681, 2021, 1, 1478968648273104896, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347764039682, 2021, 1, 1478968657831923712, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347764039683, 2021, 1, 1478968663980773376, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347764039684, 2021, 1, 1478968672713314304, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347764039685, 2021, 1, 1478968678845386752, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233984, 2021, 1, 1478968685992480768, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233985, 2021, 1, 1478968649799831552, 0, '2022-01-29 17:05:38', 1, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233986, 2021, 1, 1478968651452387328, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233987, 2021, 1, 1478968653104943104, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233988, 2021, 1, 1478968654702972928, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233989, 2021, 1, 1478968656267448320, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233990, 2021, 1, 1478968659257987072, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233991, 2021, 1, 1478968660835045376, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233992, 2021, 1, 1478968662403715072, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233993, 2021, 1, 1478968666405081088, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233994, 2021, 1, 1478968667973750784, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233995, 2021, 1, 1478968669584363520, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233996, 2021, 1, 1478968671140450304, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233997, 2021, 1, 1478968674126794752, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233998, 2021, 1, 1478968675691270144, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768233999, 2021, 1, 1478968677268328448, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768234000, 2021, 1, 1478968680271450112, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768234001, 2021, 1, 1478968681840119808, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768234002, 2021, 1, 1478968684394450944, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483727347768234003, 2021, 1, 1478968687389184000, 0, '2022-01-29 17:05:38', 0, 1, '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578048, 2021, 2, 1478968647144837120, 1, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578049, 2021, 2, 1478968648273104896, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578050, 2021, 2, 1478968657831923712, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578051, 2021, 2, 1478968663980773376, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578052, 2021, 2, 1478968672713314304, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578053, 2021, 2, 1478968678845386752, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578054, 2021, 2, 1478968685992480768, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578055, 2021, 2, 1478968649799831552, 0, '2022-01-29 09:04:19', 2, 1, '1481532236233838592', '2022-01-20 09:04:21', 'fei', '2022-01-20 09:04:21', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578056, 2021, 2, 1478968651452387328, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578057, 2021, 2, 1478968653104943104, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578058, 2021, 2, 1478968654702972928, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578059, 2021, 2, 1478968656267448320, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578060, 2021, 2, 1478968659257987072, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578061, 2021, 2, 1478968660835045376, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578062, 2021, 2, 1478968662403715072, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578063, 2021, 2, 1478968666405081088, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578064, 2021, 2, 1478968667973750784, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578065, 2021, 2, 1478968669584363520, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578066, 2021, 2, 1478968671140450304, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578067, 2021, 2, 1478968674126794752, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578068, 2021, 2, 1478968675691270144, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578069, 2021, 2, 1478968677268328448, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578070, 2021, 2, 1478968680271450112, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578071, 2021, 2, 1478968681840119808, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578072, 2021, 2, 1478968684394450944, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1483968607032578073, 2021, 2, 1478968687389184000, 0, '2022-01-29 09:04:19', 0, 1, '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754408665088, 2022, 1, 1478968647144837120, 1, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754412859392, 2022, 1, 1478968648273104896, 0, '2022-01-20 14:46:38', 0, 1, '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754412859393, 2022, 1, 1478968657831923712, 0, '2022-01-20 14:46:38', 0, 1, '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754412859394, 2022, 1, 1478968663980773376, 0, '2022-01-20 14:46:38', 0, 1, '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754412859395, 2022, 1, 1478968672713314304, 0, '2022-01-20 14:46:38', 0, 1, '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754412859396, 2022, 1, 1478968678845386752, 0, '2022-01-20 14:46:38', 0, 1, '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754412859397, 2022, 1, 1478968685992480768, 0, '2022-01-20 14:46:38', 0, 1, '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754412859398, 2022, 1, 1478968649799831552, 0, '2022-01-20 17:46:40', 1, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053696, 2022, 1, 1478968651452387328, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053697, 2022, 1, 1478968653104943104, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053698, 2022, 1, 1478968654702972928, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053699, 2022, 1, 1478968656267448320, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053700, 2022, 1, 1478968659257987072, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053701, 2022, 1, 1478968660835045376, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053702, 2022, 1, 1478968662403715072, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053703, 2022, 1, 1478968666405081088, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053704, 2022, 1, 1478968667973750784, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053705, 2022, 1, 1478968669584363520, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053706, 2022, 1, 1478968671140450304, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053707, 2022, 1, 1478968674126794752, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053708, 2022, 1, 1478968675691270144, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053709, 2022, 1, 1478968677268328448, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053710, 2022, 1, 1478968680271450112, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053711, 2022, 1, 1478968681840119808, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053712, 2022, 1, 1478968684394450944, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484054754417053713, 2022, 1, 1478968687389184000, 0, '2022-01-20 17:46:40', 0, 2, '1481532236233838592', '2022-01-20 14:46:41', '', '2022-01-20 14:46:41', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640000, 2019, 2, 1478968647144837120, 1, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640001, 2019, 2, 1478968648273104896, 0, '2022-01-20 15:33:54', 0, 1, '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640002, 2019, 2, 1478968657831923712, 0, '2022-01-20 15:33:54', 0, 1, '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640003, 2019, 2, 1478968663980773376, 0, '2022-01-20 15:33:54', 0, 1, '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640004, 2019, 2, 1478968672713314304, 0, '2022-01-20 15:33:54', 0, 1, '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640005, 2019, 2, 1478968678845386752, 0, '2022-01-20 15:33:54', 0, 1, '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640006, 2019, 2, 1478968685992480768, 0, '2022-01-20 15:33:54', 0, 1, '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640007, 2019, 2, 1478968649799831552, 0, '2022-01-20 17:35:59', 2, 2, '1484056907466543104', '2022-01-20 15:34:02', 'fei', '2022-01-20 15:34:02', 'fii', 5, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640008, 2019, 2, 1478968651452387328, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640009, 2019, 2, 1478968653104943104, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640010, 2019, 2, 1478968654702972928, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640011, 2019, 2, 1478968656267448320, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640012, 2019, 2, 1478968659257987072, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640013, 2019, 2, 1478968660835045376, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640014, 2019, 2, 1478968662403715072, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640015, 2019, 2, 1478968666405081088, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640016, 2019, 2, 1478968667973750784, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640017, 2019, 2, 1478968669584363520, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640018, 2019, 2, 1478968671140450304, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640019, 2019, 2, 1478968674126794752, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640020, 2019, 2, 1478968675691270144, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640021, 2019, 2, 1478968677268328448, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640022, 2019, 2, 1478968680271450112, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640023, 2019, 2, 1478968681840119808, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640024, 2019, 2, 1478968684394450944, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484066673584640025, 2019, 2, 1478968687389184000, 0, '2022-01-20 17:35:59', 0, 2, '1484056907466543104', '2022-01-20 15:34:02', '', '2022-01-20 15:34:02', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911040, 2019, 3, 1478968647144837120, 1, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911041, 2019, 3, 1478968648273104896, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911042, 2019, 3, 1478968657831923712, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911043, 2019, 3, 1478968663980773376, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911044, 2019, 3, 1478968672713314304, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911045, 2019, 3, 1478968678845386752, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911046, 2019, 3, 1478968685992480768, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911047, 2019, 3, 1478968649799831552, 0, '2022-01-31 15:39:53', 2, 1, '1484056907466543104', '2022-01-20 15:39:56', 'fei', '2022-01-20 15:39:56', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911048, 2019, 3, 1478968651452387328, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911049, 2019, 3, 1478968653104943104, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911050, 2019, 3, 1478968654702972928, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911051, 2019, 3, 1478968656267448320, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911052, 2019, 3, 1478968659257987072, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911053, 2019, 3, 1478968660835045376, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911054, 2019, 3, 1478968662403715072, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911055, 2019, 3, 1478968666405081088, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911056, 2019, 3, 1478968667973750784, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911057, 2019, 3, 1478968669584363520, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911058, 2019, 3, 1478968671140450304, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911059, 2019, 3, 1478968674126794752, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911060, 2019, 3, 1478968675691270144, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911061, 2019, 3, 1478968677268328448, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911062, 2019, 3, 1478968680271450112, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911063, 2019, 3, 1478968681840119808, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911064, 2019, 3, 1478968684394450944, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484068157885911065, 2019, 3, 1478968687389184000, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108448751616, 2019, 4, 1478968647144837120, 1, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945920, 2019, 4, 1478968648273104896, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945921, 2019, 4, 1478968657831923712, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945922, 2019, 4, 1478968663980773376, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945923, 2019, 4, 1478968672713314304, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945924, 2019, 4, 1478968678845386752, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945925, 2019, 4, 1478968685992480768, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945926, 2019, 4, 1478968649799831552, 0, '2022-01-31 15:39:53', 2, 1, '1484056907466543104', '2022-01-20 15:51:40', 'fei', '2022-01-20 15:51:40', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945927, 2019, 4, 1478968651452387328, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945928, 2019, 4, 1478968653104943104, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945929, 2019, 4, 1478968654702972928, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945930, 2019, 4, 1478968656267448320, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945931, 2019, 4, 1478968659257987072, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945932, 2019, 4, 1478968660835045376, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945933, 2019, 4, 1478968662403715072, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945934, 2019, 4, 1478968666405081088, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945935, 2019, 4, 1478968667973750784, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945936, 2019, 4, 1478968669584363520, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945937, 2019, 4, 1478968671140450304, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945938, 2019, 4, 1478968674126794752, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945939, 2019, 4, 1478968675691270144, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945940, 2019, 4, 1478968677268328448, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945941, 2019, 4, 1478968680271450112, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945942, 2019, 4, 1478968681840119808, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945943, 2019, 4, 1478968684394450944, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1484071108452945944, 2019, 4, 1478968687389184000, 0, '2022-01-31 15:39:53', 0, 1, '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485498713542627328, 2021, 4, 1485429848393519104, 1, '2022-02-23 14:00:00', 1, 1, '1481532236233838592', '2022-01-24 14:24:27', '', '2022-01-24 14:24:27', 'fii', 6, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485498713546821632, 2021, 4, 1485429849513398272, 0, '2022-01-25 14:00:00', 1, 1, '1481532236233838592', '2022-01-24 14:24:27', '1481532236233838592', '2022-01-24 14:24:27', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485498713546821633, 2021, 4, 1485429854324264960, 0, '2022-01-25 14:00:00', 1, 1, '1481532236233838592', '2022-01-24 14:24:27', '1481532236233838592', '2022-01-24 14:24:27', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485498713546821634, 2021, 4, 1485429851061096448, 0, '2022-02-23 14:00:00', 2, 1, '1481532236233838592', '2022-01-24 14:24:27', '', '2022-01-24 14:24:27', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485498713551015936, 2021, 4, 1485429852688486400, 0, '2022-02-23 14:00:00', 2, 1, '1481532236233838592', '2022-01-24 14:24:27', '', '2022-01-24 14:24:27', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485498713551015937, 2021, 4, 1485429855775494144, 0, '2022-02-23 14:00:00', 2, 1, '1481532236233838592', '2022-01-24 14:24:27', '', '2022-01-24 14:24:27', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485517580910333952, 2021, 3, 1485429848393519104, 1, '2022-02-23 15:04:00', 1, 1, '1481532236233838592', '2022-01-24 15:39:26', '', '2022-01-24 15:39:26', 'fii', 6, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485517580910333953, 2021, 3, 1485429849513398272, 0, '2022-01-25 15:04:00', 1, 1, '1481532236233838592', '2022-01-24 15:39:26', '1481532236233838592', '2022-01-24 15:39:26', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485517580910333954, 2021, 3, 1485429854324264960, 0, '2022-01-25 15:04:00', 1, 1, '1481532236233838592', '2022-01-24 15:39:26', '1481532236233838592', '2022-01-24 15:39:26', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485517580910333955, 2021, 3, 1485429851061096448, 0, '2022-02-23 15:04:00', 2, 1, '1481532236233838592', '2022-01-24 15:39:26', '', '2022-01-24 15:39:26', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485517580910333956, 2021, 3, 1485429852688486400, 0, '2022-02-23 15:04:00', 2, 1, '1481532236233838592', '2022-01-24 15:39:26', '', '2022-01-24 15:39:26', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485517580910333957, 2021, 3, 1485429855775494144, 0, '2022-02-23 15:04:00', 2, 1, '1481532236233838592', '2022-01-24 15:39:26', '', '2022-01-24 15:39:26', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485804491096854528, 2021, 1, 1485429848393519104, 1, '2022-02-23 10:39:26', 1, 1, '1482168077759156224', '2022-01-25 10:39:30', '', '2022-01-25 10:39:30', 'fii', 7, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485804491096854529, 2021, 1, 1485429849513398272, 0, '2022-01-28 10:39:26', 1, 1, '1482168077759156224', '2022-01-25 10:39:30', '1482168077759156224', '2022-01-25 10:39:30', 'fii', 5, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485804491096854530, 2021, 1, 1485429854324264960, 0, '2022-01-28 10:39:26', 1, 1, '1482168077759156224', '2022-01-25 10:39:30', '1482168077759156224', '2022-01-25 10:39:30', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485804491096854531, 2021, 1, 1485429851061096448, 0, '2022-02-23 10:39:26', 2, 1, '1482168077759156224', '2022-01-25 10:39:30', '', '2022-01-25 10:39:30', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485804491096854532, 2021, 1, 1485429852688486400, 0, '2022-02-23 10:39:26', 2, 1, '1482168077759156224', '2022-01-25 10:39:30', '', '2022-01-25 10:39:30', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485804491096854533, 2021, 1, 1485429855775494144, 0, '2022-02-23 10:39:26', 2, 1, '1482168077759156224', '2022-01-25 10:39:30', '', '2022-01-25 10:39:30', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485865909603143680, 2021, 2, 1485429848393519104, 1, '2022-02-16 14:43:30', 1, 1, '1482168077759156224', '2022-01-25 14:43:34', '', '2022-01-25 14:43:34', 'fii', 8, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485865909603143681, 2021, 2, 1485429849513398272, 0, '2022-01-27 14:43:30', 1, 1, '1482168077759156224', '2022-01-25 14:43:34', '1482168077759156224', '2022-01-25 14:43:34', 'fii', 6, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485865909603143682, 2021, 2, 1485429854324264960, 0, '2022-01-27 14:43:30', 1, 1, '1482168077759156224', '2022-01-25 14:43:34', '1482168077759156224', '2022-01-25 14:43:34', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485865909603143683, 2021, 2, 1485429851061096448, 0, '2022-02-16 14:43:30', 2, 1, '1482168077759156224', '2022-01-25 14:43:34', 'sz', '2022-01-25 14:43:34', 'fii', 8, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485865909607337984, 2021, 2, 1485429852688486400, 0, '2022-02-16 14:43:30', 2, 1, '1482168077759156224', '2022-01-25 14:43:34', 'fs', '2022-01-25 14:43:34', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1485865909607337985, 2021, 2, 1485429855775494144, 0, '2022-02-16 14:43:30', 2, 1, '1482168077759156224', '2022-01-25 14:43:34', 'tj', '2022-01-25 14:43:34', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490538105122459648, 2022, 1, 1485429848393519104, 1, '2022-02-28 12:09:08', 1, 1, '1481532236233838592', '2022-02-07 12:09:12', '', '2022-02-07 12:09:12', 'fii', 7, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490538105122459649, 2022, 1, 1485429849513398272, 0, '2022-02-07 12:09:08', 1, 1, '1481532236233838592', '2022-02-07 12:09:12', '1481532236233838592', '2022-02-07 12:09:12', 'fii', 5, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490538105122459650, 2022, 1, 1485429854324264960, 0, '2022-02-07 12:09:08', 2, 1, '1481532236233838592', '2022-02-07 12:09:12', '1481532236233838592', '2022-02-07 12:09:12', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490538105122459651, 2022, 1, 1485429851061096448, 0, '2022-02-28 12:09:08', 2, 1, '1481532236233838592', '2022-02-07 12:09:12', 'sz', '2022-02-07 12:09:12', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490538105143431168, 2022, 1, 1485429852688486400, 0, '2022-02-28 12:09:08', 2, 1, '1481532236233838592', '2022-02-07 12:09:12', 'fs', '2022-02-07 12:09:12', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490538105143431169, 2022, 1, 1485429855775494144, 0, '2022-02-28 12:09:08', 2, 1, '1481532236233838592', '2022-02-07 12:09:12', 'tj', '2022-02-07 12:09:12', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490575073596280832, 2022, 2, 1485429848393519104, 1, '2022-02-28 14:36:03', 1, 1, '1482168077759156224', '2022-02-07 14:36:06', '', '2022-02-07 14:36:06', 'fii', 7, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490575073596280833, 2022, 2, 1485429849513398272, 0, '2022-02-01 14:36:03', 1, 1, '1482168077759156224', '2022-02-07 14:36:06', '1482168077759156224', '2022-02-07 14:36:06', 'fii', 5, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490575073596280834, 2022, 2, 1485429854324264960, 0, '2022-02-01 14:36:03', 2, 1, '1482168077759156224', '2022-02-07 14:36:06', '1482168077759156224', '2022-02-07 14:36:06', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490575073596280835, 2022, 2, 1485429851061096448, 0, '2022-02-28 14:36:03', 2, 1, '1482168077759156224', '2022-02-07 14:36:06', 'sz', '2022-02-07 14:36:06', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490575073596280836, 2022, 2, 1485429852688486400, 0, '2022-02-28 14:36:03', 2, 1, '1482168077759156224', '2022-02-07 14:36:06', 'fs', '2022-02-07 14:36:06', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490575073596280837, 2022, 2, 1485429855775494144, 0, '2022-02-28 14:36:03', 2, 1, '1482168077759156224', '2022-02-07 14:36:06', 'tj', '2022-02-07 14:36:06', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490883714316636160, 2022, 3, 1485429848393519104, 1, '2022-02-28 11:02:29', 1, 1, '1481532236233838592', '2022-02-08 11:02:31', '', '2022-02-08 11:02:31', 'fii', 7, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490883714316636161, 2022, 3, 1485429849513398272, 0, '2022-02-09 11:02:29', 1, 1, '1481532236233838592', '2022-02-08 11:02:31', '1481532236233838592', '2022-02-08 11:02:31', 'fii', 5, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490883714316636162, 2022, 3, 1485429854324264960, 0, '2022-02-09 11:02:29', 1, 1, '1481532236233838592', '2022-02-08 11:02:31', '1481532236233838592', '2022-02-08 11:02:31', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490883714316636163, 2022, 3, 1485429851061096448, 0, '2022-02-28 11:02:29', 2, 1, '1481532236233838592', '2022-02-08 11:02:31', 'sz', '2022-02-08 11:02:31', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490883714316636164, 2022, 3, 1485429852688486400, 0, '2022-02-28 11:02:29', 2, 1, '1481532236233838592', '2022-02-08 11:02:31', 'fs', '2022-02-08 11:02:31', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1490883714316636165, 2022, 3, 1485429855775494144, 0, '2022-02-28 11:02:29', 2, 1, '1481532236233838592', '2022-02-08 11:02:31', '', '2022-02-08 11:02:31', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1496695646026076160, 2022, 4, 1485429848393519104, 1, '2022-02-28 11:57:03', 1, 1, '1482168077759156224', '2022-02-24 11:57:04', '1482168077759156224', '2022-02-24 11:57:04', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1496695646030270464, 2022, 4, 1485429849513398272, 0, '2022-02-28 11:57:03', 1, 1, '1482168077759156224', '2022-02-24 11:57:04', '1482168077759156224', '2022-02-24 11:57:04', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1496695646030270465, 2022, 4, 1485429854324264960, 0, '2022-02-28 11:57:03', 2, 1, '1482168077759156224', '2022-02-24 11:57:04', '1482168077759156224', '2022-02-24 11:57:04', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1496695646030270466, 2022, 4, 1485429851061096448, 0, '2022-02-28 11:57:03', 2, 1, '1482168077759156224', '2022-02-24 11:57:04', 'sz', '2022-02-24 11:57:04', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1496695646034464768, 2022, 4, 1485429852688486400, 0, '2022-02-28 11:57:03', 2, 1, '1482168077759156224', '2022-02-24 11:57:04', 'fs', '2022-02-24 11:57:04', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1496695646034464769, 2022, 4, 1485429855775494144, 0, '2022-02-28 11:57:03', 2, 1, '1482168077759156224', '2022-02-24 11:57:04', 'tj', '2022-02-24 11:57:04', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498548980961906688, 2023, 1, 1485429848393519104, 1, '2022-03-31 14:41:29', 1, 1, '1481532236233838592', '2022-03-01 14:41:33', '1481532236233838592', '2022-03-01 14:41:33', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498548980961906689, 2023, 1, 1485429849513398272, 0, '2022-03-31 14:41:29', 1, 1, '1481532236233838592', '2022-03-01 14:41:33', '1481532236233838592', '2022-03-01 14:41:33', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498548980961906690, 2023, 1, 1485429854324264960, 0, '2022-03-31 14:41:29', 0, 1, '1481532236233838592', '2022-03-01 14:41:33', '1481532236233838592', '2022-03-01 14:41:33', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498548980961906691, 2023, 1, 1485429851061096448, 0, '2022-03-31 14:41:29', 2, 1, '1481532236233838592', '2022-03-01 14:41:33', 'X2000', '2022-03-01 14:41:33', 'fii', 5, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498548980966100992, 2023, 1, 1485429852688486400, 0, '2022-03-31 14:41:29', 0, 1, '1481532236233838592', '2022-03-01 14:41:33', '1481532236233838592', '2022-03-01 14:41:33', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498548980966100993, 2023, 1, 1485429855775494144, 0, '2022-03-31 14:41:29', 1, 1, '1481532236233838592', '2022-03-01 14:41:33', '1481532236233838592', '2022-03-01 14:41:33', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498556435179638784, 2023, 2, 1485429848393519104, 1, '2022-03-31 15:11:07', 1, 1, '1481532236233838592', '2022-03-01 15:11:11', '1481532236233838592', '2022-03-01 15:11:11', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498556435179638785, 2023, 2, 1485429849513398272, 0, '2022-03-31 15:11:07', 1, 1, '1481532236233838592', '2022-03-01 15:11:11', '1481532236233838592', '2022-03-01 15:11:11', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498556435179638786, 2023, 2, 1485429854324264960, 0, '2022-03-31 15:11:07', 0, 1, '1481532236233838592', '2022-03-01 15:11:11', '1481532236233838592', '2022-03-01 15:11:11', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498556435179638787, 2023, 2, 1485429851061096448, 0, '2022-03-31 15:11:07', 1, 1, '1481532236233838592', '2022-03-01 15:11:11', '1481532236233838592', '2022-03-01 15:11:11', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498556435179638788, 2023, 2, 1485429852688486400, 0, '2022-03-31 15:11:07', 0, 1, '1481532236233838592', '2022-03-01 15:11:11', '1481532236233838592', '2022-03-01 15:11:11', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498556435179638789, 2023, 2, 1485429855775494144, 0, '2022-03-31 15:11:07', 1, 1, '1481532236233838592', '2022-03-01 15:11:11', '1481532236233838592', '2022-03-01 15:11:11', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498561367182020608, 2023, 3, 1485429848393519104, 1, '2022-03-31 15:11:07', 1, 1, '1481532236233838592', '2022-03-01 15:30:47', '1481532236233838592', '2022-03-01 15:30:47', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498561367182020609, 2023, 3, 1485429849513398272, 0, '2022-03-31 15:11:07', 1, 1, '1481532236233838592', '2022-03-01 15:30:47', '1481532236233838592', '2022-03-01 15:30:47', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498561367182020610, 2023, 3, 1485429854324264960, 0, '2022-03-31 15:11:07', 0, 1, '1481532236233838592', '2022-03-01 15:30:47', '1481532236233838592', '2022-03-01 15:30:47', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498561367182020611, 2023, 3, 1485429851061096448, 0, '2022-03-31 15:11:07', 1, 1, '1481532236233838592', '2022-03-01 15:30:47', '1481532236233838592', '2022-03-01 15:30:47', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498561367182020612, 2023, 3, 1485429852688486400, 0, '2022-03-31 15:11:07', 0, 1, '1481532236233838592', '2022-03-01 15:30:47', '1481532236233838592', '2022-03-01 15:30:47', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498561367182020613, 2023, 3, 1485429855775494144, 0, '2022-03-31 15:11:07', 1, 1, '1481532236233838592', '2022-03-01 15:30:47', '1481532236233838592', '2022-03-01 15:30:47', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498843355193413632, 2023, 4, 1485429848393519104, 1, '2022-03-31 10:11:14', 0, 1, '1481532236233838592', '2022-03-02 10:11:18', '1481532236233838592', '2022-03-02 10:11:18', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498843355193413633, 2023, 4, 1485429849513398272, 0, '2022-03-31 10:11:14', 0, 1, '1481532236233838592', '2022-03-02 10:11:18', '1481532236233838592', '2022-03-02 10:11:18', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498843355193413634, 2023, 4, 1485429854324264960, 0, '2022-03-31 10:11:14', 2, 1, '1481532236233838592', '2022-03-02 10:11:18', '1481532236233838592', '2022-03-02 10:11:18', 'fii', 4, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498843355193413635, 2023, 4, 1485429851061096448, 0, '2022-03-31 10:11:14', 0, 1, '1481532236233838592', '2022-03-02 10:11:18', '1481532236233838592', '2022-03-02 10:11:18', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498843355197607936, 2023, 4, 1485429852688486400, 0, '2022-03-31 10:11:14', 0, 1, '1481532236233838592', '2022-03-02 10:11:18', '1481532236233838592', '2022-03-02 10:11:18', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498843355197607937, 2023, 4, 1485429855775494144, 0, '2022-03-31 10:11:14', 2, 1, '1481532236233838592', '2022-03-02 10:11:18', 'tj3', '2022-03-02 10:11:18', 'fii', 5, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498865767515557888, 2020, 4, 1485429848393519104, 1, '2022-03-31 11:40:17', 0, 1, '1481532236233838592', '2022-03-02 11:40:21', '1481532236233838592', '2022-03-02 11:40:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498865767515557889, 2020, 4, 1485429849513398272, 0, '2022-03-31 11:40:17', 0, 1, '1481532236233838592', '2022-03-02 11:40:21', '1481532236233838592', '2022-03-02 11:40:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498865767515557890, 2020, 4, 1485429854324264960, 0, '2022-03-31 11:40:17', 0, 1, '1481532236233838592', '2022-03-02 11:40:21', '1481532236233838592', '2022-03-02 11:40:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498865767515557891, 2020, 4, 1485429851061096448, 0, '2022-03-31 11:40:17', 0, 1, '1481532236233838592', '2022-03-02 11:40:21', '1481532236233838592', '2022-03-02 11:40:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498865767515557892, 2020, 4, 1485429852688486400, 0, '2022-03-31 11:40:17', 0, 1, '1481532236233838592', '2022-03-02 11:40:21', '1481532236233838592', '2022-03-02 11:40:21', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1498865767515557893, 2020, 4, 1485429855775494144, 0, '2022-03-31 11:40:17', 1, 1, '1481532236233838592', '2022-03-02 11:40:21', '1481532236233838592', '2022-03-02 11:40:21', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1500650623530569728, 2024, 1, 1485429848393519104, 1, '2022-03-09 09:52:41', 0, 1, '1481532236233838592', '2022-03-07 09:52:44', '1481532236233838592', '2022-03-07 09:52:44', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1500650623530569729, 2024, 1, 1485429849513398272, 0, '2022-03-09 09:52:41', 0, 1, '1481532236233838592', '2022-03-07 09:52:44', '1481532236233838592', '2022-03-07 09:52:44', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1500650623530569730, 2024, 1, 1485429854324264960, 0, '2022-03-09 09:52:41', 0, 1, '1481532236233838592', '2022-03-07 09:52:44', '1481532236233838592', '2022-03-07 09:52:44', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1500650623530569731, 2024, 1, 1485429851061096448, 0, '2022-03-09 09:52:41', 2, 1, '1481532236233838592', '2022-03-07 09:52:44', 'X2000', '2022-03-07 09:52:44', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1500650623534764032, 2024, 1, 1485429852688486400, 0, '2022-03-09 09:52:41', 0, 1, '1481532236233838592', '2022-03-07 09:52:44', '1481532236233838592', '2022-03-07 09:52:44', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1500650623534764033, 2024, 1, 1485429855775494144, 0, '2022-03-09 09:52:41', 1, 1, '1481532236233838592', '2022-03-07 09:52:44', '1481532236233838592', '2022-03-07 09:52:44', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1501016882159947776, 2024, 2, 1485429848393519104, 1, '2022-03-14 10:08:02', 0, 1, '1482168077759156224', '2022-03-08 10:08:07', '', '2022-03-08 10:08:07', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1501016882164142080, 2024, 2, 1485429849513398272, 0, '2022-03-16 10:08:02', 0, 1, '1482168077759156224', '2022-03-08 10:08:07', '1482168077759156224', '2022-03-08 10:08:07', 'fii', 1, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1501016882164142081, 2024, 2, 1485429854324264960, 0, '2022-03-16 10:08:02', 2, 1, '1482168077759156224', '2022-03-08 10:08:07', '1482168077759156224', '2022-03-08 10:08:07', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1501016882164142082, 2024, 2, 1485429851061096448, 0, '2022-03-14 10:08:02', 1, 1, '1482168077759156224', '2022-03-08 10:08:07', '', '2022-03-08 10:08:07', 'fii', 3, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1501016882164142083, 2024, 2, 1485429852688486400, 0, '2022-03-14 10:08:02', 0, 1, '1482168077759156224', '2022-03-08 10:08:07', '', '2022-03-08 10:08:07', 'fii', 2, 0);
+INSERT INTO `carbon_inventory_task` VALUES (1501016882164142084, 2024, 2, 1485429855775494144, 0, '2022-03-14 10:08:02', 2, 1, '1482168077759156224', '2022-03-08 10:08:07', 'tj', '2022-03-08 10:08:07', 'fii', 4, 0);
+COMMIT;
 
-create table fugitive_emission
-(
-    id                   bigint                          not null comment '主键'
-        primary key,
-    inventory_id         bigint                          not null comment '碳盘查报告id',
-    fugitive_type        varchar(30)    default ''       not null comment '逸散类型',
-    quantity             decimal(24, 6) default 0.000000 not null comment '数量',
-    type                 varchar(30)    default ''       not null comment '气体类型',
-    fuel_unit            varchar(30)    default ''       not null comment '燃料单位',
-    factor_unit          varchar(30)    default ''       not null comment '排放因子单位',
-    carbon_emission      decimal(24, 6) default 0.000000 not null comment '二氧化碳排放',
-    carbon_emission_unit varchar(30)    default ''       not null comment '二氧化碳排放单位',
-    factor               decimal(24, 6) default 0.000000 not null comment '排放因子',
-    description          varchar(500)   default ''       not null comment '描述',
-    revision             int(10)                         not null comment '乐观锁',
-    created_by           varchar(32)                     not null comment '创建人工号',
-    created_time         datetime                        not null comment '创建时间',
-    updated_by           varchar(20)                     not null comment '更新人工号',
-    updated_time         datetime                        not null comment '更新时间',
-    tenant_id            varchar(32)                     not null comment '租户号',
-    delete_flag          bigint         default 0        not null comment '逻辑删除',
-    data_source          varchar(200)   default ''       not null comment '数据来源'
-)
-    comment '逸散排放' charset = utf8;
+-- ----------------------------
+-- Table structure for cec_message
+-- ----------------------------
+DROP TABLE IF EXISTS `cec_message`;
+CREATE TABLE `cec_message` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `content` varchar(1000) NOT NULL DEFAULT '0.0' COMMENT '消息内容',
+  `type` varchar(10) NOT NULL DEFAULT '' COMMENT '消息类型',
+  `org_id` decimal(24,6) NOT NULL COMMENT '组织id',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='消息通知';
 
-create table mid_attachment
-(
-    id            bigint auto_increment comment '主键id'
-        primary key,
-    item_id       bigint      null comment '排放项id',
-    attachment_id bigint      null comment '证明文件id',
-    created_by    varchar(32) not null comment '创建人工号',
-    created_time  datetime    not null comment '创建时间'
-)
-    comment '附件-排放文件中间表' charset = utf8;
+-- ----------------------------
+-- Records of cec_message
+-- ----------------------------
+BEGIN;
+COMMIT;
 
-create index mid_attachment_item_id_index
-    on mid_attachment (item_id);
+-- ----------------------------
+-- Table structure for custom_factor
+-- ----------------------------
+DROP TABLE IF EXISTS `custom_factor`;
+CREATE TABLE `custom_factor` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `type` varchar(100) NOT NULL DEFAULT '' COMMENT '自定义碳排因子类型',
+  `org_id` bigint(20) NOT NULL COMMENT '组织id',
+  `factor` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '因子数值',
+  `factor_name` varchar(30) NOT NULL DEFAULT '' COMMENT '因子名称',
+  `factor_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '排放因子单位',
+  `fuel_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '燃料单位',
+  `source_desc` varchar(255) NOT NULL DEFAULT '' COMMENT '来源描述',
+  `attachment_id` bigint(20) DEFAULT NULL COMMENT '证明文件id',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='自定义碳排放因子表';
 
-create table mid_factor
-(
-    id        bigint auto_increment comment '主键id'
-        primary key,
-    item_id   bigint null comment '排放项id(排放源id)',
-    factor_id bigint null comment '排放因子id'
-)
-    comment '排放源-排放因子关联中间表' charset = utf8;
+-- ----------------------------
+-- Records of custom_factor
+-- ----------------------------
+BEGIN;
+INSERT INTO `custom_factor` VALUES (1483977604372500480, '外购能源_电力', 1478968651452387328, 0.340000, '南宁供电所', 'kgCO₂e/kWh', 'kWh', '供电所提供', -1, 'fii', '1483709720098377728', '2022-01-20 09:40:07');
+INSERT INTO `custom_factor` VALUES (1491215978745434112, '固定燃烧排放_无烟煤', 1485429855775494144, 2.000000, '碳排标准2021', 'tCO₂e/t', 't', '碳排标准2021', 1491215980918083584, 'fii', '1490872547317780480', '2022-02-09 09:02:50');
+INSERT INTO `custom_factor` VALUES (1491216269842714624, '固定燃烧排放_无烟煤', 1485429855775494144, 2.000000, '烟煤天津', 'tCO₂e/t', 't', '碳排标准2021', 1491216270010486784, 'fii', '1490872547317780480', '2022-02-09 09:03:59');
+INSERT INTO `custom_factor` VALUES (1491217067460923392, '固定燃烧排放_无烟煤', 1485429855775494144, 1.870000, '无烟煤ocha', 'tCO₂e/t', 't', '供应商标准', 1491217067586752512, 'fii', '1485505619829067776', '2022-02-09 09:07:09');
+INSERT INTO `custom_factor` VALUES (1491217792819662848, '固定燃烧排放_无烟煤', 1485429855775494144, 2.000000, '烟煤天津', 'tCO₂e/t', 't', '碳排标准2021', 1491217792970657792, 'fii', '1490872547317780480', '2022-02-09 09:10:02');
+INSERT INTO `custom_factor` VALUES (1491291652462088192, '固定燃烧排放_无烟煤', 1485429851061096448, 1.300000, '无烟煤', 'tCO₂e/t', 't', '1', 1491291652504031232, 'fii', '1490590134683439104', '2022-02-09 14:03:31');
+INSERT INTO `custom_factor` VALUES (1491292392672858112, '固定燃烧排放_无烟煤', 1485429851061096448, 1.300000, '无烟煤1', 'tCO₂e/t', 't', '1', 1491292392714801152, 'fii', '1490590134683439104', '2022-02-09 14:06:28');
+INSERT INTO `custom_factor` VALUES (1491292611917516800, '固定燃烧排放_无烟煤', 1485429851061096448, 1.300000, '无烟煤1', 'tCO₂e/t', 't', '1', 1491292611951071232, 'fii', '1490590134683439104', '2022-02-09 14:07:20');
+INSERT INTO `custom_factor` VALUES (1491312321249808384, '外购能源_电力', 1485429852688486400, 2.120000, '佛山2021标准', 'kgCO₂e/kWh', 'kWh', '佛山地区碳排标准2021版', -1, 'fii', '1485787527892832256', '2022-02-09 15:25:39');
+INSERT INTO `custom_factor` VALUES (1491610252183998464, '移动燃烧排放_喷气煤油', 1485429851061096448, 5.000000, '喷气煤油', 'tCO₂e/t', 't', '是否', -1, 'fii', '1490590134683439104', '2022-02-10 11:09:32');
+INSERT INTO `custom_factor` VALUES (1491612549370744832, '外购能源_电力', 1485429851061096448, 2.000000, '电力', 'kgCO₂e/kWh', 'kWh', '电力', -1, 'fii', '1490590134683439104', '2022-02-10 11:18:39');
+INSERT INTO `custom_factor` VALUES (1493877471324540928, '固定燃烧排放_无烟煤', 1485429855775494144, 2.430000, '2022新碳排', 'tCO₂e/t', 't', '国家2022燃烧碳排', 1493877471534256128, 'fii', '1485787600533983232', '2022-02-16 17:18:39');
+INSERT INTO `custom_factor` VALUES (1493877928994410496, '固定燃烧排放_烟煤', 1485429855775494144, 2.330000, '国家2020', 'tCO₂e/t', 't', '国家2020', 1493877929204125696, 'fii', '1485787600533983232', '2022-02-16 17:20:28');
+INSERT INTO `custom_factor` VALUES (1498554387818221568, '固定燃烧排放_褐煤', 1485429851061096448, 0.200000, '天津褐煤', 'tCO₂e/t', 't', '气候委员会测算提供', 1498554389269450752, 'fii', '1485499720406274048', '2022-03-01 15:03:03');
+INSERT INTO `custom_factor` VALUES (1498558488924786688, '固定燃烧排放_无烟煤', 1485429851061096448, 2.000000, '深圳无烟煤', 'tCO₂e/t', 't', '政府气候委员会测算文件', 1498558489033838592, 'fii', '1485499720406274048', '2022-03-01 15:19:20');
+INSERT INTO `custom_factor` VALUES (1498588540508966912, '固定燃烧排放_褐煤', 1485429855775494144, 2.000000, '天津褐煤', 'tCO₂e/t', 'kg', '供应商提供测算文件', 1498588540806762496, 'fii', '1485505619829067776', '2022-03-01 17:18:45');
+INSERT INTO `custom_factor` VALUES (1498867790772310016, '固定燃烧排放_烟煤', 1485429855775494144, 2.000000, '天津烟煤', 'tCO₂e/t', 't', '官方测算文件', 1498867791145603072, 'fii', '1485505619829067776', '2022-03-02 11:48:24');
+INSERT INTO `custom_factor` VALUES (1501105776930983936, '固定燃烧排放_无烟煤', 1485429851061096448, 2.330000, '山西无烟煤', 'tCO₂e/t', 't', '山西煤矿', 1501105777279111168, 'fii', '1485787396162326528', '2022-03-08 16:01:21');
+COMMIT;
 
-create table mobile_combustion
-(
-    id                   bigint                          not null comment '主键'
-        primary key,
-    inventory_id         bigint                          not null comment '碳盘查报告id',
-    mobile_type          varchar(40)                     null comment '移动燃烧排放类型',
-    quantity             decimal(24, 6) default 0.000000 not null comment '数量',
-    type                 varchar(30)    default ''       not null comment '燃烧类型',
-    fuel_unit            varchar(30)    default ''       not null comment '燃料单位',
-    carbon_emission      decimal(24, 6) default 0.000000 not null comment '二氧化碳排放',
-    carbon_emission_unit varchar(30)    default ''       not null comment '二氧化碳排放单位',
-    data_source          varchar(200)   default ''       not null comment '数据来源',
-    revision             int(10)                         not null comment '乐观锁',
-    created_by           varchar(32)                     not null comment '创建人工号',
-    created_time         datetime                        not null comment '创建时间',
-    updated_by           varchar(20)                     not null comment '更新人工号',
-    updated_time         datetime                        not null comment '更新时间',
-    tenant_id            varchar(32)                     not null comment '租户号',
-    delete_flag          bigint         default 0        not null comment '逻辑删除'
-)
-    comment '移动燃烧' charset = utf8;
+-- ----------------------------
+-- Table structure for dynamic_message
+-- ----------------------------
+DROP TABLE IF EXISTS `dynamic_message`;
+CREATE TABLE `dynamic_message` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `year` int(4) DEFAULT NULL COMMENT '年份',
+  `quarter` int(2) DEFAULT NULL COMMENT '季度',
+  `org_id` bigint(20) NOT NULL COMMENT '组织id',
+  `content` varchar(200) NOT NULL COMMENT '内容',
+  `url` varchar(300) NOT NULL DEFAULT '' COMMENT 'url',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人id',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `revision` int(10) NOT NULL DEFAULT '1' COMMENT '乐观锁',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='动态';
 
-create table notice
-(
-    id           bigint            not null comment '主键id'
-        primary key,
-    task_id      bigint            null comment '任务id',
-    year         int               null comment '年份',
-    quarter      int(2)            null comment '季度',
-    org_id       bigint            not null comment '组织id',
-    status       int(2)  default 0 not null comment '通知状态',
-    content      varchar(200)      not null comment '内容',
-    url          varchar(300)      not null comment 'url',
-    created_by   varchar(32)       not null comment '创建人id',
-    created_time datetime          not null comment '创建时间',
-    updated_by   varchar(32)       not null comment '更新人id',
-    updated_time datetime          not null comment '更新时间',
-    tenant_id    varchar(32)       not null comment '租户号',
-    revision     int(10) default 1 not null comment '乐观锁',
-    delete_flag  bigint  default 0 not null comment '逻辑删除'
-)
-    comment '通知' charset = utf8;
+-- ----------------------------
+-- Records of dynamic_message
+-- ----------------------------
+BEGIN;
+INSERT INTO `dynamic_message` VALUES (1483351805202141184, 2019, 1, 1478968647144837120, '普通发起2019-Q1-碳盘查', '', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483352253233500160, 2019, 1, 1478968649799831552, 'fei 提交报告', '', '1482881351152701440', '2022-01-18 16:15:11', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483359080272760832, 2023, 1, 1478968647144837120, '诸葛明发起2023-Q1-碳盘查', '', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483376741073424384, 2023, 2, 1478968647144837120, '诸葛明发起2023-Q2-碳盘查', '', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483377040550924288, 2023, 1, 1478968649799831552, 'kitra 提交报告', '', '1482911390023946240', '2022-01-18 17:53:41', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483379198876848128, 2023, 2, 1478968649799831552, 'kitra 提交报告', '', '1482911390023946240', '2022-01-18 18:02:16', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483608845673697280, 2023, 3, 1478968647144837120, '普通发起2023-Q3-碳盘查', '', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483629371578257408, 2023, 1, 1478968649799831552, 'fei 提交报告', '', '1482881351152701440', '2022-01-19 10:36:21', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483650646954610688, 2023, 3, 1478968649799831552, 'fei 提交报告', '', '1482881351152701440', '2022-01-19 12:00:54', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483698025271529472, 2021, 4, 1478968647144837120, '诸葛明发起2021-Q4-碳盘查', '', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483698025560936448, 2021, 4, 1478968647144837120, '诸葛明发起2021-Q4-碳盘查', '', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483698025560936449, 2021, 4, 1478968647144837120, '诸葛明发起2021-Q4-碳盘查', '', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483698025577713664, 2021, 4, 1478968647144837120, '诸葛明发起2021-Q4-碳盘查', '', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483698026869559296, 2021, 4, 1478968647144837120, '诸葛明发起2021-Q4-碳盘查', '', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483698027158966272, 2021, 4, 1478968647144837120, '诸葛明发起2021-Q4-碳盘查', '', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483698027725197312, 2021, 4, 1478968647144837120, '诸葛明发起2021-Q4-碳盘查', '', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483699692117299200, 2021, 4, 1478968649799831552, 'kitra 提交报告', '', '1482911390023946240', '2022-01-19 15:15:47', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483727347881480192, 2021, 1, 1478968647144837120, '普通发起2021-Q1-碳盘查', '', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483968607137435648, 2021, 2, 1478968647144837120, '诸葛明发起2021-Q2-碳盘查', '', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1483994499234533376, 2021, 4, 1478968649799831552, 'fei 更新报告', '', '1482881351152701440', '2022-01-20 10:47:15', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484048202226339840, 2021, 3, 1478968649799831552, 'fei 更新报告', '', '1482881351152701440', '2022-01-20 14:20:38', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484054754651934720, 2022, 1, 1478968647144837120, '诸葛明 发起2022-Q1-碳盘查', '', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484054919488081920, 2022, 1, 1478968647144837120, '诸葛明 修改2022-Q1-碳盘查的截止时间 至 2022-01-20 17:46:40', '', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484055077995024384, 2022, 1, 1478968649799831552, 'fei 更新报告', '', '1482881351152701440', '2022-01-20 14:47:58', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484066673718857728, 2019, 2, 1478968647144837120, '管理员 发起2019-Q2-碳盘查', '', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484068158003351552, 2019, 3, 1478968647144837120, '管理员 发起2019-Q3-碳盘查', '', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484071108553609216, 2019, 4, 1478968647144837120, '管理员 发起2019-Q4-碳盘查', '', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484071293329477632, 2019, 1, 1478968649799831552, 'fei 提交报告', '', '1482881351152701440', '2022-01-20 15:52:24', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484071449382752256, 2019, 3, 1478968649799831552, 'fei 提交报告', '', '1482881351152701440', '2022-01-20 15:53:01', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484071450829787136, 2019, 3, 1478968649799831552, 'fei 更新报告', '', '1482881351152701440', '2022-01-20 15:53:01', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484076512524242944, 2021, 2, 1478968649799831552, 'fei 提交报告', '', '1482881351152701440', '2022-01-20 16:13:08', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484076513644122112, 2021, 2, 1478968649799831552, 'fei 更新报告', '', '1482881351152701440', '2022-01-20 16:13:08', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484076652110680064, 2019, 4, 1478968649799831552, 'fei 提交报告', '', '1482881351152701440', '2022-01-20 16:13:41', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484076653440274432, 2019, 4, 1478968649799831552, 'fei 更新报告', '', '1482881351152701440', '2022-01-20 16:13:42', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484076929253511168, 2019, 2, 1478968647144837120, '管理员 修改2019-Q2-碳盘查的截止时间 至 2022-01-20 17:35:59', '', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484077111424716800, 2019, 2, 1478968649799831552, 'fei 提交报告', '', '1482881351152701440', '2022-01-20 16:15:31', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484077113064689664, 2019, 2, 1478968649799831552, 'fei 更新报告', '', '1482881351152701440', '2022-01-20 16:15:31', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1484336662988328960, 2021, 4, 1478968651452387328, '施立方 提交报告', '', '1483709720098377728', '2022-01-21 09:26:53', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1485498713689427968, 2021, 4, 1485429848393519104, '诸葛明 发起2021-Q4-碳盘查', '', '1481532236233838592', '2022-01-24 14:24:27', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1485501339650887680, 2021, 4, 1485429851061096448, '刘克 提交报告', '', '1485499720406274048', '2022-01-24 14:34:53', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1485502888519274496, 2021, 4, 1485429852688486400, 'FO 提交报告', '', '1485501854300377088', '2022-01-24 14:41:03', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1485506594383990784, 2021, 4, 1485429855775494144, '武田 提交报告', '', '1485505619829067776', '2022-01-24 14:55:46', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1485517580956471296, 2021, 3, 1485429848393519104, '诸葛明 发起2021-Q3-碳盘查', '', '1481532236233838592', '2022-01-24 15:39:26', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1485517935735869440, 2021, 3, 1485429855775494144, '武田 提交报告', '', '1485505619829067776', '2022-01-24 15:40:50', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1485788166169432064, 2021, 3, 1485429851061096448, '沈真 提交报告', '', '1485787396162326528', '2022-01-25 09:34:38', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1485801367913238528, 2021, 3, 1485429852688486400, '符三 提交报告', '', '1485787527892832256', '2022-01-25 10:27:06', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1485804491142991872, 2021, 1, 1485429848393519104, '管理员 发起2021-Q1-碳盘查', '', '1482168077759156224', '2022-01-25 10:39:30', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1485808280247865344, 2021, 1, 1485429855775494144, '田静 提交报告', '', '1485787600533983232', '2022-01-25 10:54:34', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1485810661874339840, 2021, 1, 1485429851061096448, '沈真 提交报告', '', '1485787396162326528', '2022-01-25 11:04:01', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1485810861305106432, 2021, 1, 1485429852688486400, '符三 提交报告', '', '1485787527892832256', '2022-01-25 11:04:49', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1485865909737361408, 2021, 2, 1485429848393519104, '管理员 发起2021-Q2-碳盘查', '', '1482168077759156224', '2022-01-25 14:43:34', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1485866321060171776, 2021, 2, 1485429851061096448, '沈真 提交报告', '', '1485787396162326528', '2022-01-25 14:45:12', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1486142693645094912, 2022, 1, 1485429852688486400, '符三 更新报告', '', '1485787527892832256', '2022-01-26 09:03:24', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1486142768173682688, 2022, 1, 1485429852688486400, '符三 更新报告', '', '1485787527892832256', '2022-01-26 09:03:42', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1486147559851429888, 2021, 1, 1485429852688486400, 'FO 更新报告', '', '1485501854300377088', '2022-01-26 09:22:44', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1486326637082578944, 2022, 1, 1485429851061096448, 'pear 更新报告', '', '1485796240699559936', '2022-01-26 21:14:20', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1486326940917960704, 2022, 2, 1485429851061096448, 'pear 更新报告', '', '1485796240699559936', '2022-01-26 21:15:32', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1490538105273454592, 2022, 1, 1485429848393519104, '诸葛明 发起2022-Q1-碳盘查', '', '1481532236233838592', '2022-02-07 12:09:12', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1490575073655001088, 2022, 2, 1485429848393519104, '管理员 发起2022-Q2-碳盘查', '', '1482168077759156224', '2022-02-07 14:36:06', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1490586704233500672, 2021, 2, 1485429848393519104, '管理员 修改2021-Q2-碳盘查的截止时间 至 2022-02-16 14:43:30', '', '1482168077759156224', '2022-02-07 15:22:19', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1490883714350190592, 2022, 3, 1485429848393519104, '诸葛明 发起2022-Q3-碳盘查', '', '1481532236233838592', '2022-02-08 11:02:31', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1490884718198132736, 2022, 3, 1485429855775494144, '武田 提交报告', '', '1485505619829067776', '2022-02-08 11:06:31', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1490884718554648576, 2022, 3, 1485429855775494144, '武田 更新报告', '', '1485505619829067776', '2022-02-08 11:06:31', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1491293896448282624, 2022, 4, 1485429851061096448, 't001 更新报告', '', '1490590134683439104', '2022-02-09 14:12:26', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1491304300461297664, 2021, 2, 1485429851061096448, 't001 更新报告', '', '1490590134683439104', '2022-02-09 14:53:47', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1491305154966851584, 2021, 2, 1485429855775494144, '田静 提交报告', '', '1485787600533983232', '2022-02-09 14:57:11', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1491305155461779456, 2021, 2, 1485429855775494144, '田静 更新报告', '', '1485787600533983232', '2022-02-09 14:57:11', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1491312493040111616, 2021, 2, 1485429852688486400, '符三 提交报告', '', '1485787527892832256', '2022-02-09 15:26:20', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1491312493551816704, 2021, 2, 1485429852688486400, '符三 更新报告', '', '1485787527892832256', '2022-02-09 15:26:20', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1491312755746148352, 2021, 2, 1485429851061096448, '沈真 提交报告', '', '1485787396162326528', '2022-02-09 15:27:23', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1491343149329682432, 2021, 2, 1485429851061096448, 't001 更新报告', '', '1490590134683439104', '2022-02-09 17:28:09', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1491611261421621248, 2021, 2, 1485429851061096448, 't001 更新报告', '', '1490590134683439104', '2022-02-10 11:13:32', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1493763247675936768, 2021, 1, 1485429848393519104, '诸葛明 修改2021-Q1-碳盘查的截止时间 至 2022-02-23 10:39:26', '', '1481532236233838592', '2022-02-16 09:44:46', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1493763295230955520, 2021, 3, 1485429848393519104, '诸葛明 修改2021-Q3-碳盘查的截止时间 至 2022-02-23 15:04:00', '', '1481532236233838592', '2022-02-16 09:44:57', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1493763317536264192, 2021, 4, 1485429848393519104, '诸葛明 修改2021-Q4-碳盘查的截止时间 至 2022-02-23 14:00:00', '', '1481532236233838592', '2022-02-16 09:45:02', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1494117391947403264, 2020, 1, 1485429855775494144, '武田 提交报告', '', '1485505619829067776', '2022-02-17 09:12:00', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1494117392253587456, 2020, 1, 1485429855775494144, '武田 更新报告', '', '1485505619829067776', '2022-02-17 09:12:00', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1494495607820259328, 2022, 4, 1485429855775494144, '田静 更新报告', '', '1485787600533983232', '2022-02-18 10:14:54', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496054584483909632, 2022, 4, 1485429855775494144, '田静 提交报告', '', '1485787600533983232', '2022-02-22 17:29:43', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496695646168682496, 2022, 4, 1485429848393519104, '管理员 发起{2022}-{Q4}-碳盘查', '', '1482168077759156224', '2022-02-24 11:57:04', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496695788632412160, 2022, 4, 1485429855775494144, '武田 更新报告', '', '1485505619829067776', '2022-02-24 11:57:38', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496721829795074048, 2021, 2, 1485429851061096448, '沈真 提交报告', '', '1485787396162326528', '2022-02-24 13:41:07', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496723260623163392, 2022, 4, 1485429851061096448, '沈真 提交报告', '', '1485787396162326528', '2022-02-24 13:46:48', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496723261080342528, 2022, 4, 1485429851061096448, '沈真 更新报告', '', '1485787396162326528', '2022-02-24 13:46:48', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496723476696928256, 2022, 1, 1485429848393519104, '管理员 修改{2022}-{Q1}-碳盘查的截止时间至 {2022-02-28 12:09:08}', '', '1482168077759156224', '2022-02-24 13:47:39', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496723517905965056, 2022, 2, 1485429848393519104, '管理员 修改{2022}-{Q2}-碳盘查的截止时间至 {2022-02-28 14:36:03}', '', '1482168077759156224', '2022-02-24 13:47:49', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496723551598809088, 2022, 3, 1485429848393519104, '管理员 修改{2022}-{Q3}-碳盘查的截止时间至 {2022-02-28 11:02:29}', '', '1482168077759156224', '2022-02-24 13:47:57', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496725714383278080, 2022, 1, 1485429851061096448, '沈真 提交报告', '', '1485787396162326528', '2022-02-24 13:56:33', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496725714811097088, 2022, 1, 1485429851061096448, '沈真 更新报告', '', '1485787396162326528', '2022-02-24 13:56:33', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496726262419427328, 2022, 2, 1485429851061096448, '沈真 提交报告', '', '1485787396162326528', '2022-02-24 13:58:43', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496726262872412160, 2022, 2, 1485429851061096448, '沈真 更新报告', '', '1485787396162326528', '2022-02-24 13:58:44', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496726319667482624, 2022, 2, 1485429851061096448, '沈真 提交报告', '', '1485787396162326528', '2022-02-24 13:58:57', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496727132641038336, 2022, 3, 1485429851061096448, '沈真 提交报告', '', '1485787396162326528', '2022-02-24 14:02:11', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496727133052080128, 2022, 3, 1485429851061096448, '沈真 更新报告', '', '1485787396162326528', '2022-02-24 14:02:11', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496728233104773120, 2022, 1, 1485429852688486400, '符三 提交报告', '', '1485787527892832256', '2022-02-24 14:06:33', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496728233570340864, 2022, 1, 1485429852688486400, '符三 更新报告', '', '1485787527892832256', '2022-02-24 14:06:33', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496738900721405952, 2022, 2, 1485429852688486400, '符三 提交报告', '', '1485787527892832256', '2022-02-24 14:48:57', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496738901224722432, 2022, 2, 1485429852688486400, '符三 更新报告', '', '1485787527892832256', '2022-02-24 14:48:57', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496739053234688000, 2022, 3, 1485429852688486400, '符三 提交报告', '', '1485787527892832256', '2022-02-24 14:49:33', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496739053675089920, 2022, 3, 1485429852688486400, '符三 更新报告', '', '1485787527892832256', '2022-02-24 14:49:33', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496739325243691008, 2022, 4, 1485429852688486400, '符三 提交报告', '', '1485787527892832256', '2022-02-24 14:50:38', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496739325679898624, 2022, 4, 1485429852688486400, '符三 更新报告', '', '1485787527892832256', '2022-02-24 14:50:38', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496741341403680768, 2022, 1, 1485429855775494144, '田静 提交报告', '', '1485787600533983232', '2022-02-24 14:58:39', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496741341906997248, 2022, 1, 1485429855775494144, '田静 更新报告', '', '1485787600533983232', '2022-02-24 14:58:39', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496742008490954752, 2022, 2, 1485429855775494144, '田静 提交报告', '', '1485787600533983232', '2022-02-24 15:01:18', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496742008910385152, 2022, 2, 1485429855775494144, '田静 更新报告', '', '1485787600533983232', '2022-02-24 15:01:18', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1496742056469598208, 2022, 4, 1485429855775494144, '田静 提交报告', '', '1485787600533983232', '2022-02-24 15:01:29', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498548981075152896, 2023, 1, 1485429848393519104, '诸葛明 发起{2023}-{Q1}-碳盘查', '', '1481532236233838592', '2022-03-01 14:41:33', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498556210390110208, 2023, 1, 1485429851061096448, '刘克 提交报告', '', '1485499720406274048', '2022-03-01 15:10:17', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498556210784374784, 2023, 1, 1485429851061096448, '刘克 更新报告', '', '1485499720406274048', '2022-03-01 15:10:17', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498556435221581824, 2023, 2, 1485429848393519104, '诸葛明 发起{2023}-{Q2}-碳盘查', '', '1481532236233838592', '2022-03-01 15:11:11', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498558702368722944, 2023, 2, 1485429851061096448, '刘克 更新报告', '', '1485499720406274048', '2022-03-01 15:20:11', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498559720687013888, 2023, 3, 1485429851061096448, 't001 更新报告', '', '1490590134683439104', '2022-03-01 15:24:14', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498559889528721408, 2023, 1, 1485429855775494144, '武田 更新报告', '', '1485505619829067776', '2022-03-01 15:24:54', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498561367249129472, 2023, 3, 1485429848393519104, '诸葛明 发起{2023}-{Q3}-碳盘查', '', '1481532236233838592', '2022-03-01 15:30:47', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498563952915910656, 2023, 1, 1485429855775494144, '田静 更新报告', '', '1485787600533983232', '2022-03-01 15:41:03', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498585955295170560, 2023, 1, 1485429851061096448, 't001 更新报告', '', '1490590134683439104', '2022-03-01 17:08:29', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498843355306659840, 2023, 4, 1485429848393519104, '诸葛明 发起{2023}-{Q4}-碳盘查', '', '1481532236233838592', '2022-03-02 10:11:18', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498853191398330368, 2020, 4, 1485429851061096448, 't001 更新报告', '', '1490590134683439104', '2022-03-02 10:50:23', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498856472539435008, 2023, 1, 1485429855775494144, '田京 更新报告', '', '1490872547317780480', '2022-03-02 11:03:25', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498865767557500928, 2020, 4, 1485429848393519104, '诸葛明 发起{2020}-{Q4}-碳盘查', '', '1481532236233838592', '2022-03-02 11:40:21', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498867425737838592, 2020, 4, 1485429855775494144, '武田 更新报告', '', '1485505619829067776', '2022-03-02 11:46:57', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498868401374892032, 2023, 4, 1485429855775494144, '武田 提交报告', '', '1485505619829067776', '2022-03-02 11:50:49', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1498868401936928768, 2023, 4, 1485429855775494144, '武田 更新报告', '', '1485505619829067776', '2022-03-02 11:50:49', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1500401211524911104, 2023, 4, 1485429855775494144, '田静 提交报告', '', '1485787600533983232', '2022-03-06 17:21:40', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1500650623652204544, 2024, 1, 1485429848393519104, '诸葛明 发起{2024}-{Q1}-碳盘查', '', '1481532236233838592', '2022-03-07 09:52:44', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1500653282346012672, 2024, 1, 1485429851061096448, '刘克 更新报告', '', '1485499720406274048', '2022-03-07 10:03:18', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1500655222907867136, 2023, 4, 1485429855775494144, '田京 提交报告', '', '1490872547317780480', '2022-03-07 10:11:01', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1500719644602929152, 2024, 1, 1485429851061096448, '刘克 提交报告', '', '1485499720406274048', '2022-03-07 14:27:00', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1500742232259563520, 2023, 1, 1485429851061096448, '刘克 提交报告', '', '1485499720406274048', '2022-03-07 15:56:45', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1501016882206085120, 2024, 2, 1485429848393519104, '管理员 发起{2024}-{Q2}-碳盘查', '', '1482168077759156224', '2022-03-08 10:08:07', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1501017669971873792, 2024, 2, 1485429848393519104, '管理员 修改{2024}-{Q2}-碳盘查的截止时间至 {2022-03-14 10:08:02}', '', '1482168077759156224', '2022-03-08 10:11:15', 'fii', 1, 0);
+INSERT INTO `dynamic_message` VALUES (1501097997902155776, 2024, 2, 1485429855775494144, '田静 提交报告', '', '1485787600533983232', '2022-03-08 15:30:26', 'fii', 1, 0);
+COMMIT;
 
-create table org_info
-(
-    id                 bigint                     not null comment '主键id'
-        primary key,
-    org_name           varchar(100) default '0.0' not null comment '组织名称',
-    type               int(2)       default 0     not null comment '组织类型',
-    address            varchar(300) default ''    not null comment '省市区',
-    street             varchar(300) default ''    not null comment '街道',
-    principal          varchar(40)  default ''    not null comment '组织负责人',
-    email              varchar(50)  default ''    not null comment '电子邮箱',
-    phone_number       varchar(50)  default ''    not null comment '联系电话',
-    created_by         varchar(32)  default ''    not null comment '创建人工号',
-    shareholding_ratio varchar(10)  default 'N/A' not null comment '上级组织控股比例,%',
-    created_time       datetime                   not null comment '创建时间',
-    updated_by         varchar(32)  default ''    not null comment '更新人工号',
-    updated_time       datetime                   not null comment '更新时间',
-    tenant_id          varchar(32)                not null comment '租户号',
-    revision           int(10)      default 1     not null comment '乐观锁',
-    delete_flag        bigint       default 0     not null comment '逻辑删除',
-    constraint org_info_tenant_id_org_name_uindex
-        unique (tenant_id, org_name)
-)
-    comment '组织信息' charset = utf8;
+-- ----------------------------
+-- Table structure for emission_reduction_target
+-- ----------------------------
+DROP TABLE IF EXISTS `emission_reduction_target`;
+CREATE TABLE `emission_reduction_target` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `org_id` bigint(20) NOT NULL COMMENT '组织id',
+  `year` int(4) NOT NULL COMMENT '年份',
+  `carbon_emission` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '二氧化碳排放减少量',
+  `carbon_emission_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '二氧化碳排放单位',
+  `reduction_ratio` decimal(10,4) DEFAULT NULL COMMENT '计划减碳比例',
+  `revision` int(10) NOT NULL COMMENT '乐观锁',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(20) NOT NULL COMMENT '更新人工号',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='组织减排目标';
 
-create table org_info_history
-(
-    id           bigint                   not null comment '主键id'
-        primary key,
-    year         int(4)      default 1970 not null comment '年份',
-    quarter      int(2)      default 0    not null comment '季度',
-    detail       json                     not null comment '具体数据',
-    created_by   varchar(32) default ''   not null comment '创建人工号',
-    created_time datetime                 not null comment '创建时间',
-    updated_by   varchar(32) default ''   not null comment '更新人工号',
-    updated_time datetime                 not null comment '更新时间',
-    tenant_id    varchar(32)              not null comment '租户号',
-    revision     int(10)     default 1    not null comment '乐观锁'
-)
-    comment '组织历史数据' charset = utf8;
+-- ----------------------------
+-- Records of emission_reduction_target
+-- ----------------------------
+BEGIN;
+INSERT INTO `emission_reduction_target` VALUES (1497040152919412736, 1485429848393519104, 2021, 0.000000, '', 0.1500, 1, '1485787600533983232', '2022-02-25 10:46:01', '1485787600533983232', '2022-02-25 10:46:01', 'fii', 0);
+INSERT INTO `emission_reduction_target` VALUES (1497049632923062272, 1485429848393519104, 2020, 0.000000, '', 0.1500, 1, '1485787600533983232', '2022-02-25 11:23:41', '1485787600533983232', '2022-02-25 11:23:41', 'fii', 0);
+INSERT INTO `emission_reduction_target` VALUES (1497049662539042816, 1485429848393519104, 2022, 0.000000, '', 0.1500, 1, '1485787600533983232', '2022-02-25 11:23:48', '1485787600533983232', '2022-02-25 11:23:48', 'fii', 0);
+COMMIT;
 
-create table org_operation_info
-(
-    id                     bigint            not null comment '主键id'
-        primary key,
-    org_id                 bigint            not null comment '组织id',
-    year                   int(4)            not null comment '年份',
-    quarter                int(2)            not null comment '季度',
-    output_value           decimal(12, 6)    null comment '产值',
-    output_value_unit      varchar(10)       null comment '产值单位',
-    revenue                decimal(12, 6)    null comment '营收',
-    revenue_unit           varchar(10)       null comment '营收单位',
-    industrial_output      decimal(12, 6)    null comment '工业增加值',
-    industrial_output_unit varchar(10)       null comment '工业增加值单位',
-    area                   decimal(12, 6)    null comment '占地面积',
-    area_unit              varchar(10)       null comment '占地面积单位',
-    employee_num           int(10)           null comment '员工数量',
-    created_by             varchar(32)       not null comment '创建人工号',
-    created_time           datetime          not null comment '创建时间',
-    updated_by             varchar(32)       not null comment '更新人工号',
-    updated_time           datetime          not null comment '更新时间',
-    tenant_id              varchar(32)       not null comment '租户号',
-    revision               int(10) default 1 not null comment '乐观锁',
-    delete_flag            bigint  default 0 not null comment '逻辑删除'
-)
-    comment '组织运营信息' charset = utf8;
+-- ----------------------------
+-- Table structure for exchange_rate
+-- ----------------------------
+DROP TABLE IF EXISTS `exchange_rate`;
+CREATE TABLE `exchange_rate` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `rate` decimal(10,6) NOT NULL COMMENT '汇率',
+  `year` int(4) NOT NULL COMMENT '年份',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(32) NOT NULL COMMENT '更新人工号',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `revision` int(10) NOT NULL DEFAULT '1' COMMENT '乐观锁',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='美元与人民币汇率信息';
 
-create table org_operation_message
-(
-    id           bigint           not null comment '主键id'
-        primary key,
-    year         int(4)           not null comment '年份',
-    quarter      int(2)           not null comment '季度',
-    org_id       bigint           not null comment '组织id',
-    user_id      bigint           not null comment '用户id',
-    content      varchar(200)     not null comment '内容',
-    status       int(2)           not null comment '通知状态',
-    created_time datetime         not null comment '创建时间',
-    updated_time datetime         not null comment '更新时间',
-    tenant_id    varchar(32)      not null comment '租户号',
-    delete_flag  bigint default 0 not null comment '逻辑删除'
-)
-    comment '待更新的运营信息' charset = utf8;
+-- ----------------------------
+-- Records of exchange_rate
+-- ----------------------------
+BEGIN;
+INSERT INTO `exchange_rate` VALUES (1479393590265384960, 6.381000, 2021, '', '2022-01-07 18:04:55', '', '2022-01-07 18:04:55', 'fii', 3, 0);
+COMMIT;
 
-create table org_operation_message_schedule
-(
-    id           bigint           not null comment '主键id'
-        primary key,
-    year         int(4)           not null comment '年份',
-    quarter      int(2)           not null comment '季度',
-    org_id       bigint           not null comment '组织id',
-    next_time    datetime         not null comment '下次任务时间',
-    created_time datetime         not null comment '创建时间',
-    updated_time datetime         null comment '更新时间',
-    tenant_id    varchar(32)      not null comment '租户号',
-    delete_flag  bigint default 0 not null comment '逻辑删除'
-)
-    comment '待更新的运营信息通知定时任务' charset = utf8;
+-- ----------------------------
+-- Table structure for fixed_combustion
+-- ----------------------------
+DROP TABLE IF EXISTS `fixed_combustion`;
+CREATE TABLE `fixed_combustion` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `inventory_id` bigint(20) NOT NULL COMMENT '碳盘查报告id',
+  `quantity` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '数量',
+  `type` varchar(30) NOT NULL DEFAULT '' COMMENT '燃料类型',
+  `fuel_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '燃料单位',
+  `carbon_emission` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '二氧化碳排放',
+  `carbon_emission_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '二氧化碳排放单位',
+  `factor` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '排放因子',
+  `factor_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '排放因子单位',
+  `use_default_factor` int(2) NOT NULL DEFAULT '0' COMMENT '是否使用默认碳排放因子',
+  `revision` int(10) NOT NULL COMMENT '乐观锁',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(20) NOT NULL COMMENT '更新人工号',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='固定燃烧排放';
 
-create table org_tree
-(
-    id              bigint            not null comment '主键id'
-        primary key,
-    ancestor_org_id bigint  default 0 not null comment '父组织id或祖先组织id',
-    ancestor_type   int(2)  default 0 not null comment '父组织或祖先组织类型',
-    level           int(10) default 0 not null comment '层级关系',
-    org_id          bigint  default 0 not null comment '组织id',
-    type            int(2)  default 0 not null comment '组织类型',
-    is_root         int(1)  default 0 not null comment '是否是根节点',
-    created_by      varchar(32)       not null comment '创建人工号',
-    created_time    datetime          not null comment '创建时间',
-    updated_by      varchar(32)       not null comment '更新人工号',
-    updated_time    datetime          not null comment '更新时间',
-    tenant_id       varchar(32)       not null comment '租户号',
-    revision        int(10) default 1 not null comment '乐观锁'
-)
-    comment '组织关系树' charset = utf8;
+-- ----------------------------
+-- Records of fixed_combustion
+-- ----------------------------
+BEGIN;
+INSERT INTO `fixed_combustion` VALUES (1483351979630661632, 1483351979618078720, 232.000000, '烟煤', 't', 431.520000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, 'A024484593', '2022-01-18 16:14:06', 'A024484593', '2022-01-18 16:14:06', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1483378067027136512, 1483378067001970688, 90.000000, '烟煤', 't', 167.400000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, 'A024484593', '2022-01-18 17:57:46', 'A024484593', '2022-01-18 17:57:46', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1483624843369910272, 1483624843327967232, 444.000000, '无烟煤', 't', 874.680000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1482881351152701440', '2022-01-19 10:18:22', '1482881351152701440', '2022-01-19 10:18:22', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1483629340930478080, 1483377015712256000, 456.000000, '烟煤', 't', 848.160000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1482881351152701440', '2022-01-19 10:36:14', '1482881351152701440', '2022-01-19 10:36:14', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1483650715028164608, 1483650714969444352, 9999.000000, '褐煤', 't', 20597.940000, 'tCO₂e', 2.060000, 'tCO₂e/t', 1, 1, '1482881351152701440', '2022-01-19 12:01:10', '1482881351152701440', '2022-01-19 12:01:10', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1483676758577385472, 1483676758564802560, 345.000000, '褐煤', 't', 710.700000, 'tCO₂e', 2.060000, 'tCO₂e/t', 1, 1, '1482881351152701440', '2022-01-19 13:44:39', '1482881351152701440', '2022-01-19 13:44:39', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1483727539913494528, 1483727539900911616, 23.000000, '烟煤', 't', 42.780000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1482881351152701440', '2022-01-19 17:06:26', '1482881351152701440', '2022-01-19 17:06:26', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1483990745328259072, 1483377015712256000, 34.000000, '褐煤', 't', 70.040000, 'tCO₂e', 2.060000, 'tCO₂e/t', 1, 1, '1482881351152701440', '2022-01-20 10:32:20', '1482881351152701440', '2022-01-20 10:32:20', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1483993872857174016, 1483698243555692544, 3232.000000, '烟煤', 't', 6011.520000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1482881351152701440', '2022-01-20 10:44:45', '1482881351152701440', '2022-01-20 10:44:45', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1483994485133283328, 1483698243555692544, 545.000000, '洗精煤', 't', 1335.250000, 'tCO₂e', 2.450000, 'tCO₂e/t', 1, 1, '1482881351152701440', '2022-01-20 10:47:11', '1482881351152701440', '2022-01-20 10:47:11', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1484048192449417216, 1484048192327782400, 34.000000, '褐煤', 't', 70.040000, 'tCO₂e', 2.060000, 'tCO₂e/t', 1, 1, '1482881351152701440', '2022-01-20 14:20:36', '1482881351152701440', '2022-01-20 14:20:36', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1484055064757800960, 1484055064741023744, 2.000000, '烟煤', 't', 3.720000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1482881351152701440', '2022-01-20 14:47:55', '1482881351152701440', '2022-01-20 14:47:55', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1484071413819248640, 1484071413802471424, 42523532.000000, '褐煤', 't', 87598475.920000, 'tCO₂e', 2.060000, 'tCO₂e/t', 1, 1, '1482881351152701440', '2022-01-20 15:52:52', '1482881351152701440', '2022-01-20 15:52:52', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1484076478562963456, 1484076478554574848, 34325.000000, '洗精煤', 't', 84096.250000, 'tCO₂e', 2.450000, 'tCO₂e/t', 1, 1, '1482881351152701440', '2022-01-20 16:13:00', '1482881351152701440', '2022-01-20 16:13:00', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1484076621127356416, 1484076621114773504, 5252.000000, '洗精煤', 't', 12867.400000, 'tCO₂e', 2.450000, 'tCO₂e/t', 1, 1, '1482881351152701440', '2022-01-20 16:13:34', '1482881351152701440', '2022-01-20 16:13:34', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1484077077782204416, 1484077077769621504, 3243.000000, '煤泥', 't', 3794.310000, 'tCO₂e', 1.170000, 'tCO₂e/t', 1, 1, '1482881351152701440', '2022-01-20 16:15:23', '1482881351152701440', '2022-01-20 16:15:23', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1484352591172341760, 1483698243555692544, 11.000000, '焦炭', 't', 31.350000, 'tCO₂e', 2.850000, 'tCO₂e/t', 1, 1, '1482911390023946240', '2022-01-21 10:30:10', '1482911390023946240', '2022-01-21 10:30:10', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1485499855630635008, 1485499855588691968, 100.000000, '无烟煤', 't', 197.000000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1485499720406274048', '2022-01-24 14:28:59', '1485499720406274048', '2022-01-24 14:28:59', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1485788103837880320, 1485788103787548672, 200.000000, '无烟煤', 't', 394.000000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1485787396162326528', '2022-01-25 09:34:23', '1485787396162326528', '2022-01-25 09:34:23', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1485796406563311616, 1485796406550728704, 45.000000, '烟煤', 't', 83.700000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1485796240699559936', '2022-01-25 10:07:23', '1485796240699559936', '2022-01-25 10:07:23', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1485801327631142912, 1485801327610171392, 2000.000000, '洗精煤', 't', 4900.000000, 'tCO₂e', 2.450000, 'tCO₂e/t', 1, 1, '1485787527892832256', '2022-01-25 10:26:56', '1485787527892832256', '2022-01-25 10:26:56', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1485801327639531520, 1485801327610171392, 2000.000000, '洗精煤', 't', 4900.000000, 'tCO₂e', 2.450000, 'tCO₂e/t', 1, 1, '1485787527892832256', '2022-01-25 10:26:56', '1485787527892832256', '2022-01-25 10:26:56', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1485801327652114432, 1485801327610171392, 2000.000000, '洗精煤', 't', 4900.000000, 'tCO₂e', 2.450000, 'tCO₂e/t', 1, 1, '1485787527892832256', '2022-01-25 10:26:56', '1485787527892832256', '2022-01-25 10:26:56', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1485804745716273152, 1485804745699495936, 2222.000000, '烟煤', 't', 4132.920000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1485787600533983232', '2022-01-25 10:40:31', '1485787600533983232', '2022-01-25 10:40:31', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1485810632455491584, 1485810632379994112, 200.000000, '无烟煤', 't', 394.000000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1485787396162326528', '2022-01-25 11:03:54', '1485787396162326528', '2022-01-25 11:03:54', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1485810842258771968, 1485810842233606144, 2222.000000, '烟煤', 't', 4132.920000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1485787527892832256', '2022-01-25 11:04:44', '1485787527892832256', '2022-01-25 11:04:44', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1486142681028628480, 1486142680944742400, 2222.000000, '无烟煤', 't', 4377.340000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1485787527892832256', '2022-01-26 09:03:21', '1485787527892832256', '2022-01-26 09:03:21', 'fii', 1486142681028628480);
+INSERT INTO `fixed_combustion` VALUES (1486326629402808320, 1485796406550728704, 88.000000, '无烟煤', 't', 173.360000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1485796240699559936', '2022-01-26 21:14:18', '1485796240699559936', '2022-01-26 21:14:18', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1490884277058015232, 1490884277037043712, 1000.000000, '焦炉煤气', 'm³', 0.890000, 'tCO₂e', 0.000890, 'tCO₂e/m³', 1, 1, '1485505619829067776', '2022-02-08 11:04:46', '1485505619829067776', '2022-02-08 11:04:46', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1491292749268389888, 1491292749218058240, 13.000000, '无烟煤', 't', 16.900000, 'tCO₂e', 1.300000, 'tCO₂e/t', 0, 1, '1490590134683439104', '2022-02-09 14:07:53', '1490590134683439104', '2022-02-09 14:07:53', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1491293041963700224, 1491292749218058240, 4.000000, '烟煤', 't', 7.440000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1490590134683439104', '2022-02-09 14:09:03', '1490590134683439104', '2022-02-09 14:09:03', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1491304284166426624, 1485866159176814592, 2.000000, '烟煤', 't', 3.720000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1490590134683439104', '2022-02-09 14:53:43', '1490590134683439104', '2022-02-09 14:53:43', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1491305128643399680, 1491305128605650944, 22222.000000, '洗精煤', 't', 54443.900000, 'tCO₂e', 2.450000, 'tCO₂e/t', 1, 1, '1485787600533983232', '2022-02-09 14:57:04', '1485787600533983232', '2022-02-09 14:57:04', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1491343137245892608, 1485866159176814592, 3.000000, '无烟煤', 't', 5.910000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1490590134683439104', '2022-02-09 17:28:06', '1490590134683439104', '2022-02-09 17:28:06', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1491608169179385856, 1485866159176814592, 4.000000, '无烟煤', 't', 5.200000, 'tCO₂e', 1.300000, 'tCO₂e/t', 0, 1, '1490590134683439104', '2022-02-10 11:01:15', '1490590134683439104', '2022-02-10 11:01:15', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1494495034890915840, 1494495034857361408, 1100.000000, '无烟煤', 't', 2167.000000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 2, '1485787600533983232', '2022-02-18 10:12:37', '1485787600533983232', '2022-02-18 10:12:37', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1496725773707513856, 1486326919334072320, 20000.000000, '烟煤', 't', 37200.000000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1485787396162326528', '2022-02-24 13:56:47', '1485787396162326528', '2022-02-24 13:56:47', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1496726370921877504, 1496726370900905984, 2000.000000, '褐煤', 't', 4120.000000, 'tCO₂e', 2.060000, 'tCO₂e/t', 1, 1, '1485787396162326528', '2022-02-24 13:59:09', '1485787396162326528', '2022-02-24 13:59:09', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1496728009447706624, 1496728009439318016, 2000.000000, '汽油', 't', 5840.000000, 'tCO₂e', 2.920000, 'tCO₂e/t', 1, 1, '1485787527892832256', '2022-02-24 14:05:40', '1485787527892832256', '2022-02-24 14:05:40', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1496738640947187712, 1496738640934604800, 3000.000000, '无烟煤', 't', 5910.000000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1485787527892832256', '2022-02-24 14:47:55', '1485787527892832256', '2022-02-24 14:47:55', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1496738689584336896, 1496738640934604800, 200.000000, '汽油', 't', 584.000000, 'tCO₂e', 2.920000, 'tCO₂e/t', 1, 1, '1485787527892832256', '2022-02-24 14:48:06', '1485787527892832256', '2022-02-24 14:48:06', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1496738713756110848, 1496738640934604800, 200.000000, '褐煤', 't', 412.000000, 'tCO₂e', 2.060000, 'tCO₂e/t', 1, 1, '1485787527892832256', '2022-02-24 14:48:12', '1485787527892832256', '2022-02-24 14:48:12', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1496738968182591488, 1496738968174202880, 2000.000000, '烟煤', 't', 3720.000000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1485787527892832256', '2022-02-24 14:49:13', '1485787527892832256', '2022-02-24 14:49:13', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1496739110252056576, 1496739110243667968, 3000.000000, '烟煤', 't', 5580.000000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1485787527892832256', '2022-02-24 14:49:47', '1485787527892832256', '2022-02-24 14:49:47', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1496741099333619712, 1496741099325231104, 2000.000000, '无烟煤', 't', 3940.000000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1485787600533983232', '2022-02-24 14:57:41', '1485787600533983232', '2022-02-24 14:57:41', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1496741862596284416, 1496741862587895808, 2000.000000, '无烟煤', 't', 3940.000000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1485787600533983232', '2022-02-24 15:00:43', '1485787600533983232', '2022-02-24 15:00:43', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1498554415932641280, 1498554415903281152, 100.000000, '褐煤', 't', 20.000000, 'tCO₂e', 0.200000, 'tCO₂e/t', 0, 1, '1485499720406274048', '2022-03-01 15:03:09', '1485499720406274048', '2022-03-01 15:03:09', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1498557560242966528, 1498557560230383616, 1000.000000, '汽油', 't', 2920.000000, 'tCO₂e', 2.920000, 'tCO₂e/t', 1, 1, '1485787600533983232', '2022-03-01 15:15:39', '1485787600533983232', '2022-03-01 15:15:39', 'fii', 1498557560242966528);
+INSERT INTO `fixed_combustion` VALUES (1498558509401378816, 1498558509388795904, 100.000000, '无烟煤', 't', 200.000000, 'tCO₂e', 2.000000, 'tCO₂e/t', 0, 1, '1485499720406274048', '2022-03-01 15:19:25', '1485499720406274048', '2022-03-01 15:19:25', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1498559703461007360, 1498559703452618752, 2.000000, '烟煤', 't', 3.720000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1490590134683439104', '2022-03-01 15:24:10', '1490590134683439104', '2022-03-01 15:24:10', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1498571663879573504, 1498559703452618752, 2.000000, '无烟煤', 't', 3.940000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1490590134683439104', '2022-03-01 16:11:41', '1490590134683439104', '2022-03-01 16:11:41', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1498582372239675392, 1498554415903281152, 2.000000, '无烟煤', 't', 3.940000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1490590134683439104', '2022-03-01 16:54:15', '1490590134683439104', '2022-03-01 16:54:15', 'fii', 1498582372239675392);
+INSERT INTO `fixed_combustion` VALUES (1498582373997088768, 1498554415903281152, 2.000000, '无烟煤', 't', 3.940000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1490590134683439104', '2022-03-01 16:54:15', '1490590134683439104', '2022-03-01 16:54:15', 'fii', 1498582373997088768);
+INSERT INTO `fixed_combustion` VALUES (1498582476749148160, 1498554415903281152, 2.000000, '无烟煤', 't', 3.940000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1490590134683439104', '2022-03-01 16:54:39', '1490590134683439104', '2022-03-01 16:54:39', 'fii', 1498582476749148160);
+INSERT INTO `fixed_combustion` VALUES (1498582664976928768, 1498554415903281152, 2.000000, '无烟煤', 't', 3.940000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1490590134683439104', '2022-03-01 16:55:24', '1490590134683439104', '2022-03-01 16:55:24', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1498588564827541504, 1498588564802375680, 100.000000, '褐煤', 'kg', 0.200000, 'tCO₂e', 2.000000, 'tCO₂e/t', 0, 1, '1485505619829067776', '2022-03-01 17:18:51', '1485505619829067776', '2022-03-01 17:18:51', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1498595101881012224, 1498595101868429312, 2.000000, '烟煤', 't', 3.720000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1490590134683439104', '2022-03-01 17:44:49', '1490590134683439104', '2022-03-01 17:44:49', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1498627989334790144, 1498588564802375680, 1000.000000, '原油', 't', 3020.000000, 'tCO₂e', 3.020000, 'tCO₂e/t', 1, 1, '1485787600533983232', '2022-03-01 19:55:30', '1485787600533983232', '2022-03-01 19:55:30', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1498655339099328512, 1498558509388795904, 33.000000, '烟煤', 't', 61.380000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1490590134683439104', '2022-03-01 21:44:11', '1490590134683439104', '2022-03-01 21:44:11', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1498853152382914560, 1498853152349360128, 1000.000000, '烟煤', 't', 1860.000000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1490590134683439104', '2022-03-02 10:50:14', '1490590134683439104', '2022-03-02 10:50:14', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1498856424829227008, 1498856424816644096, 1000.000000, '无烟煤', 't', 1970.000000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1490872547317780480', '2022-03-02 11:03:14', '1490872547317780480', '2022-03-02 11:03:14', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1498867215930363904, 1498867215917780992, 100.000000, '烟煤', 'kg', 0.186000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1485505619829067776', '2022-03-02 11:46:07', '1485505619829067776', '2022-03-02 11:46:07', 'fii', 1498867215930363904);
+INSERT INTO `fixed_combustion` VALUES (1498867293139111936, 1498867215917780992, 100.000000, '褐煤', 'kg', 0.200000, 'tCO₂e', 2.000000, 'tCO₂e/t', 0, 1, '1485505619829067776', '2022-03-02 11:46:25', '1485505619829067776', '2022-03-02 11:46:25', 'fii', 1498867293139111936);
+INSERT INTO `fixed_combustion` VALUES (1498867817007681536, 1498867816995098624, 100.000000, '烟煤', 't', 200.000000, 'tCO₂e', 2.000000, 'tCO₂e/t', 0, 1, '1485505619829067776', '2022-03-02 11:48:30', '1485505619829067776', '2022-03-02 11:48:30', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1498867870229204992, 1498867816995098624, 2.000000, '褐煤', 'kg', 0.004120, 'tCO₂e', 2.060000, 'tCO₂e/t', 1, 1, '1485505619829067776', '2022-03-02 11:48:43', '1485505619829067776', '2022-03-02 11:48:43', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1500433928333430784, 1500433928304070656, 200.000000, '烟煤', 't', 372.000000, 'tCO₂e', 1.860000, 'tCO₂e/t', 1, 1, '1485787600533983232', '2022-03-06 19:31:40', '1485787600533983232', '2022-03-06 19:31:40', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1500433960885424128, 1500433928304070656, 2000.000000, '无烟煤', 't', 3940.000000, 'tCO₂e', 1.970000, 'tCO₂e/t', 1, 1, '1485787600533983232', '2022-03-06 19:31:48', '1485787600533983232', '2022-03-06 19:31:48', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1501068658556932096, 1501068658473046016, 2000.000000, '洗精煤', 't', 4900.000000, 'tCO₂e', 2.450000, 'tCO₂e/t', 1, 1, '1485787600533983232', '2022-03-08 13:33:51', '1485787600533983232', '2022-03-08 13:33:51', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1501070128559820800, 1501068658473046016, 300.000000, '烟煤', 't', 699.000000, 'tCO₂e', 2.330000, 'tCO₂e/t', 0, 1, '1485787600533983232', '2022-03-08 13:39:42', '1485787600533983232', '2022-03-08 13:39:42', 'fii', 0);
+INSERT INTO `fixed_combustion` VALUES (1501105840982200320, 1501105840944451584, 200.000000, '无烟煤', 't', 466.000000, 'tCO₂e', 2.330000, 'tCO₂e/t', 0, 1, '1485787396162326528', '2022-03-08 16:01:36', '1485787396162326528', '2022-03-08 16:01:36', 'fii', 0);
+COMMIT;
 
-create table org_tree_history
-(
-    id           bigint                   not null comment '主键id'
-        primary key,
-    year         int(4)      default 1970 not null comment '年份',
-    quarter      int(2)      default 0    not null comment '季度',
-    detail       json                     not null comment '具体数据',
-    created_by   varchar(32) default ''   not null comment '创建人工号',
-    created_time datetime                 not null comment '创建时间',
-    updated_by   varchar(32) default ''   not null comment '更新人工号',
-    updated_time datetime                 not null comment '更新时间',
-    tenant_id    varchar(32)              not null comment '租户号',
-    revision     int(10)     default 1    not null comment '乐观锁'
-)
-    comment '组织关系树' charset = utf8;
+-- ----------------------------
+-- Table structure for fugitive_emission
+-- ----------------------------
+DROP TABLE IF EXISTS `fugitive_emission`;
+CREATE TABLE `fugitive_emission` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `inventory_id` bigint(20) NOT NULL COMMENT '碳盘查报告id',
+  `fugitive_type` varchar(30) NOT NULL DEFAULT '' COMMENT '逸散类型',
+  `quantity` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '数量',
+  `type` varchar(30) NOT NULL DEFAULT '' COMMENT '气体类型',
+  `fuel_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '燃料单位',
+  `factor_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '排放因子单位',
+  `carbon_emission` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '二氧化碳排放',
+  `carbon_emission_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '二氧化碳排放单位',
+  `factor` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '排放因子',
+  `description` varchar(500) NOT NULL DEFAULT '' COMMENT '描述',
+  `revision` int(10) NOT NULL COMMENT '乐观锁',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(20) NOT NULL COMMENT '更新人工号',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='逸散排放';
 
-create table outsourcing_energy
-(
-    id                   bigint                          not null comment '主键'
-        primary key,
-    inventory_id         bigint                          not null comment '碳盘查报告id',
-    quantity             decimal(24, 6) default 0.000000 not null comment '数量',
-    type                 varchar(30)    default ''       not null comment '能源类型',
-    fuel_unit            varchar(30)    default ''       not null comment '燃料单位',
-    carbon_emission      decimal(24, 6) default 0.000000 not null comment '二氧化碳排放',
-    carbon_emission_unit varchar(30)    default ''       not null comment '二氧化碳排放单位',
-    data_source          varchar(200)   default ''       not null comment '数据来源',
-    revision             int(10)                         not null comment '乐观锁',
-    created_by           varchar(32)                     not null comment '创建人工号',
-    created_time         datetime                        not null comment '创建时间',
-    updated_by           varchar(20)                     not null comment '更新人工号',
-    updated_time         datetime                        not null comment '更新时间',
-    tenant_id            varchar(32)                     not null comment '租户号',
-    delete_flag          bigint         default 0        not null comment '逻辑删除',
-    region               varchar(30)    default ''       not null comment '区域'
-)
-    comment '外购能源' charset = utf8;
+-- ----------------------------
+-- Records of fugitive_emission
+-- ----------------------------
+BEGIN;
+INSERT INTO `fugitive_emission` VALUES (1483352087822733312, 1483351979618078720, 'CO₂灭火器', 25532.000000, '甲烷(CH₄)', 't', '', 638300.000000, 'tCO₂e', 25.000000, '', 1, 'A024484593', '2022-01-18 16:14:32', 'A024484593', '2022-01-18 16:14:32', 'fii', 0);
+INSERT INTO `fugitive_emission` VALUES (1494495262884892672, 1494495034857361408, '空调和制冷设备', 1000.000000, '甲烷(CH₄)', 't', '', 25000.000000, 'tCO₂e', 25.000000, '', 1, '1485787600533983232', '2022-02-18 10:13:32', '1485787600533983232', '2022-02-18 10:13:32', 'fii', 0);
+INSERT INTO `fugitive_emission` VALUES (1496722880669552640, 1491292749218058240, 'CO₂灭火器', 222.000000, '氢氟碳化物(HFC-32)', 't', '', 149850.000000, 'tCO₂e', 675.000000, '', 1, '1485787396162326528', '2022-02-24 13:45:17', '1485787396162326528', '2022-02-24 13:45:17', 'fii', 0);
+INSERT INTO `fugitive_emission` VALUES (1496725554508992512, 1485796406550728704, '空调和制冷设备', 20000.000000, '二氧化碳(CO₂)', 't', '', 20000.000000, 'tCO₂e', 1.000000, '', 1, '1485787396162326528', '2022-02-24 13:55:55', '1485787396162326528', '2022-02-24 13:55:55', 'fii', 0);
+INSERT INTO `fugitive_emission` VALUES (1496725820717273088, 1486326919334072320, 'CO₂灭火器', 200.000000, '二氧化碳(CO₂)', 't', '', 200.000000, 'tCO₂e', 1.000000, '', 1, '1485787396162326528', '2022-02-24 13:56:58', '1485787396162326528', '2022-02-24 13:56:58', 'fii', 0);
+INSERT INTO `fugitive_emission` VALUES (1496725861389438976, 1486326919334072320, '空调和制冷设备', 0.020000, '氢氟碳化物(HFC-23)', 't', '', 296.000000, 'tCO₂e', 14800.000000, '', 4, '1485787396162326528', '2022-02-24 13:57:08', '1485787396162326528', '2022-02-24 13:57:08', 'fii', 0);
+INSERT INTO `fugitive_emission` VALUES (1496726452404621312, 1496726370900905984, '空调和制冷设备', 20000.000000, '二氧化碳(CO₂)', 't', '', 20000.000000, 'tCO₂e', 1.000000, '', 1, '1485787396162326528', '2022-02-24 13:59:29', '1485787396162326528', '2022-02-24 13:59:29', 'fii', 0);
+INSERT INTO `fugitive_emission` VALUES (1496728090645237760, 1496728009439318016, '空调和制冷设备', 20000.000000, '二氧化碳(CO₂)', 't', '', 20000.000000, 'tCO₂e', 1.000000, '', 1, '1485787527892832256', '2022-02-24 14:05:59', '1485787527892832256', '2022-02-24 14:05:59', 'fii', 0);
+INSERT INTO `fugitive_emission` VALUES (1496738782488170496, 1496738640934604800, '空调和制冷设备', 2000.000000, '二氧化碳(CO₂)', 't', '', 2000.000000, 'tCO₂e', 1.000000, '', 1, '1485787527892832256', '2022-02-24 14:48:28', '1485787527892832256', '2022-02-24 14:48:28', 'fii', 0);
+INSERT INTO `fugitive_emission` VALUES (1496739036021264384, 1496738968174202880, '空调和制冷设备', 100.000000, '甲烷(CH₄)', 't', '', 2500.000000, 'tCO₂e', 25.000000, '', 1, '1485787527892832256', '2022-02-24 14:49:29', '1485787527892832256', '2022-02-24 14:49:29', 'fii', 0);
+INSERT INTO `fugitive_emission` VALUES (1496739221535330304, 1496739110243667968, '空调和制冷设备', 1000.000000, '二氧化碳(CO₂)', 't', '', 1000.000000, 'tCO₂e', 1.000000, '', 1, '1485787527892832256', '2022-02-24 14:50:13', '1485787527892832256', '2022-02-24 14:50:13', 'fii', 0);
+INSERT INTO `fugitive_emission` VALUES (1496741210591727616, 1496741099325231104, '空调和制冷设备', 2000.000000, '二氧化碳(CO₂)', 't', '', 2000.000000, 'tCO₂e', 1.000000, '', 1, '1485787600533983232', '2022-02-24 14:58:07', '1485787600533983232', '2022-02-24 14:58:07', 'fii', 0);
+INSERT INTO `fugitive_emission` VALUES (1496741986638630912, 1496741862587895808, '空调和制冷设备', 2000.000000, '二氧化碳(CO₂)', 't', '', 2000.000000, 'tCO₂e', 1.000000, '', 1, '1485787600533983232', '2022-02-24 15:01:12', '1485787600533983232', '2022-02-24 15:01:12', 'fii', 0);
+INSERT INTO `fugitive_emission` VALUES (1498555580439203840, 1498554415903281152, '空调和制冷设备', 100.000000, '氢氟碳化物(HFC-32)', 'kg', '', 67.500000, 'tCO₂e', 675.000000, '', 1, '1485499720406274048', '2022-03-01 15:07:47', '1485499720406274048', '2022-03-01 15:07:47', 'fii', 0);
+INSERT INTO `fugitive_emission` VALUES (1498868002987315200, 1498867816995098624, '空调和制冷设备', 20.000000, '氢氟碳化物(HFC-23)', 't', '', 296000.000000, 'tCO₂e', 14800.000000, '', 1, '1485505619829067776', '2022-03-02 11:49:14', '1485505619829067776', '2022-03-02 11:49:14', 'fii', 0);
+INSERT INTO `fugitive_emission` VALUES (1501068833140641792, 1501068658473046016, '空调和制冷设备', 500.000000, '二氧化碳(CO₂)', 't', '', 500.000000, 'tCO₂e', 1.000000, '', 1, '1485787600533983232', '2022-03-08 13:34:33', '1485787600533983232', '2022-03-08 13:34:33', 'fii', 0);
+COMMIT;
 
-create table process_emission
-(
-    id                   bigint                          not null comment '主键'
-        primary key,
-    inventory_id         bigint                          not null comment '碳盘查报告id',
-    process              varchar(30)    default ''       not null comment '制程',
-    quantity             decimal(24, 6) default 0.000000 not null comment '数量',
-    type                 varchar(30)    default ''       not null comment '气体类型',
-    fuel_unit            varchar(30)    default ''       not null comment '燃料单位',
-    carbon_emission      decimal(24, 6) default 0.000000 not null comment '二氧化碳排放',
-    carbon_emission_unit varchar(30)    default ''       not null comment '二氧化碳排放单位',
-    factor               decimal(24, 6) default 0.000000 not null comment '排放因子',
-    factor_unit          varchar(30)    default ''       not null comment '排放因子单位',
-    description          varchar(500)   default ''       not null comment '描述',
-    data_source          varchar(200)   default ''       not null comment '数据来源',
-    revision             int(10)                         not null comment '乐观锁',
-    created_by           varchar(32)                     not null comment '创建人工号',
-    created_time         datetime                        not null comment '创建时间',
-    updated_by           varchar(20)                     not null comment '更新人工号',
-    updated_time         datetime                        not null comment '更新时间',
-    tenant_id            varchar(32)                     not null comment '租户号',
-    delete_flag          bigint         default 0        not null comment '逻辑删除'
-)
-    comment '制程排放' charset = utf8;
+-- ----------------------------
+-- Table structure for mobile_combustion
+-- ----------------------------
+DROP TABLE IF EXISTS `mobile_combustion`;
+CREATE TABLE `mobile_combustion` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `inventory_id` bigint(20) NOT NULL COMMENT '碳盘查报告id',
+  `quantity` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '数量',
+  `type` varchar(30) NOT NULL DEFAULT '' COMMENT '燃烧类型',
+  `fuel_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '燃料单位',
+  `factor_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '排放因子单位',
+  `use_default_factor` int(2) NOT NULL DEFAULT '0' COMMENT '是否使用默认碳排放因子',
+  `carbon_emission` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '二氧化碳排放',
+  `carbon_emission_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '二氧化碳排放单位',
+  `factor` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '排放因子',
+  `description` varchar(500) NOT NULL DEFAULT '' COMMENT '描述',
+  `revision` int(10) NOT NULL COMMENT '乐观锁',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(20) NOT NULL COMMENT '更新人工号',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='移动燃烧';
 
-create table summary_scope_three
-(
-    id                    bigint                          not null comment '主键'
-        primary key,
-    inventory_id          bigint                          not null comment '碳盘查报告id',
-    scope_three_type_enum int(2)                          not null comment '类别（1~15类）',
-    group_enum            int(2)                          null comment '具体板块',
-    quantity              decimal(24, 6) default 0.000000 not null comment '数量',
-    fuel_unit             varchar(30)    default ''       not null comment '燃料单位',
-    factor_unit           varchar(30)    default ''       not null comment '排放因子单位',
-    factor                decimal(24, 6) default 0.000000 not null comment '排放因子',
-    carbon_emission       decimal(24, 6) default 0.000000 not null comment '二氧化碳排放',
-    carbon_emission_unit  varchar(30)    default ''       not null comment '二氧化碳排放单位',
-    source                varchar(400)   default ''       null comment '排放因子来源',
-    detail                varchar(500)   default ''       not null comment '其他属性',
-    revision              int(10)                         not null comment '乐观锁',
-    created_by            varchar(32)                     not null comment '创建人工号',
-    created_time          datetime                        not null comment '创建时间',
-    updated_by            varchar(20)                     not null comment '更新人工号',
-    updated_time          datetime                        not null comment '更新时间',
-    tenant_id             varchar(32)                     not null comment '租户号',
-    delete_flag           bigint         default 0        not null comment '逻辑删除'
-)
-    comment '范围三排放清单' charset = utf8;
+-- ----------------------------
+-- Records of mobile_combustion
+-- ----------------------------
+BEGIN;
+INSERT INTO `mobile_combustion` VALUES (1483352014833455104, 1483351979618078720, 23.000000, '柴油', 't', 'tCO₂e/t', 1, 71.300000, 'tCO₂e', 3.100000, 't2', 1, 'A024484593', '2022-01-18 16:14:14', 'A024484593', '2022-01-18 16:14:14', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1483378101508509696, 1483378067001970688, 70.000000, '液化石油气', 't', 'tCO₂e/t', 1, 217.000000, 'tCO₂e', 3.100000, '', 1, 'A024484593', '2022-01-18 17:57:54', 'A024484593', '2022-01-18 17:57:54', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1483709811081220096, 1483709811030888448, 100.000000, '喷气煤油', 't', 'tCO₂e/t', 1, 302.000000, 'tCO₂e', 3.020000, '', 1, 'A024484593', '2022-01-19 15:56:00', 'A024484593', '2022-01-19 15:56:00', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1486326919380209664, 1486326919334072320, 5325.000000, '喷气煤油', 't', 'tCO₂e/t', 1, 16081.500000, 'tCO₂e', 3.020000, '623', 1, 'A024484593', '2022-01-26 21:15:27', 'A024484593', '2022-01-26 21:15:27', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1491610344605487104, 1485866159176814592, 4.000000, '喷气煤油', 't', 'tCO₂e/t', 0, 20.000000, 'tCO₂e', 5.000000, '', 1, 'A024484593', '2022-02-10 11:09:54', 'A024484593', '2022-02-10 11:09:54', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1494495078809473024, 1494495034857361408, 2222.000000, '汽油', 't', 'tCO₂e/t', 1, 6488.240000, 'tCO₂e', 2.920000, '', 1, 'A024484593', '2022-02-18 10:12:48', 'A024484593', '2022-02-18 10:12:48', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1496725517045469184, 1485796406550728704, 2300.000000, '喷气煤油', 't', 'tCO₂e/t', 1, 6946.000000, 'tCO₂e', 3.020000, '', 1, 'A024484593', '2022-02-24 13:55:46', 'A024484593', '2022-02-24 13:55:46', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1496726404740550656, 1496726370900905984, 2000.000000, '液化石油气', 't', 'tCO₂e/t', 1, 6200.000000, 'tCO₂e', 3.100000, '', 1, 'A024484593', '2022-02-24 13:59:17', 'A024484593', '2022-02-24 13:59:17', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1496728054158987264, 1496728009439318016, 2000.000000, '液化石油气', 't', 'tCO₂e/t', 1, 6200.000000, 'tCO₂e', 3.100000, '', 1, 'A024484593', '2022-02-24 14:05:51', 'A024484593', '2022-02-24 14:05:51', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1496738740880674816, 1496738640934604800, 2999.000000, '汽油', 't', 'tCO₂e/t', 1, 8757.080000, 'tCO₂e', 2.920000, '', 1, 'A024484593', '2022-02-24 14:48:19', 'A024484593', '2022-02-24 14:48:19', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1496738992190787584, 1496738968174202880, 2000.000000, '喷气煤油', 't', 'tCO₂e/t', 1, 6040.000000, 'tCO₂e', 3.020000, '', 1, 'A024484593', '2022-02-24 14:49:18', 'A024484593', '2022-02-24 14:49:18', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1496739138995621888, 1496739110243667968, 2000.000000, '喷气煤油', 't', 'tCO₂e/t', 1, 6040.000000, 'tCO₂e', 3.020000, '', 1, 'A024484593', '2022-02-24 14:49:53', 'A024484593', '2022-02-24 14:49:53', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1496741131571040256, 1496741099325231104, 3000.000000, '汽油', 't', 'tCO₂e/t', 1, 8760.000000, 'tCO₂e', 2.920000, '', 1, 'A024484593', '2022-02-24 14:57:49', 'A024484593', '2022-02-24 14:57:49', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1496741885417492480, 1496741862587895808, 1000.000000, '汽油', 't', 'tCO₂e/t', 1, 2920.000000, 'tCO₂e', 2.920000, '', 1, 'A024484593', '2022-02-24 15:00:48', 'A024484593', '2022-02-24 15:00:48', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1498558575226785792, 1498558509388795904, 10.000000, '液化石油气', 'kg', 'tCO₂e/t', 1, 0.031000, 'tCO₂e', 3.100000, '', 1, 'A024484593', '2022-03-01 15:19:41', 'A024484593', '2022-03-01 15:19:41', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1498585778366844928, 1498554415903281152, 2.000000, '喷气煤油', 't', 'tCO₂e/t', 1, 6.040000, 'tCO₂e', 3.020000, '是', 1, 'A024484593', '2022-03-01 17:07:47', 'A024484593', '2022-03-01 17:07:47', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1498867333534453760, 1498867215917780992, 100.000000, '汽油', 't', 'tCO₂e/t', 1, 292.000000, 'tCO₂e', 2.920000, '', 1, 'A024484593', '2022-03-02 11:46:35', 'A024484593', '2022-03-02 11:46:35', 'fii', 1498867333534453760);
+INSERT INTO `mobile_combustion` VALUES (1498867911161417728, 1498867816995098624, 200.000000, '液化石油气', 'kg', 'tCO₂e/t', 1, 0.620000, 'tCO₂e', 3.100000, '', 1, 'A024484593', '2022-03-02 11:48:52', 'A024484593', '2022-03-02 11:48:52', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1501068705805766656, 1501068658473046016, 500.000000, '汽油', 't', 'tCO₂e/t', 1, 1460.000000, 'tCO₂e', 2.920000, '', 1, 'A024484593', '2022-03-08 13:34:03', 'A024484593', '2022-03-08 13:34:03', 'fii', 0);
+INSERT INTO `mobile_combustion` VALUES (1501108953403232256, 1501105840944451584, 2000.000000, '喷气煤油', 't', 'tCO₂e/t', 1, 6040.000000, 'tCO₂e', 3.020000, '总共消耗2000t喷气煤油', 1, 'A024484593', '2022-03-08 16:13:58', 'A024484593', '2022-03-08 16:13:58', 'fii', 0);
+COMMIT;
 
-create table sys_permission
-(
-    id              bigint                  not null comment '主键id'
-        primary key,
-    permission_name varchar(50)  default '' not null comment '权限名称',
-    permission_code varchar(100) default '' null comment '权限标识',
-    parent_id       bigint                  null comment '父权限id'
-)
-    comment '权限表' charset = utf8;
+-- ----------------------------
+-- Table structure for notice
+-- ----------------------------
+DROP TABLE IF EXISTS `notice`;
+CREATE TABLE `notice` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `task_id` bigint(20) DEFAULT NULL COMMENT '任务id',
+  `year` int(11) DEFAULT NULL COMMENT '年份',
+  `quarter` int(2) DEFAULT NULL COMMENT '季度',
+  `org_id` bigint(20) NOT NULL COMMENT '组织id',
+  `status` int(2) NOT NULL DEFAULT '0' COMMENT '通知状态',
+  `content` varchar(200) NOT NULL COMMENT '内容',
+  `url` varchar(300) NOT NULL COMMENT 'url',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人id',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(32) NOT NULL COMMENT '更新人id',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `revision` int(10) NOT NULL DEFAULT '1' COMMENT '乐观锁',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='通知';
 
-create table sys_role
-(
-    id            bigint      not null comment '主键id'
-        primary key,
-    role_name     varchar(50) null comment '角色类型',
-    role_org_type int(2)      not null comment '角色组织类型'
-)
-    comment '角色表' charset = utf8;
+-- ----------------------------
+-- Records of notice
+-- ----------------------------
+BEGIN;
+INSERT INTO `notice` VALUES (1483351805143420928, 1483351805059534849, 2019, 1, 1478968649799831552, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420929, 1483351805067923456, 2019, 1, 1478968651452387328, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420930, 1483351805067923457, 2019, 1, 1478968653104943104, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420931, 1483351805067923458, 2019, 1, 1478968654702972928, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420932, 1483351805067923459, 2019, 1, 1478968656267448320, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420933, 1483351805067923460, 2019, 1, 1478968659257987072, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420934, 1483351805067923461, 2019, 1, 1478968660835045376, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420935, 1483351805067923462, 2019, 1, 1478968662403715072, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420936, 1483351805067923463, 2019, 1, 1478968666405081088, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420937, 1483351805067923464, 2019, 1, 1478968667973750784, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420938, 1483351805067923465, 2019, 1, 1478968669584363520, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420939, 1483351805067923466, 2019, 1, 1478968671140450304, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420940, 1483351805067923467, 2019, 1, 1478968674126794752, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420941, 1483351805067923468, 2019, 1, 1478968675691270144, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420942, 1483351805067923469, 2019, 1, 1478968677268328448, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420943, 1483351805067923470, 2019, 1, 1478968680271450112, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420944, 1483351805067923471, 2019, 1, 1478968681840119808, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420945, 1483351805067923472, 2019, 1, 1478968684394450944, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483351805143420946, 1483351805067923473, 2019, 1, 1478968687389184000, 1, '碳盘查发起：2019-Q1-碳盘查 已发起，请在2022-01-19 16:13:21前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-18 16:13:24', '1481900808294502400', '2022-01-18 16:13:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040576, 1483359080159514625, 2023, 1, 1478968649799831552, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040577, 1483359080163708928, 2023, 1, 1478968651452387328, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040578, 1483359080163708929, 2023, 1, 1478968653104943104, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040579, 1483359080163708930, 2023, 1, 1478968654702972928, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040580, 1483359080163708931, 2023, 1, 1478968656267448320, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040581, 1483359080163708932, 2023, 1, 1478968659257987072, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040582, 1483359080163708933, 2023, 1, 1478968660835045376, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040583, 1483359080163708934, 2023, 1, 1478968662403715072, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040584, 1483359080163708935, 2023, 1, 1478968666405081088, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040585, 1483359080163708936, 2023, 1, 1478968667973750784, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040586, 1483359080163708937, 2023, 1, 1478968669584363520, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040587, 1483359080163708938, 2023, 1, 1478968671140450304, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040588, 1483359080163708939, 2023, 1, 1478968674126794752, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040589, 1483359080163708940, 2023, 1, 1478968675691270144, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040590, 1483359080163708941, 2023, 1, 1478968677268328448, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040591, 1483359080163708942, 2023, 1, 1478968680271450112, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040592, 1483359080163708943, 2023, 1, 1478968681840119808, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040593, 1483359080163708944, 2023, 1, 1478968684394450944, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483359080214040594, 1483359080163708945, 2023, 1, 1478968687389184000, 1, '碳盘查发起：2023-Q1-碳盘查 已发起，请在2022-02-28 16:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 16:42:19', '1481532236233838592', '2022-01-18 16:42:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955392, 1483376740804988935, 2023, 2, 1478968649799831552, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955393, 1483376740809183232, 2023, 2, 1478968651452387328, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955394, 1483376740809183233, 2023, 2, 1478968653104943104, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955395, 1483376740809183234, 2023, 2, 1478968654702972928, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955396, 1483376740809183235, 2023, 2, 1478968656267448320, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955397, 1483376740809183236, 2023, 2, 1478968659257987072, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955398, 1483376740809183237, 2023, 2, 1478968660835045376, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955399, 1483376740809183238, 2023, 2, 1478968662403715072, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955400, 1483376740809183239, 2023, 2, 1478968666405081088, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955401, 1483376740809183240, 2023, 2, 1478968667973750784, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955402, 1483376740809183241, 2023, 2, 1478968669584363520, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955403, 1483376740809183242, 2023, 2, 1478968671140450304, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955404, 1483376740809183243, 2023, 2, 1478968674126794752, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955405, 1483376740809183244, 2023, 2, 1478968675691270144, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955406, 1483376740809183245, 2023, 2, 1478968677268328448, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955407, 1483376740809183246, 2023, 2, 1478968680271450112, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955408, 1483376740809183247, 2023, 2, 1478968681840119808, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955409, 1483376740809183248, 2023, 2, 1478968684394450944, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483376740976955410, 1483376740809183249, 2023, 2, 1478968687389184000, 1, '碳盘查发起：2023-Q2-碳盘查 已发起，请在2022-03-31 17:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-18 17:52:30', '1481532236233838592', '2022-01-18 17:52:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228288, 1483608845375901703, 2023, 3, 1478968649799831552, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228289, 1483608845380096000, 2023, 3, 1478968651452387328, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228290, 1483608845380096001, 2023, 3, 1478968653104943104, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228291, 1483608845380096002, 2023, 3, 1478968654702972928, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228292, 1483608845380096003, 2023, 3, 1478968656267448320, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228293, 1483608845380096004, 2023, 3, 1478968659257987072, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228294, 1483608845380096005, 2023, 3, 1478968660835045376, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228295, 1483608845380096006, 2023, 3, 1478968662403715072, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228296, 1483608845380096007, 2023, 3, 1478968666405081088, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228297, 1483608845380096008, 2023, 3, 1478968667973750784, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228298, 1483608845380096009, 2023, 3, 1478968669584363520, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228299, 1483608845380096010, 2023, 3, 1478968671140450304, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228300, 1483608845380096011, 2023, 3, 1478968674126794752, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228301, 1483608845380096012, 2023, 3, 1478968675691270144, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228302, 1483608845380096013, 2023, 3, 1478968677268328448, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228303, 1483608845380096014, 2023, 3, 1478968680271450112, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228304, 1483608845380096015, 2023, 3, 1478968681840119808, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228305, 1483608845380096016, 2023, 3, 1478968684394450944, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483608845577228306, 1483608845380096017, 2023, 3, 1478968687389184000, 1, '碳盘查发起：2023-Q3-碳盘查 已发起，请在2022-01-29 09:14:45前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 09:14:48', '1481900808294502400', '2022-01-19 09:14:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809216, 1483698022599757831, 2021, 4, 1478968649799831552, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809217, 1483698022599757832, 2021, 4, 1478968651452387328, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809218, 1483698022599757833, 2021, 4, 1478968653104943104, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809219, 1483698022599757834, 2021, 4, 1478968654702972928, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809220, 1483698022599757835, 2021, 4, 1478968656267448320, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809221, 1483698022599757836, 2021, 4, 1478968659257987072, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809222, 1483698022599757837, 2021, 4, 1478968660835045376, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809223, 1483698022599757838, 2021, 4, 1478968662403715072, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809224, 1483698022599757839, 2021, 4, 1478968666405081088, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809225, 1483698022599757840, 2021, 4, 1478968667973750784, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809226, 1483698022599757841, 2021, 4, 1478968669584363520, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809227, 1483698022599757842, 2021, 4, 1478968671140450304, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809228, 1483698022599757843, 2021, 4, 1478968674126794752, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809229, 1483698022599757844, 2021, 4, 1478968675691270144, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809230, 1483698022599757845, 2021, 4, 1478968677268328448, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809231, 1483698022599757846, 2021, 4, 1478968680271450112, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809232, 1483698022599757847, 2021, 4, 1478968681840119808, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809233, 1483698022599757848, 2021, 4, 1478968684394450944, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025212809234, 1483698022599757849, 2021, 4, 1478968687389184000, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216192, 1483698025426718727, 2021, 4, 1478968649799831552, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216193, 1483698025426718728, 2021, 4, 1478968651452387328, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216194, 1483698025426718729, 2021, 4, 1478968653104943104, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216195, 1483698025426718730, 2021, 4, 1478968654702972928, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216196, 1483698025426718731, 2021, 4, 1478968656267448320, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216197, 1483698025426718732, 2021, 4, 1478968659257987072, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216198, 1483698025426718733, 2021, 4, 1478968660835045376, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216199, 1483698025426718734, 2021, 4, 1478968662403715072, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216200, 1483698025426718735, 2021, 4, 1478968666405081088, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216201, 1483698025426718736, 2021, 4, 1478968667973750784, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216202, 1483698025426718737, 2021, 4, 1478968669584363520, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216203, 1483698025426718738, 2021, 4, 1478968671140450304, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216204, 1483698025426718739, 2021, 4, 1478968674126794752, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216205, 1483698025426718740, 2021, 4, 1478968675691270144, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216206, 1483698025426718741, 2021, 4, 1478968677268328448, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216207, 1483698025426718742, 2021, 4, 1478968680271450112, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216208, 1483698025426718743, 2021, 4, 1478968681840119808, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216209, 1483698025426718744, 2021, 4, 1478968684394450944, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025502216210, 1483698025426718745, 2021, 4, 1478968687389184000, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410496, 1483698018652917766, 2021, 4, 1478968649799831552, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410497, 1483698018657112064, 2021, 4, 1478968651452387328, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410498, 1483698018657112065, 2021, 4, 1478968653104943104, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410499, 1483698018657112066, 2021, 4, 1478968654702972928, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410500, 1483698018657112067, 2021, 4, 1478968656267448320, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410501, 1483698018657112068, 2021, 4, 1478968659257987072, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410502, 1483698018657112069, 2021, 4, 1478968660835045376, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410503, 1483698018657112070, 2021, 4, 1478968662403715072, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410504, 1483698018657112071, 2021, 4, 1478968666405081088, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410505, 1483698018657112072, 2021, 4, 1478968667973750784, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410506, 1483698018657112073, 2021, 4, 1478968669584363520, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410507, 1483698018657112074, 2021, 4, 1478968671140450304, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410508, 1483698018657112075, 2021, 4, 1478968674126794752, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410509, 1483698018657112076, 2021, 4, 1478968675691270144, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410510, 1483698018657112077, 2021, 4, 1478968677268328448, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410511, 1483698018657112078, 2021, 4, 1478968680271450112, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410512, 1483698018657112079, 2021, 4, 1478968681840119808, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410513, 1483698018657112080, 2021, 4, 1478968684394450944, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025506410514, 1483698018657112081, 2021, 4, 1478968687389184000, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382016, 1483698025464467463, 2021, 4, 1478968649799831552, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382017, 1483698025464467464, 2021, 4, 1478968651452387328, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382018, 1483698025464467465, 2021, 4, 1478968653104943104, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382019, 1483698025464467466, 2021, 4, 1478968654702972928, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382020, 1483698025464467467, 2021, 4, 1478968656267448320, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382021, 1483698025464467468, 2021, 4, 1478968659257987072, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382022, 1483698025464467469, 2021, 4, 1478968660835045376, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382023, 1483698025464467470, 2021, 4, 1478968662403715072, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382024, 1483698025464467471, 2021, 4, 1478968666405081088, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382025, 1483698025464467472, 2021, 4, 1478968667973750784, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382026, 1483698025464467473, 2021, 4, 1478968669584363520, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382027, 1483698025464467474, 2021, 4, 1478968671140450304, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382028, 1483698025464467475, 2021, 4, 1478968674126794752, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382029, 1483698025464467476, 2021, 4, 1478968675691270144, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382030, 1483698025464467477, 2021, 4, 1478968677268328448, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382031, 1483698025464467478, 2021, 4, 1478968680271450112, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382032, 1483698025464467479, 2021, 4, 1478968681840119808, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382033, 1483698025464467480, 2021, 4, 1478968684394450944, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698025527382034, 1483698025464467481, 2021, 4, 1478968687389184000, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616256, 1483698019177205767, 2021, 4, 1478968649799831552, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616257, 1483698019177205768, 2021, 4, 1478968651452387328, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616258, 1483698019177205769, 2021, 4, 1478968653104943104, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616259, 1483698019177205770, 2021, 4, 1478968654702972928, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616260, 1483698019177205771, 2021, 4, 1478968656267448320, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616261, 1483698019177205772, 2021, 4, 1478968659257987072, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616262, 1483698019177205773, 2021, 4, 1478968660835045376, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616263, 1483698019177205774, 2021, 4, 1478968662403715072, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616264, 1483698019177205775, 2021, 4, 1478968666405081088, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616265, 1483698019177205776, 2021, 4, 1478968667973750784, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616266, 1483698019177205777, 2021, 4, 1478968669584363520, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616267, 1483698019177205778, 2021, 4, 1478968671140450304, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616268, 1483698019177205779, 2021, 4, 1478968674126794752, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616269, 1483698019177205780, 2021, 4, 1478968675691270144, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616270, 1483698019177205781, 2021, 4, 1478968677268328448, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616271, 1483698019177205782, 2021, 4, 1478968680271450112, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616272, 1483698019177205783, 2021, 4, 1478968681840119808, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616273, 1483698019177205784, 2021, 4, 1478968684394450944, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698026827616274, 1483698019177205785, 2021, 4, 1478968687389184000, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440320, 1483698027045720071, 2021, 4, 1478968649799831552, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440321, 1483698027045720072, 2021, 4, 1478968651452387328, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440322, 1483698027045720073, 2021, 4, 1478968653104943104, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440323, 1483698027045720074, 2021, 4, 1478968654702972928, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440324, 1483698027045720075, 2021, 4, 1478968656267448320, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440325, 1483698027045720076, 2021, 4, 1478968659257987072, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440326, 1483698027045720077, 2021, 4, 1478968660835045376, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440327, 1483698027045720078, 2021, 4, 1478968662403715072, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440328, 1483698027045720079, 2021, 4, 1478968666405081088, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440329, 1483698027045720080, 2021, 4, 1478968667973750784, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440330, 1483698027045720081, 2021, 4, 1478968669584363520, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440331, 1483698027045720082, 2021, 4, 1478968671140450304, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440332, 1483698027045720083, 2021, 4, 1478968674126794752, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440333, 1483698027045720084, 2021, 4, 1478968675691270144, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440334, 1483698027045720085, 2021, 4, 1478968677268328448, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440335, 1483698027045720086, 2021, 4, 1478968680271450112, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440336, 1483698027045720087, 2021, 4, 1478968681840119808, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440337, 1483698027045720088, 2021, 4, 1478968684394450944, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027104440338, 1483698027045720089, 2021, 4, 1478968687389184000, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448576, 1483698027632922631, 2021, 4, 1478968649799831552, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448577, 1483698027632922632, 2021, 4, 1478968651452387328, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448578, 1483698027632922633, 2021, 4, 1478968653104943104, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448579, 1483698027632922634, 2021, 4, 1478968654702972928, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448580, 1483698027632922635, 2021, 4, 1478968656267448320, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448581, 1483698027632922636, 2021, 4, 1478968659257987072, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448582, 1483698027632922637, 2021, 4, 1478968660835045376, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448583, 1483698027632922638, 2021, 4, 1478968662403715072, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448584, 1483698027632922639, 2021, 4, 1478968666405081088, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448585, 1483698027632922640, 2021, 4, 1478968667973750784, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448586, 1483698027632922641, 2021, 4, 1478968669584363520, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448587, 1483698027632922642, 2021, 4, 1478968671140450304, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448588, 1483698027632922643, 2021, 4, 1478968674126794752, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448589, 1483698027632922644, 2021, 4, 1478968675691270144, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448590, 1483698027632922645, 2021, 4, 1478968677268328448, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448591, 1483698027632922646, 2021, 4, 1478968680271450112, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448592, 1483698027632922647, 2021, 4, 1478968681840119808, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448593, 1483698027632922648, 2021, 4, 1478968684394450944, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483698027687448594, 1483698027632922649, 2021, 4, 1478968687389184000, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-03-31 15:00:00前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-19 15:09:10', '1481532236233838592', '2022-01-19 15:09:10', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759936, 1483727347768233985, 2021, 1, 1478968649799831552, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759937, 1483727347768233986, 2021, 1, 1478968651452387328, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759938, 1483727347768233987, 2021, 1, 1478968653104943104, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759939, 1483727347768233988, 2021, 1, 1478968654702972928, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759940, 1483727347768233989, 2021, 1, 1478968656267448320, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759941, 1483727347768233990, 2021, 1, 1478968659257987072, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759942, 1483727347768233991, 2021, 1, 1478968660835045376, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759943, 1483727347768233992, 2021, 1, 1478968662403715072, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759944, 1483727347768233993, 2021, 1, 1478968666405081088, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759945, 1483727347768233994, 2021, 1, 1478968667973750784, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759946, 1483727347768233995, 2021, 1, 1478968669584363520, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759947, 1483727347768233996, 2021, 1, 1478968671140450304, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759948, 1483727347768233997, 2021, 1, 1478968674126794752, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759949, 1483727347768233998, 2021, 1, 1478968675691270144, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759950, 1483727347768233999, 2021, 1, 1478968677268328448, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759951, 1483727347768234000, 2021, 1, 1478968680271450112, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759952, 1483727347768234001, 2021, 1, 1478968681840119808, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759953, 1483727347768234002, 2021, 1, 1478968684394450944, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483727347822759954, 1483727347768234003, 2021, 1, 1478968687389184000, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-29 17:05:38前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481900808294502400', '2022-01-19 17:05:41', '1481900808294502400', '2022-01-19 17:05:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492608, 1483968607032578055, 2021, 2, 1478968649799831552, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492609, 1483968607032578056, 2021, 2, 1478968651452387328, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492610, 1483968607032578057, 2021, 2, 1478968653104943104, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492611, 1483968607032578058, 2021, 2, 1478968654702972928, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492612, 1483968607032578059, 2021, 2, 1478968656267448320, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492613, 1483968607032578060, 2021, 2, 1478968659257987072, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492614, 1483968607032578061, 2021, 2, 1478968660835045376, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492615, 1483968607032578062, 2021, 2, 1478968662403715072, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492616, 1483968607032578063, 2021, 2, 1478968666405081088, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492617, 1483968607032578064, 2021, 2, 1478968667973750784, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492618, 1483968607032578065, 2021, 2, 1478968669584363520, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492619, 1483968607032578066, 2021, 2, 1478968671140450304, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492620, 1483968607032578067, 2021, 2, 1478968674126794752, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492621, 1483968607032578068, 2021, 2, 1478968675691270144, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492622, 1483968607032578069, 2021, 2, 1478968677268328448, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492623, 1483968607032578070, 2021, 2, 1478968680271450112, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492624, 1483968607032578071, 2021, 2, 1478968681840119808, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492625, 1483968607032578072, 2021, 2, 1478968684394450944, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1483968607095492626, 1483968607032578073, 2021, 2, 1478968687389184000, 1, '碳盘查发起：2021-Q2-碳盘查 已发起，请在2022-01-29 09:04:19前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 09:04:21', '1481532236233838592', '2022-01-20 09:04:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631552, 1484054754412859398, 2022, 1, 1478968649799831552, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631553, 1484054754417053696, 2022, 1, 1478968651452387328, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631554, 1484054754417053697, 2022, 1, 1478968653104943104, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631555, 1484054754417053698, 2022, 1, 1478968654702972928, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631556, 1484054754417053699, 2022, 1, 1478968656267448320, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631557, 1484054754417053700, 2022, 1, 1478968659257987072, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631558, 1484054754417053701, 2022, 1, 1478968660835045376, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631559, 1484054754417053702, 2022, 1, 1478968662403715072, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631560, 1484054754417053703, 2022, 1, 1478968666405081088, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631561, 1484054754417053704, 2022, 1, 1478968667973750784, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631562, 1484054754417053705, 2022, 1, 1478968669584363520, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631563, 1484054754417053706, 2022, 1, 1478968671140450304, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631564, 1484054754417053707, 2022, 1, 1478968674126794752, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631565, 1484054754417053708, 2022, 1, 1478968675691270144, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631566, 1484054754417053709, 2022, 1, 1478968677268328448, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631567, 1484054754417053710, 2022, 1, 1478968680271450112, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631568, 1484054754417053711, 2022, 1, 1478968681840119808, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631569, 1484054754417053712, 2022, 1, 1478968684394450944, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054754580631570, 1484054754417053713, 2022, 1, 1478968687389184000, 1, '碳盘查发起：2022-Q1-碳盘查 已发起，请在2022-01-20 14:46:38前完成提交', '', '1481532236233838592', '2022-01-20 14:46:41', '1481532236233838592', '2022-01-20 14:46:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773696, 1484054754412859398, 2022, 1, 1478968649799831552, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773697, 1484054754417053696, 2022, 1, 1478968651452387328, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773698, 1484054754417053697, 2022, 1, 1478968653104943104, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773699, 1484054754417053698, 2022, 1, 1478968654702972928, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773700, 1484054754417053699, 2022, 1, 1478968656267448320, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773701, 1484054754417053700, 2022, 1, 1478968659257987072, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773702, 1484054754417053701, 2022, 1, 1478968660835045376, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773703, 1484054754417053702, 2022, 1, 1478968662403715072, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773704, 1484054754417053703, 2022, 1, 1478968666405081088, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773705, 1484054754417053704, 2022, 1, 1478968667973750784, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773706, 1484054754417053705, 2022, 1, 1478968669584363520, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773707, 1484054754417053706, 2022, 1, 1478968671140450304, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773708, 1484054754417053707, 2022, 1, 1478968674126794752, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773709, 1484054754417053708, 2022, 1, 1478968675691270144, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773710, 1484054754417053709, 2022, 1, 1478968677268328448, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773711, 1484054754417053710, 2022, 1, 1478968680271450112, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773712, 1484054754417053711, 2022, 1, 1478968681840119808, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773713, 1484054754417053712, 2022, 1, 1478968684394450944, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484054919567773714, 1484054754417053713, 2022, 1, 1478968687389184000, 1, '截止时间更新：2022-Q1-碳盘查 提交截止时间更改至2022-01-20 17:46:40，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-01-20 14:47:20', '1481532236233838592', '2022-01-20 14:47:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331776, 1484066673584640007, 2019, 2, 1478968649799831552, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331777, 1484066673584640008, 2019, 2, 1478968651452387328, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331778, 1484066673584640009, 2019, 2, 1478968653104943104, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331779, 1484066673584640010, 2019, 2, 1478968654702972928, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331780, 1484066673584640011, 2019, 2, 1478968656267448320, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331781, 1484066673584640012, 2019, 2, 1478968659257987072, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331782, 1484066673584640013, 2019, 2, 1478968660835045376, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331783, 1484066673584640014, 2019, 2, 1478968662403715072, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331784, 1484066673584640015, 2019, 2, 1478968666405081088, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331785, 1484066673584640016, 2019, 2, 1478968667973750784, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331786, 1484066673584640017, 2019, 2, 1478968669584363520, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331787, 1484066673584640018, 2019, 2, 1478968671140450304, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331788, 1484066673584640019, 2019, 2, 1478968674126794752, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331789, 1484066673584640020, 2019, 2, 1478968675691270144, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331790, 1484066673584640021, 2019, 2, 1478968677268328448, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331791, 1484066673584640022, 2019, 2, 1478968680271450112, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331792, 1484066673584640023, 2019, 2, 1478968681840119808, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673664331793, 1484066673584640024, 2019, 2, 1478968684394450944, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484066673668526080, 1484066673584640025, 2019, 2, 1478968687389184000, 1, '碳盘查发起：2019-Q2-碳盘查 已发起，请在2022-01-20 15:33:54前完成提交', '', '1484056907466543104', '2022-01-20 15:34:02', '1484056907466543104', '2022-01-20 15:34:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157957214208, 1484068157885911047, 2019, 3, 1478968649799831552, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157957214209, 1484068157885911048, 2019, 3, 1478968651452387328, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157957214210, 1484068157885911049, 2019, 3, 1478968653104943104, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408512, 1484068157885911050, 2019, 3, 1478968654702972928, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408513, 1484068157885911051, 2019, 3, 1478968656267448320, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408514, 1484068157885911052, 2019, 3, 1478968659257987072, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408515, 1484068157885911053, 2019, 3, 1478968660835045376, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408516, 1484068157885911054, 2019, 3, 1478968662403715072, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408517, 1484068157885911055, 2019, 3, 1478968666405081088, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408518, 1484068157885911056, 2019, 3, 1478968667973750784, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408519, 1484068157885911057, 2019, 3, 1478968669584363520, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408520, 1484068157885911058, 2019, 3, 1478968671140450304, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408521, 1484068157885911059, 2019, 3, 1478968674126794752, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408522, 1484068157885911060, 2019, 3, 1478968675691270144, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408523, 1484068157885911061, 2019, 3, 1478968677268328448, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408524, 1484068157885911062, 2019, 3, 1478968680271450112, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408525, 1484068157885911063, 2019, 3, 1478968681840119808, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408526, 1484068157885911064, 2019, 3, 1478968684394450944, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484068157961408527, 1484068157885911065, 2019, 3, 1478968687389184000, 1, '碳盘查发起：2019-Q3-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:39:56', '1484056907466543104', '2022-01-20 15:39:56', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471872, 1484071108452945926, 2019, 4, 1478968649799831552, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471873, 1484071108452945927, 2019, 4, 1478968651452387328, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471874, 1484071108452945928, 2019, 4, 1478968653104943104, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471875, 1484071108452945929, 2019, 4, 1478968654702972928, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471876, 1484071108452945930, 2019, 4, 1478968656267448320, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471877, 1484071108452945931, 2019, 4, 1478968659257987072, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471878, 1484071108452945932, 2019, 4, 1478968660835045376, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471879, 1484071108452945933, 2019, 4, 1478968662403715072, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471880, 1484071108452945934, 2019, 4, 1478968666405081088, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471881, 1484071108452945935, 2019, 4, 1478968667973750784, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471882, 1484071108452945936, 2019, 4, 1478968669584363520, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471883, 1484071108452945937, 2019, 4, 1478968671140450304, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471884, 1484071108452945938, 2019, 4, 1478968674126794752, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471885, 1484071108452945939, 2019, 4, 1478968675691270144, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471886, 1484071108452945940, 2019, 4, 1478968677268328448, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471887, 1484071108452945941, 2019, 4, 1478968680271450112, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471888, 1484071108452945942, 2019, 4, 1478968681840119808, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471889, 1484071108452945943, 2019, 4, 1478968684394450944, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071108507471890, 1484071108452945944, 2019, 4, 1478968687389184000, 1, '碳盘查发起：2019-Q4-碳盘查 已发起，请在2022-01-31 15:39:53前完成提交', '', '1484056907466543104', '2022-01-20 15:51:40', '1484056907466543104', '2022-01-20 15:51:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071293363032064, NULL, 2019, 1, -1, 1, '深圳富联富桂精密工业有限公司 提交 2019-Q1-碳盘查报告', '', '1482881351152701440', '2022-01-20 15:52:24', '1482881351152701440', '2022-01-20 15:52:24', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484071449412112384, NULL, 2019, 3, -1, 1, '深圳富联富桂精密工业有限公司 提交 2019-Q3-碳盘查报告', '', '1482881351152701440', '2022-01-20 15:53:01', '1482881351152701440', '2022-01-20 15:53:01', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076512545214464, NULL, 2021, 2, -1, 1, '深圳富联富桂精密工业有限公司 提交 2021-Q2-碳盘查报告', '', '1482881351152701440', '2022-01-20 16:13:08', '1482881351152701440', '2022-01-20 16:13:08', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076652127457280, NULL, 2019, 4, -1, 1, '深圳富联富桂精密工业有限公司 提交 2019-Q4-碳盘查报告', '', '1482881351152701440', '2022-01-20 16:13:41', '1482881351152701440', '2022-01-20 16:13:41', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842816, 1484066673584640007, 2019, 2, 1478968649799831552, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842817, 1484066673584640008, 2019, 2, 1478968651452387328, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842818, 1484066673584640009, 2019, 2, 1478968653104943104, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842819, 1484066673584640010, 2019, 2, 1478968654702972928, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842820, 1484066673584640011, 2019, 2, 1478968656267448320, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842821, 1484066673584640012, 2019, 2, 1478968659257987072, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842822, 1484066673584640013, 2019, 2, 1478968660835045376, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842823, 1484066673584640014, 2019, 2, 1478968662403715072, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842824, 1484066673584640015, 2019, 2, 1478968666405081088, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842825, 1484066673584640016, 2019, 2, 1478968667973750784, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842826, 1484066673584640017, 2019, 2, 1478968669584363520, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842827, 1484066673584640018, 2019, 2, 1478968671140450304, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842828, 1484066673584640019, 2019, 2, 1478968674126794752, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842829, 1484066673584640020, 2019, 2, 1478968675691270144, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842830, 1484066673584640021, 2019, 2, 1478968677268328448, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842831, 1484066673584640022, 2019, 2, 1478968680271450112, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842832, 1484066673584640023, 2019, 2, 1478968681840119808, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842833, 1484066673584640024, 2019, 2, 1478968684394450944, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484076929303842834, 1484066673584640025, 2019, 2, 1478968687389184000, 1, '截止时间更新：2019-Q2-碳盘查 提交截止时间更改至2022-01-20 17:35:59，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1484056907466543104', '2022-01-20 16:14:47', '1484056907466543104', '2022-01-20 16:14:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484077111445688320, NULL, 2019, 2, -1, 1, '深圳富联富桂精密工业有限公司 提交 2019-Q2-碳盘查报告', '', '1482881351152701440', '2022-01-20 16:15:31', '1482881351152701440', '2022-01-20 16:15:31', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1484336663059632128, NULL, 2021, 4, -1, 1, '南寧富桂精密工業有限公司 提交 2021-Q4-碳盘查报告', '', '1483709720098377728', '2022-01-21 09:26:53', '1483709720098377728', '2022-01-21 09:26:53', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485498713655873536, 1485498713546821634, 2021, 4, 1485429851061096448, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-01-25 14:00:00前完成提交', '', '1481532236233838592', '2022-01-24 14:24:27', '1481532236233838592', '2022-01-24 14:24:27', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485498713660067840, 1485498713551015936, 2021, 4, 1485429852688486400, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-01-25 14:00:00前完成提交', '', '1481532236233838592', '2022-01-24 14:24:27', '1481532236233838592', '2022-01-24 14:24:27', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485498713660067841, 1485498713551015937, 2021, 4, 1485429855775494144, 1, '碳盘查发起：2021-Q4-碳盘查 已发起，请在2022-01-25 14:00:00前完成提交', '', '1481532236233838592', '2022-01-24 14:24:27', '1481532236233838592', '2022-01-24 14:24:27', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485501339680247808, NULL, 2021, 4, -1, 1, '深圳富联富桂精密工业有限公司 提交 2021-Q4-碳盘查报告', '', '1485499720406274048', '2022-01-24 14:34:53', '1485499720406274048', '2022-01-24 14:34:53', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485502888536051712, NULL, 2021, 4, -1, 1, '工业富联佛山智造谷有限公司 提交 2021-Q4-碳盘查报告', '', '1485501854300377088', '2022-01-24 14:41:03', '1485501854300377088', '2022-01-24 14:41:03', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485506594409156608, NULL, 2021, 4, -1, 1, '天津佰昌 提交 2021-Q4-碳盘查报告', '', '1485505619829067776', '2022-01-24 14:55:46', '1485505619829067776', '2022-01-24 14:55:46', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485517580935499776, 1485517580910333955, 2021, 3, 1485429851061096448, 1, '碳盘查发起：2021-Q3-碳盘查 已发起，请在2022-01-25 15:04:00前完成提交', '', '1481532236233838592', '2022-01-24 15:39:26', '1481532236233838592', '2022-01-24 15:39:26', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485517580935499777, 1485517580910333956, 2021, 3, 1485429852688486400, 1, '碳盘查发起：2021-Q3-碳盘查 已发起，请在2022-01-25 15:04:00前完成提交', '', '1481532236233838592', '2022-01-24 15:39:26', '1481532236233838592', '2022-01-24 15:39:26', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485517580935499778, 1485517580910333957, 2021, 3, 1485429855775494144, 1, '碳盘查发起：2021-Q3-碳盘查 已发起，请在2022-01-25 15:04:00前完成提交', '', '1481532236233838592', '2022-01-24 15:39:26', '1481532236233838592', '2022-01-24 15:39:26', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485517935761035264, NULL, 2021, 3, -1, 1, '天津佰昌 提交 2021-Q3-碳盘查报告', '', '1485505619829067776', '2022-01-24 15:40:50', '1485505619829067776', '2022-01-24 15:40:50', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485788166211375104, NULL, 2021, 3, -1, 1, '深圳富联富桂精密工业有限公司 提交 2021-Q3-碳盘查报告', '', '1485787396162326528', '2022-01-25 09:34:38', '1485787396162326528', '2022-01-25 09:34:38', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485801367934210048, NULL, 2021, 3, -1, 1, '工业富联佛山智造谷有限公司 提交 2021-Q3-碳盘查报告', '', '1485787527892832256', '2022-01-25 10:27:06', '1485787527892832256', '2022-01-25 10:27:06', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485804491130408960, 1485804491096854531, 2021, 1, 1485429851061096448, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-28 10:39:26前完成提交', '', '1482168077759156224', '2022-01-25 10:39:30', '1482168077759156224', '2022-01-25 10:39:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485804491130408961, 1485804491096854532, 2021, 1, 1485429852688486400, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-28 10:39:26前完成提交', '', '1482168077759156224', '2022-01-25 10:39:30', '1482168077759156224', '2022-01-25 10:39:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485804491130408962, 1485804491096854533, 2021, 1, 1485429855775494144, 1, '碳盘查发起：2021-Q1-碳盘查 已发起，请在2022-01-28 10:39:26前完成提交', '', '1482168077759156224', '2022-01-25 10:39:30', '1482168077759156224', '2022-01-25 10:39:30', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485808281258692608, NULL, 2021, 1, -1, 1, '天津佰昌 提交 2021-Q1-碳盘查报告', '', '1485787600533983232', '2022-01-25 10:54:34', '1485787600533983232', '2022-01-25 10:54:34', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485810661941448704, NULL, 2021, 1, -1, 1, '深圳富联富桂精密工业有限公司 提交 2021-Q1-碳盘查报告', '', '1485787396162326528', '2022-01-25 11:04:01', '1485787396162326528', '2022-01-25 11:04:01', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485810861330272256, NULL, 2021, 1, -1, 1, '工业富联佛山智造谷有限公司 提交 2021-Q1-碳盘查报告', '', '1485787527892832256', '2022-01-25 11:04:49', '1485787527892832256', '2022-01-25 11:04:49', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485865909708001280, 1485865909603143683, 2021, 2, 1485429851061096448, 1, '2021-Q2-碳盘查 已发起，请在2022-01-27 14:43:30前完成提交', '', '1482168077759156224', '2022-01-25 14:43:34', '1482168077759156224', '2022-01-25 14:43:34', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485865909708001281, 1485865909607337984, 2021, 2, 1485429852688486400, 1, '2021-Q2-碳盘查 已发起，请在2022-01-27 14:43:30前完成提交', '', '1482168077759156224', '2022-01-25 14:43:34', '1482168077759156224', '2022-01-25 14:43:34', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485865909708001282, 1485865909607337985, 2021, 2, 1485429855775494144, 1, '2021-Q2-碳盘查 已发起，请在2022-01-27 14:43:30前完成提交', '', '1482168077759156224', '2022-01-25 14:43:34', '1482168077759156224', '2022-01-25 14:43:34', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1485866321093726208, NULL, 2021, 2, 1485429848393519104, 1, '深圳富联富桂精密工业有限公司 提交 2021-Q2-碳盘查报告', '', '1485787396162326528', '2022-01-25 14:45:12', '1485787396162326528', '2022-01-25 14:45:12', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1490538105239900160, 1490538105122459651, 2022, 1, 1485429851061096448, 1, '2022-Q1-碳盘查 已发起，请在2022-02-07 12:09:08前完成提交', '', '1481532236233838592', '2022-02-07 12:09:12', '1481532236233838592', '2022-02-07 12:09:12', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1490538105239900161, 1490538105143431168, 2022, 1, 1485429852688486400, 1, '2022-Q1-碳盘查 已发起，请在2022-02-07 12:09:08前完成提交', '', '1481532236233838592', '2022-02-07 12:09:12', '1481532236233838592', '2022-02-07 12:09:12', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1490538105239900162, 1490538105143431169, 2022, 1, 1485429855775494144, 1, '2022-Q1-碳盘查 已发起，请在2022-02-07 12:09:08前完成提交', '', '1481532236233838592', '2022-02-07 12:09:12', '1481532236233838592', '2022-02-07 12:09:12', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1490575073634029568, 1490575073596280835, 2022, 2, 1485429851061096448, 1, '2022-Q2-碳盘查 已发起，请在2022-02-01 14:36:03前完成提交', '', '1482168077759156224', '2022-02-07 14:36:06', '1482168077759156224', '2022-02-07 14:36:06', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1490575073634029569, 1490575073596280836, 2022, 2, 1485429852688486400, 1, '2022-Q2-碳盘查 已发起，请在2022-02-01 14:36:03前完成提交', '', '1482168077759156224', '2022-02-07 14:36:06', '1482168077759156224', '2022-02-07 14:36:06', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1490575073634029570, 1490575073596280837, 2022, 2, 1485429855775494144, 1, '2022-Q2-碳盘查 已发起，请在2022-02-01 14:36:03前完成提交', '', '1482168077759156224', '2022-02-07 14:36:06', '1482168077759156224', '2022-02-07 14:36:06', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1490586704267055104, 1485865909603143683, 2021, 2, 1485429851061096448, 1, '2021-Q2-碳盘查 提交截止时间更改至2022-02-16 14:43:30，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1482168077759156224', '2022-02-07 15:22:19', '1482168077759156224', '2022-02-07 15:22:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1490586704267055105, 1485865909607337984, 2021, 2, 1485429852688486400, 1, '2021-Q2-碳盘查 提交截止时间更改至2022-02-16 14:43:30，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1482168077759156224', '2022-02-07 15:22:19', '1482168077759156224', '2022-02-07 15:22:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1490586704267055106, 1485865909607337985, 2021, 2, 1485429855775494144, 1, '2021-Q2-碳盘查 提交截止时间更改至2022-02-16 14:43:30，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1482168077759156224', '2022-02-07 15:22:19', '1482168077759156224', '2022-02-07 15:22:19', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1490883714337607680, 1490883714316636163, 2022, 3, 1485429851061096448, 1, '2022-Q3-碳盘查 已发起，请在2022-02-09 11:02:29前完成提交', '', '1481532236233838592', '2022-02-08 11:02:31', '1481532236233838592', '2022-02-08 11:02:31', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1490883714337607681, 1490883714316636164, 2022, 3, 1485429852688486400, 1, '2022-Q3-碳盘查 已发起，请在2022-02-09 11:02:29前完成提交', '', '1481532236233838592', '2022-02-08 11:02:31', '1481532236233838592', '2022-02-08 11:02:31', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1490883714337607682, 1490883714316636165, 2022, 3, 1485429855775494144, 1, '2022-Q3-碳盘查 已发起，请在2022-02-09 11:02:29前完成提交', '', '1481532236233838592', '2022-02-08 11:02:31', '1481532236233838592', '2022-02-08 11:02:31', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1490884718219104256, NULL, 2022, 3, 1485429848393519104, 1, '天津佰昌 提交 2022-Q3-碳盘查报告', '', '1485505619829067776', '2022-02-08 11:06:31', '1485505619829067776', '2022-02-08 11:06:31', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1491305155008794624, NULL, 2021, 2, 1485429848393519104, 1, '天津佰昌 提交 2021-Q2-碳盘查报告', '', '1485787600533983232', '2022-02-09 14:57:11', '1485787600533983232', '2022-02-09 14:57:11', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1491312493073666048, NULL, 2021, 2, 1485429848393519104, 1, '工业富联佛山智造谷有限公司 提交 2021-Q2-碳盘查报告', '', '1485787527892832256', '2022-02-09 15:26:20', '1485787527892832256', '2022-02-09 15:26:20', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1491312755712593920, 1485865909603143680, 2021, 2, 1485429848393519104, 1, '2021-Q2-碳盘查报告已全部提交', '', '1485787396162326528', '2022-02-09 15:27:23', '1485787396162326528', '2022-02-09 15:27:23', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1491312755767119872, NULL, 2021, 2, 1485429848393519104, 1, '深圳富联富桂精密工业有限公司 提交 2021-Q2-碳盘查报告', '', '1485787396162326528', '2022-02-09 15:27:23', '1485787396162326528', '2022-02-09 15:27:23', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1493763247772405760, 1485804491096854531, 2021, 1, 1485429851061096448, 1, '2021-Q1-碳盘查 提交截止时间更改至2022-02-23 10:39:26，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-02-16 09:44:46', '1481532236233838592', '2022-02-16 09:44:46', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1493763247772405761, 1485804491096854532, 2021, 1, 1485429852688486400, 1, '2021-Q1-碳盘查 提交截止时间更改至2022-02-23 10:39:26，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-02-16 09:44:46', '1481532236233838592', '2022-02-16 09:44:46', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1493763247772405762, 1485804491096854533, 2021, 1, 1485429855775494144, 1, '2021-Q1-碳盘查 提交截止时间更改至2022-02-23 10:39:26，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-02-16 09:44:46', '1481532236233838592', '2022-02-16 09:44:46', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1493763295256121344, 1485517580910333955, 2021, 3, 1485429851061096448, 1, '2021-Q3-碳盘查 提交截止时间更改至2022-02-23 15:04:00，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-02-16 09:44:57', '1481532236233838592', '2022-02-16 09:44:57', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1493763295256121345, 1485517580910333956, 2021, 3, 1485429852688486400, 1, '2021-Q3-碳盘查 提交截止时间更改至2022-02-23 15:04:00，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-02-16 09:44:57', '1481532236233838592', '2022-02-16 09:44:57', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1493763295256121346, 1485517580910333957, 2021, 3, 1485429855775494144, 1, '2021-Q3-碳盘查 提交截止时间更改至2022-02-23 15:04:00，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-02-16 09:44:57', '1481532236233838592', '2022-02-16 09:44:57', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1493763317574012928, 1485498713546821634, 2021, 4, 1485429851061096448, 1, '2021-Q4-碳盘查 提交截止时间更改至2022-02-23 14:00:00，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-02-16 09:45:02', '1481532236233838592', '2022-02-16 09:45:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1493763317574012929, 1485498713551015936, 2021, 4, 1485429852688486400, 1, '2021-Q4-碳盘查 提交截止时间更改至2022-02-23 14:00:00，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-02-16 09:45:02', '1481532236233838592', '2022-02-16 09:45:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1493763317574012930, 1485498713551015937, 2021, 4, 1485429855775494144, 1, '2021-Q4-碳盘查 提交截止时间更改至2022-02-23 14:00:00，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1481532236233838592', '2022-02-16 09:45:02', '1481532236233838592', '2022-02-16 09:45:02', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1494117391980957696, NULL, 2020, 1, 1485429848393519104, 1, '天津佰昌 提交 2020-Q1-碳盘查报告', '', '1485505619829067776', '2022-02-17 09:12:00', '1485505619829067776', '2022-02-17 09:12:00', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496054584571990016, NULL, 2022, 4, 1485429848393519104, 1, '天津佰昌 提交 2022-Q4-碳盘查报告', '', '1485787600533983232', '2022-02-22 17:29:43', '1485787600533983232', '2022-02-22 17:29:43', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496695646135128064, 1496695646030270466, 2022, 4, 1485429851061096448, 1, '2022-Q4-碳盘查 已发起，请在2022-02-28 11:57:03前完成提交', '', '1482168077759156224', '2022-02-24 11:57:04', '1482168077759156224', '2022-02-24 11:57:04', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496695646135128065, 1496695646034464768, 2022, 4, 1485429852688486400, 1, '2022-Q4-碳盘查 已发起，请在2022-02-28 11:57:03前完成提交', '', '1482168077759156224', '2022-02-24 11:57:04', '1482168077759156224', '2022-02-24 11:57:04', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496695646135128066, 1496695646034464769, 2022, 4, 1485429855775494144, 1, '2022-Q4-碳盘查 已发起，请在2022-02-28 11:57:03前完成提交', '', '1482168077759156224', '2022-02-24 11:57:04', '1482168077759156224', '2022-02-24 11:57:04', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496721829761519616, 1485865909603143680, 2021, 2, 1485429848393519104, 1, '{2021}-{Q2}-碳盘查报告已全部提交', '', '1485787396162326528', '2022-02-24 13:41:07', '1485787396162326528', '2022-02-24 13:41:07', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496721829837017088, NULL, 2021, 2, 1485429848393519104, 1, '{深圳富联富桂精密工业有限公司} 提交 {2021}-{Q2}-碳盘查报告', '', '1485787396162326528', '2022-02-24 13:41:07', '1485787396162326528', '2022-02-24 13:41:07', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496723260639940608, NULL, 2022, 4, 1485429848393519104, 1, '{深圳富联富桂精密工业有限公司} 提交 {2022}-{Q4}-碳盘查报告', '', '1485787396162326528', '2022-02-24 13:46:48', '1485787396162326528', '2022-02-24 13:46:48', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496723476722094080, 1490538105122459651, 2022, 1, 1485429851061096448, 1, '2022-Q1-碳盘查 提交截止时间更改至2022-02-28 12:09:08，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1482168077759156224', '2022-02-24 13:47:39', '1482168077759156224', '2022-02-24 13:47:39', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496723476722094081, 1490538105143431168, 2022, 1, 1485429852688486400, 1, '2022-Q1-碳盘查 提交截止时间更改至2022-02-28 12:09:08，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1482168077759156224', '2022-02-24 13:47:39', '1482168077759156224', '2022-02-24 13:47:39', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496723476722094082, 1490538105143431169, 2022, 1, 1485429855775494144, 1, '2022-Q1-碳盘查 提交截止时间更改至2022-02-28 12:09:08，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1482168077759156224', '2022-02-24 13:47:39', '1482168077759156224', '2022-02-24 13:47:39', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496723517931130880, 1490575073596280835, 2022, 2, 1485429851061096448, 1, '2022-Q2-碳盘查 提交截止时间更改至2022-02-28 14:36:03，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1482168077759156224', '2022-02-24 13:47:49', '1482168077759156224', '2022-02-24 13:47:49', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496723517931130881, 1490575073596280836, 2022, 2, 1485429852688486400, 1, '2022-Q2-碳盘查 提交截止时间更改至2022-02-28 14:36:03，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1482168077759156224', '2022-02-24 13:47:49', '1482168077759156224', '2022-02-24 13:47:49', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496723517931130882, 1490575073596280837, 2022, 2, 1485429855775494144, 1, '2022-Q2-碳盘查 提交截止时间更改至2022-02-28 14:36:03，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1482168077759156224', '2022-02-24 13:47:49', '1482168077759156224', '2022-02-24 13:47:49', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496723551623974912, 1490883714316636163, 2022, 3, 1485429851061096448, 1, '2022-Q3-碳盘查 提交截止时间更改至2022-02-28 11:02:29，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1482168077759156224', '2022-02-24 13:47:57', '1482168077759156224', '2022-02-24 13:47:57', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496723551623974913, 1490883714316636164, 2022, 3, 1485429852688486400, 1, '2022-Q3-碳盘查 提交截止时间更改至2022-02-28 11:02:29，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1482168077759156224', '2022-02-24 13:47:57', '1482168077759156224', '2022-02-24 13:47:57', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496723551623974914, 1490883714316636165, 2022, 3, 1485429855775494144, 1, '2022-Q3-碳盘查 提交截止时间更改至2022-02-28 11:02:29，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1482168077759156224', '2022-02-24 13:47:57', '1482168077759156224', '2022-02-24 13:47:57', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496725714400055296, NULL, 2022, 1, 1485429848393519104, 1, '{深圳富联富桂精密工业有限公司} 提交 {2022}-{Q1}-碳盘查报告', '', '1485787396162326528', '2022-02-24 13:56:33', '1485787396162326528', '2022-02-24 13:56:33', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496726262436204544, NULL, 2022, 2, 1485429848393519104, 1, '{深圳富联富桂精密工业有限公司} 提交 {2022}-{Q2}-碳盘查报告', '', '1485787396162326528', '2022-02-24 13:58:43', '1485787396162326528', '2022-02-24 13:58:43', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496726319684259840, NULL, 2022, 2, 1485429848393519104, 1, '{深圳富联富桂精密工业有限公司} 提交 {2022}-{Q2}-碳盘查报告', '', '1485787396162326528', '2022-02-24 13:58:57', '1485787396162326528', '2022-02-24 13:58:57', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496727132662009856, NULL, 2022, 3, 1485429848393519104, 1, '{深圳富联富桂精密工业有限公司} 提交 {2022}-{Q3}-碳盘查报告', '', '1485787396162326528', '2022-02-24 14:02:11', '1485787396162326528', '2022-02-24 14:02:11', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496728233121550336, NULL, 2022, 1, 1485429848393519104, 1, '{工业富联佛山智造谷有限公司} 提交 {2022}-{Q1}-碳盘查报告', '', '1485787527892832256', '2022-02-24 14:06:33', '1485787527892832256', '2022-02-24 14:06:33', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496738900738183168, NULL, 2022, 2, 1485429848393519104, 1, '{工业富联佛山智造谷有限公司} 提交 {2022}-{Q2}-碳盘查报告', '', '1485787527892832256', '2022-02-24 14:48:57', '1485787527892832256', '2022-02-24 14:48:57', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496739053209522176, 1490883714316636160, 2022, 3, 1485429848393519104, 1, '{2022}-{Q3}-碳盘查报告已全部提交', '', '1485787527892832256', '2022-02-24 14:49:33', '1485787527892832256', '2022-02-24 14:49:33', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496739053251465216, NULL, 2022, 3, 1485429848393519104, 1, '{工业富联佛山智造谷有限公司} 提交 {2022}-{Q3}-碳盘查报告', '', '1485787527892832256', '2022-02-24 14:49:33', '1485787527892832256', '2022-02-24 14:49:33', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496739325256273920, NULL, 2022, 4, 1485429848393519104, 1, '{工业富联佛山智造谷有限公司} 提交 {2022}-{Q4}-碳盘查报告', '', '1485787527892832256', '2022-02-24 14:50:38', '1485787527892832256', '2022-02-24 14:50:38', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496741341378514944, 1490538105122459648, 2022, 1, 1485429848393519104, 1, '{2022}-{Q1}-碳盘查报告已全部提交', '', '1485787600533983232', '2022-02-24 14:58:39', '1485787600533983232', '2022-02-24 14:58:39', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496741341420457984, NULL, 2022, 1, 1485429848393519104, 1, '{天津佰昌} 提交 {2022}-{Q1}-碳盘查报告', '', '1485787600533983232', '2022-02-24 14:58:39', '1485787600533983232', '2022-02-24 14:58:39', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496742008465788928, 1490575073596280832, 2022, 2, 1485429848393519104, 1, '{2022}-{Q2}-碳盘查报告已全部提交', '', '1485787600533983232', '2022-02-24 15:01:18', '1485787600533983232', '2022-02-24 15:01:18', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496742008507731968, NULL, 2022, 2, 1485429848393519104, 1, '{天津佰昌} 提交 {2022}-{Q2}-碳盘查报告', '', '1485787600533983232', '2022-02-24 15:01:18', '1485787600533983232', '2022-02-24 15:01:18', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496742056444432384, 1496695646026076160, 2022, 4, 1485429848393519104, 1, '{2022}-{Q4}-碳盘查报告已全部提交', '', '1485787600533983232', '2022-02-24 15:01:29', '1485787600533983232', '2022-02-24 15:01:29', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1496742056486375424, NULL, 2022, 4, 1485429848393519104, 1, '{天津佰昌} 提交 {2022}-{Q4}-碳盘查报告', '', '1485787600533983232', '2022-02-24 15:01:29', '1485787600533983232', '2022-02-24 15:01:29', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498548981041598464, 1498548980961906691, 2023, 1, 1485429851061096448, 1, '2023-Q1-碳盘查 已发起，请在2022-03-31 14:41:29前完成提交', '', '1481532236233838592', '2022-03-01 14:41:33', '1481532236233838592', '2022-03-01 14:41:33', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498548981041598465, 1498548980966100992, 2023, 1, 1485429852688486400, 1, '2023-Q1-碳盘查 已发起，请在2022-03-31 14:41:29前完成提交', '', '1481532236233838592', '2022-03-01 14:41:33', '1481532236233838592', '2022-03-01 14:41:33', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498548981041598466, 1498548980966100993, 2023, 1, 1485429855775494144, 1, '2023-Q1-碳盘查 已发起，请在2022-03-31 14:41:29前完成提交', '', '1481532236233838592', '2022-03-01 14:41:33', '1481532236233838592', '2022-03-01 14:41:33', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498556210423664640, NULL, 2023, 1, 1485429848393519104, 1, '{深圳富联富桂精密工业有限公司} 提交 {2023}-{Q1}-碳盘查报告', '', '1485499720406274048', '2022-03-01 15:10:17', '1485499720406274048', '2022-03-01 15:10:17', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498556435204804608, 1498556435179638787, 2023, 2, 1485429851061096448, 1, '2023-Q2-碳盘查 已发起，请在2022-03-31 15:11:07前完成提交', '', '1481532236233838592', '2022-03-01 15:11:11', '1481532236233838592', '2022-03-01 15:11:11', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498556435204804609, 1498556435179638788, 2023, 2, 1485429852688486400, 1, '2023-Q2-碳盘查 已发起，请在2022-03-31 15:11:07前完成提交', '', '1481532236233838592', '2022-03-01 15:11:11', '1481532236233838592', '2022-03-01 15:11:11', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498556435204804610, 1498556435179638789, 2023, 2, 1485429855775494144, 1, '2023-Q2-碳盘查 已发起，请在2022-03-31 15:11:07前完成提交', '', '1481532236233838592', '2022-03-01 15:11:11', '1481532236233838592', '2022-03-01 15:11:11', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498561367202992128, 1498561367182020611, 2023, 3, 1485429851061096448, 1, '2023-Q3-碳盘查 已发起，请在2022-03-31 15:11:07前完成提交', '', '1481532236233838592', '2022-03-01 15:30:47', '1481532236233838592', '2022-03-01 15:30:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498561367202992129, 1498561367182020612, 2023, 3, 1485429852688486400, 1, '2023-Q3-碳盘查 已发起，请在2022-03-31 15:11:07前完成提交', '', '1481532236233838592', '2022-03-01 15:30:47', '1481532236233838592', '2022-03-01 15:30:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498561367202992130, 1498561367182020613, 2023, 3, 1485429855775494144, 1, '2023-Q3-碳盘查 已发起，请在2022-03-31 15:11:07前完成提交', '', '1481532236233838592', '2022-03-01 15:30:47', '1481532236233838592', '2022-03-01 15:30:47', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498843355277299712, 1498843355193413635, 2023, 4, 1485429851061096448, 1, '2023-Q4-碳盘查 已发起，请在2022-03-31 10:11:14前完成提交', '', '1481532236233838592', '2022-03-02 10:11:18', '1481532236233838592', '2022-03-02 10:11:18', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498843355277299713, 1498843355197607936, 2023, 4, 1485429852688486400, 1, '2023-Q4-碳盘查 已发起，请在2022-03-31 10:11:14前完成提交', '', '1481532236233838592', '2022-03-02 10:11:18', '1481532236233838592', '2022-03-02 10:11:18', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498843355277299714, 1498843355197607937, 2023, 4, 1485429855775494144, 1, '2023-Q4-碳盘查 已发起，请在2022-03-31 10:11:14前完成提交', '', '1481532236233838592', '2022-03-02 10:11:18', '1481532236233838592', '2022-03-02 10:11:18', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498865767544918016, 1498865767515557891, 2020, 4, 1485429851061096448, 1, '2020-Q4-碳盘查 已发起，请在2022-03-31 11:40:17前完成提交', '', '1481532236233838592', '2022-03-02 11:40:21', '1481532236233838592', '2022-03-02 11:40:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498865767544918017, 1498865767515557892, 2020, 4, 1485429852688486400, 1, '2020-Q4-碳盘查 已发起，请在2022-03-31 11:40:17前完成提交', '', '1481532236233838592', '2022-03-02 11:40:21', '1481532236233838592', '2022-03-02 11:40:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498865767544918018, 1498865767515557893, 2020, 4, 1485429855775494144, 1, '2020-Q4-碳盘查 已发起，请在2022-03-31 11:40:17前完成提交', '', '1481532236233838592', '2022-03-02 11:40:21', '1481532236233838592', '2022-03-02 11:40:21', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1498868401408446464, NULL, 2023, 4, 1485429848393519104, 1, '{天津佰昌} 提交 {2023}-{Q4}-碳盘查报告', '', '1485505619829067776', '2022-03-02 11:50:49', '1485505619829067776', '2022-03-02 11:50:49', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1500401211562659840, NULL, 2023, 4, 1485429848393519104, 1, '{天津佰昌} 提交 {2023}-{Q4}-碳盘查报告', '', '1485787600533983232', '2022-03-06 17:21:40', '1485787600533983232', '2022-03-06 17:21:40', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1500650623614455808, 1500650623530569731, 2024, 1, 1485429851061096448, 1, '2024-Q1-碳盘查 已发起，请在2022-03-09 09:52:41前完成提交', '', '1481532236233838592', '2022-03-07 09:52:44', '1481532236233838592', '2022-03-07 09:52:44', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1500650623614455809, 1500650623534764032, 2024, 1, 1485429852688486400, 1, '2024-Q1-碳盘查 已发起，请在2022-03-09 09:52:41前完成提交', '', '1481532236233838592', '2022-03-07 09:52:44', '1481532236233838592', '2022-03-07 09:52:44', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1500650623614455810, 1500650623534764033, 2024, 1, 1485429855775494144, 1, '2024-Q1-碳盘查 已发起，请在2022-03-09 09:52:41前完成提交', '', '1481532236233838592', '2022-03-07 09:52:44', '1481532236233838592', '2022-03-07 09:52:44', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1500655222937227264, NULL, 2023, 4, 1485429848393519104, 1, '{天津佰昌} 提交 {2023}-{Q4}-碳盘查报告', '', '1490872547317780480', '2022-03-07 10:11:01', '1490872547317780480', '2022-03-07 10:11:01', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1500719644653260800, NULL, 2024, 1, 1485429848393519104, 1, '{深圳富联富桂精密工业有限公司} 提交 {2024}-{Q1}-碳盘查报告', '', '1485499720406274048', '2022-03-07 14:27:00', '1485499720406274048', '2022-03-07 14:27:00', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1500742232284729344, NULL, 2023, 1, 1485429848393519104, 1, '{深圳富联富桂精密工业有限公司} 提交 {2023}-{Q1}-碳盘查报告', '', '1485499720406274048', '2022-03-07 15:56:45', '1485499720406274048', '2022-03-07 15:56:45', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1501016882193502208, 1501016882164142082, 2024, 2, 1485429851061096448, 1, '2024-Q2-碳盘查 已发起，请在2022-03-16 10:08:02前完成提交', '', '1482168077759156224', '2022-03-08 10:08:07', '1482168077759156224', '2022-03-08 10:08:07', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1501016882193502209, 1501016882164142083, 2024, 2, 1485429852688486400, 1, '2024-Q2-碳盘查 已发起，请在2022-03-16 10:08:02前完成提交', '', '1482168077759156224', '2022-03-08 10:08:07', '1482168077759156224', '2022-03-08 10:08:07', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1501016882193502210, 1501016882164142084, 2024, 2, 1485429855775494144, 1, '2024-Q2-碳盘查 已发起，请在2022-03-16 10:08:02前完成提交', '', '1482168077759156224', '2022-03-08 10:08:07', '1482168077759156224', '2022-03-08 10:08:07', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1501017670005428224, 1501016882164142082, 2024, 2, 1485429851061096448, 1, '2024-Q2-碳盘查 提交截止时间更改至2022-03-14 10:08:02，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1482168077759156224', '2022-03-08 10:11:15', '1482168077759156224', '2022-03-08 10:11:15', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1501017670005428225, 1501016882164142083, 2024, 2, 1485429852688486400, 1, '2024-Q2-碳盘查 提交截止时间更改至2022-03-14 10:08:02，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1482168077759156224', '2022-03-08 10:11:15', '1482168077759156224', '2022-03-08 10:11:15', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1501017670005428226, 1501016882164142084, 2024, 2, 1485429855775494144, 1, '2024-Q2-碳盘查 提交截止时间更改至2022-03-14 10:08:02，请在此之前完成提交', 'jdbc:mysql://106.52.232.176:8006/cec?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai', '1482168077759156224', '2022-03-08 10:11:15', '1482168077759156224', '2022-03-08 10:11:15', 'fii', 1, 0);
+INSERT INTO `notice` VALUES (1501097998002819072, NULL, 2024, 2, 1485429848393519104, 1, '{天津佰昌} 提交 {2024}-{Q2}-碳盘查报告', '', '1485787600533983232', '2022-03-08 15:30:26', '1485787600533983232', '2022-03-08 15:30:26', 'fii', 1, 0);
+COMMIT;
 
-create table sys_role_permission
-(
-    id            bigint not null comment '主键id'
-        primary key,
-    permission_id bigint not null comment '权限id',
-    role_id       bigint not null comment '角色id'
-)
-    comment '角色-权限表' charset = utf8;
+-- ----------------------------
+-- Table structure for org_info
+-- ----------------------------
+DROP TABLE IF EXISTS `org_info`;
+CREATE TABLE `org_info` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `org_name` varchar(100) NOT NULL DEFAULT '0.0' COMMENT '组织名称',
+  `type` int(2) NOT NULL DEFAULT '0' COMMENT '组织类型',
+  `address` varchar(300) NOT NULL DEFAULT '' COMMENT '省市区',
+  `street` varchar(300) NOT NULL DEFAULT '' COMMENT '街道',
+  `principal` varchar(40) NOT NULL DEFAULT '' COMMENT '组织负责人',
+  `email` varchar(50) NOT NULL DEFAULT '' COMMENT '电子邮箱',
+  `phone_number` varchar(50) NOT NULL DEFAULT '' COMMENT '联系电话',
+  `created_by` varchar(32) NOT NULL DEFAULT '' COMMENT '创建人工号',
+  `shareholding_ratio` varchar(10) NOT NULL DEFAULT 'N/A' COMMENT '上级组织控股比例,%',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(32) NOT NULL DEFAULT '' COMMENT '更新人工号',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `revision` int(10) NOT NULL DEFAULT '1' COMMENT '乐观锁',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `org_info_tenant_id_org_name_uindex` (`tenant_id`,`org_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='组织信息';
 
-create table sys_user
-(
-    id             bigint                  not null comment '主键id'
-        primary key,
-    account_number varchar(50)             not null comment '账号',
-    user_name      varchar(50)  default '' not null comment '用户名',
-    password       varchar(200) default '' not null comment '密码',
-    salt           varchar(50)  default '' not null comment '盐值',
-    org_id         bigint                  null comment '所属组织id',
-    created_by     varchar(32)  default '' not null comment '创建人id',
-    created_time   datetime                not null comment '创建时间',
-    updated_by     varchar(32)  default '' not null comment '更新人id',
-    updated_time   datetime                not null comment '更新时间',
-    revision       int(10)      default 1  not null comment '乐观锁',
-    delete_flag    bigint       default 0  not null comment '逻辑删除',
-    constraint uindex
-        unique (account_number, delete_flag)
-)
-    comment '用户表' charset = utf8;
+-- ----------------------------
+-- Records of org_info
+-- ----------------------------
+BEGIN;
+INSERT INTO `org_info` VALUES (1485429848393519104, 'Fii', 0, '中国-广东-深圳-南山区', '', '', '', '', '', 'N/A', '2022-01-24 09:50:49', '', '2022-01-24 09:50:49', 'fii', 2, 0);
+INSERT INTO `org_info` VALUES (1485429849513398272, 'TSBG', 0, '', '', '', '', '', '', '100%', '2022-01-24 09:50:49', '', '2022-01-24 09:50:49', 'fii', 1, 0);
+INSERT INTO `org_info` VALUES (1485429851061096448, '深圳富联富桂精密工业有限公司', 1, '中国-广东-深圳-南山区', '', '王一', 'yi.wang@mail.foxconn.com', '122222', '', '100%', '2022-01-24 09:50:49', '', '2022-01-24 09:50:49', 'fii', 2, 0);
+INSERT INTO `org_info` VALUES (1485429852688486400, '工业富联佛山智造谷有限公司', 1, '中国-广东-佛山', '', '刘禅', 'chan.liu@mail.foxconn.com', '1234444', '', '100%', '2022-01-24 09:50:50', '', '2022-01-24 09:50:50', 'fii', 2, 0);
+INSERT INTO `org_info` VALUES (1485429854324264960, 'CESBG', 0, '', '', '', '', '', '', '100%', '2022-01-24 09:50:50', '', '2022-01-24 09:50:50', 'fii', 1, 0);
+INSERT INTO `org_info` VALUES (1485429855775494144, '天津佰昌', 1, '中国-天津', '', '杨迪', 'di-yang@mail.foxconn.com', '4444', '', '100%', '2022-01-24 09:50:50', '', '2022-01-24 09:50:50', 'fii', 2, 0);
+COMMIT;
 
-create table sys_user_role
-(
-    id      bigint not null comment '主键id'
-        primary key,
-    user_id bigint not null comment '用户id',
-    role_id bigint not null comment '角色id'
-)
-    comment '用户-角色表' charset = utf8;
+-- ----------------------------
+-- Table structure for org_operation_info
+-- ----------------------------
+DROP TABLE IF EXISTS `org_operation_info`;
+CREATE TABLE `org_operation_info` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `org_id` bigint(20) NOT NULL COMMENT '组织id',
+  `year` int(4) NOT NULL COMMENT '年份',
+  `quarter` int(2) NOT NULL COMMENT '季度',
+  `output_value` decimal(12,6) DEFAULT NULL COMMENT '产值',
+  `output_value_unit` varchar(10) DEFAULT NULL COMMENT '产值单位',
+  `revenue` decimal(12,6) DEFAULT NULL COMMENT '营收',
+  `revenue_unit` varchar(10) DEFAULT NULL COMMENT '营收单位',
+  `industrial_output` decimal(12,6) DEFAULT NULL COMMENT '工业增加值',
+  `industrial_output_unit` varchar(10) DEFAULT NULL COMMENT '工业增加值单位',
+  `area` decimal(12,6) DEFAULT NULL COMMENT '占地面积',
+  `area_unit` varchar(10) DEFAULT NULL COMMENT '占地面积单位',
+  `employee_num` int(10) DEFAULT NULL COMMENT '员工数量',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(32) NOT NULL COMMENT '更新人工号',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `revision` int(10) NOT NULL DEFAULT '1' COMMENT '乐观锁',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='组织运营信息';
 
-create table tb_custom_emission_factor
-(
-    id                           bigint                          not null comment '主键'
-        primary key,
-    category1                    bigint                          not null comment '分类1',
-    category2                    bigint                          not null comment '分类2',
-    factor_name                  varchar(40)                     not null comment '因子名称',
-    emission_gas_type            varchar(40)                     not null comment '排放气体类型',
-    protocol_version             varchar(100)                    not null comment '协议版本',
-    carbon_emission_unit         varchar(30)    default ''       not null comment '排放气体单位',
-    fuel_unit                    varchar(30)    default ''       not null comment '活动数据单位',
-    factor                       decimal(24, 6) default 0.000000 not null comment '排放因子数值',
-    density                      decimal(24, 6) default 0.000000 not null comment '密度',
-    density_unit                 varchar(30)    default ''       not null comment '密度单位',
-    density_source               varchar(200)   default ''       not null comment '密度来源',
-    heat_value                   decimal(24, 6) default 0.000000 not null comment '热值',
-    heat_value_unit              varchar(30)    default ''       not null comment '热值单位',
-    heat_value_source            varchar(200)   default ''       not null comment '热值来源',
-    car_con_per_heat_value       decimal(24, 6) default 0.000000 not null comment '单位热值含碳量',
-    ca_con_per_heat_value_unit   varchar(30)    default ''       not null comment '单位热值含碳量单位',
-    ca_con_per_heat_value_source varchar(200)   default ''       not null comment '单位热值含碳量来源',
-    carbon_oxidation_rate        decimal(24, 6) default 0.000000 not null comment '碳氧化率',
-    carbon_oxidation_rate_source varchar(200)   default ''       not null comment '碳氧化率来源',
-    country                      varchar(30)    default ''       not null comment '国家',
-    region                       varchar(30)    default ''       not null comment '地区',
-    industry                     varchar(30)    default ''       not null comment '行业',
-    source                       varchar(200)   default ''       not null comment '来源',
-    year                         int(4)         default 1970     not null comment '年份',
-    org_id                       bigint                          not null comment '组织id',
-    revision                     int(10)                         not null comment '乐观锁',
-    created_by                   varchar(32)                     not null comment '创建人工号',
-    created_time                 datetime                        not null comment '创建时间',
-    updated_by                   varchar(20)                     not null comment '更新人工号',
-    updated_time                 datetime                        not null comment '更新时间',
-    tenant_id                    varchar(32)                     not null comment '租户号',
-    delete_flag                  bigint         default 0        not null comment '逻辑删除',
-    emission_factor_type_enum    int(2)         default 1        not null comment '因子类型',
-    attachment_id                bigint                          null comment '附件id'
-)
-    comment '自定义因子库' charset = utf8;
+-- ----------------------------
+-- Records of org_operation_info
+-- ----------------------------
+BEGIN;
+INSERT INTO `org_operation_info` VALUES (1483353133081038848, 1478968649799831552, 2019, 0, 2432.000000, '百万人民币', 5325.000000, '百万人民币', 532.000000, '百万人民币', 532.000000, 'km²', 532, '', '2022-01-18 16:18:41', '', '2022-01-18 16:18:41', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1483353292879826944, 1478968649799831552, 2019, 1, 242.000000, '百万人民币', 532.000000, '百万人民币', 532.000000, '百万人民币', 532.000000, 'km²', 532, '', '2022-01-18 16:19:19', '', '2022-01-18 16:19:19', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1483377540289662976, 1478968649799831552, 2022, 4, 100.000000, '百万人民币', 138.000000, '百万人民币', 121.000000, '百万人民币', 3000.000000, '亩', 250, '', '2022-01-18 17:55:40', '', '2022-01-18 17:55:40', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1483377585944662016, 1478968649799831552, 2023, 1, 100.000000, '百万人民币', 138.000000, '百万人民币', 121.000000, '百万人民币', 3000.000000, '亩', 250, '', '2022-01-18 17:55:51', '', '2022-01-18 17:55:51', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1483377679184039936, 1478968649799831552, 2023, 2, 100.000000, '百万人民币', 138.000000, '百万人民币', 121.000000, '百万人民币', 3000.000000, '亩', 250, '', '2022-01-18 17:56:13', '', '2022-01-18 17:56:13', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1490954143609786368, 1485429848393519104, 2022, 1, 12.000000, '百万人民币', 43214.000000, '百万人民币', 523.000000, '百万人民币', 532.000000, 'km²', 532, '1482168077759156224', '2022-02-08 15:42:23', '', '2022-02-08 15:42:23', 'fii', 2, 0);
+INSERT INTO `org_operation_info` VALUES (1491573239196028928, 1485429855775494144, 2021, 0, 96386.000000, '百万人民币', 196386.000000, '百万人民币', 96386.000000, '百万人民币', 2.500000, 'km²', 2567, '1490872547317780480', '2022-02-10 08:42:27', '1490872547317780480', '2022-02-10 08:42:27', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1491573591433678848, 1485429855775494144, 2021, 1, 4500.000000, '百万人民币', 14500.000000, '百万人民币', 3000.000000, '百万人民币', 3.300000, 'km²', 2345, '1490872547317780480', '2022-02-10 08:43:51', '1490872547317780480', '2022-02-10 08:43:51', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1493763743220371456, 1485429855775494144, 2020, 1, 2000.000000, '百万人民币', 3000.000000, '百万人民币', 1500.000000, '百万人民币', 5734.000000, 'km²', 135, '1485505619829067776', '2022-02-16 09:46:44', '', '2022-02-16 09:46:44', 'fii', 2, 0);
+INSERT INTO `org_operation_info` VALUES (1493763756625367040, 1485429855775494144, 2020, 2, 2000.000000, '百万人民币', 3000.000000, '百万人民币', 15000.000000, '百万人民币', 5734.000000, 'km²', 135, '1485505619829067776', '2022-02-16 09:46:47', '', '2022-02-16 09:46:47', 'fii', 2, 0);
+INSERT INTO `org_operation_info` VALUES (1493763767241150464, 1485429855775494144, 2020, 3, 2000.000000, '百万人民币', 3000.000000, '百万人民币', 1500.000000, '百万人民币', 5734.000000, 'km²', 135, '1485505619829067776', '2022-02-16 09:46:50', '', '2022-02-16 09:46:50', 'fii', 2, 0);
+INSERT INTO `org_operation_info` VALUES (1493763775763976192, 1485429855775494144, 2020, 4, 2000.000000, '百万人民币', 3000.000000, '百万人民币', 1500.000000, '百万人民币', 5734.000000, 'km²', 135, '1485505619829067776', '2022-02-16 09:46:52', '', '2022-02-16 09:46:52', 'fii', 2, 0);
+INSERT INTO `org_operation_info` VALUES (1493763836744962048, 1485429855775494144, 2020, 0, 8000.000000, '百万人民币', 12000.000000, '百万人民币', 6000.000000, '百万人民币', 5734.000000, 'km²', 135, '1485505619829067776', '2022-02-16 09:47:06', '', '2022-02-16 09:47:06', 'fii', 2, 0);
+INSERT INTO `org_operation_info` VALUES (1495676260049883136, 1485429849513398272, 2021, 0, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1500.000000, '百万人民币', 2.500000, 'km²', 5000, '1485505880043687936', '2022-02-21 16:26:23', '1485505880043687936', '2022-02-21 16:26:23', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496724522936700928, 1485429848393519104, 2022, 0, 30000.000000, '百万人民币', 2000.000000, '百万人民币', 15000.000000, '百万人民币', 26.000000, 'km²', 400000, '1482168077759156224', '2022-02-24 13:51:49', '1482168077759156224', '2022-02-24 13:51:49', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496724715887267840, 1485429848393519104, 2021, 0, 200000.000000, '百万人民币', 3000.000000, '百万人民币', 15000.000000, '百万人民币', 26.000000, 'km²', 459060, '1482168077759156224', '2022-02-24 13:52:35', '1482168077759156224', '2022-02-24 13:52:35', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496725042044735488, 1485429851061096448, 2021, 0, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1000.000000, '百万人民币', 2.660000, 'km²', 23000, '1485787396162326528', '2022-02-24 13:53:52', '1485787396162326528', '2022-02-24 13:53:52', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496725159913066496, 1485429851061096448, 2020, 0, 1500.000000, '百万人民币', 7500.000000, '百万人民币', 7500.000000, '百万人民币', 2.550000, 'km²', 34980, '1485787396162326528', '2022-02-24 13:54:21', '1485787396162326528', '2022-02-24 13:54:21', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496725248492572672, 1485429851061096448, 2020, 1, 130.000000, '百万人民币', 65.000000, '百万人民币', 65.000000, '百万人民币', 2.550000, 'km²', 34567, '1485787396162326528', '2022-02-24 13:54:42', '1485787396162326528', '2022-02-24 13:54:42', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496725262111477760, 1485429851061096448, 2020, 2, 130.000000, '百万人民币', 65.000000, '百万人民币', 65.000000, '百万人民币', 2.550000, 'km²', 34567, '1485787396162326528', '2022-02-24 13:54:45', '1485787396162326528', '2022-02-24 13:54:45', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496725272362356736, 1485429851061096448, 2020, 3, 130.000000, '百万人民币', 65.000000, '百万人民币', 65.000000, '百万人民币', 2.550000, 'km²', 34567, '1485787396162326528', '2022-02-24 13:54:47', '1485787396162326528', '2022-02-24 13:54:47', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496725283158495232, 1485429851061096448, 2020, 4, 130.000000, '百万人民币', 65.000000, '百万人民币', 65.000000, '百万人民币', 2.550000, 'km²', 34567, '1485787396162326528', '2022-02-24 13:54:50', '1485787396162326528', '2022-02-24 13:54:50', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496725305166008320, 1485429851061096448, 2021, 1, 130.000000, '百万人民币', 65.000000, '百万人民币', 65.000000, '百万人民币', 2.550000, 'km²', 34567, '1485787396162326528', '2022-02-24 13:54:55', '1485787396162326528', '2022-02-24 13:54:55', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496725317623091200, 1485429851061096448, 2021, 2, 130.000000, '百万人民币', 65.000000, '百万人民币', 65.000000, '百万人民币', 2.550000, 'km²', 34567, '1485787396162326528', '2022-02-24 13:54:58', '1485787396162326528', '2022-02-24 13:54:58', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496725327404208128, 1485429851061096448, 2021, 3, 130.000000, '百万人民币', 65.000000, '百万人民币', 65.000000, '百万人民币', 2.550000, 'km²', 34567, '1485787396162326528', '2022-02-24 13:55:01', '1485787396162326528', '2022-02-24 13:55:01', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496725338691080192, 1485429851061096448, 2021, 4, 130.000000, '百万人民币', 65.000000, '百万人民币', 65.000000, '百万人民币', 2.550000, 'km²', 34567, '1485787396162326528', '2022-02-24 13:55:03', '1485787396162326528', '2022-02-24 13:55:03', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496725355233415168, 1485429851061096448, 2022, 0, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1000.000000, '百万人民币', 2.660000, 'km²', 23000, '1485787396162326528', '2022-02-24 13:55:07', '1485787396162326528', '2022-02-24 13:55:07', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496725368885874688, 1485429851061096448, 2022, 1, 130.000000, '百万人民币', 65.000000, '百万人民币', 65.000000, '百万人民币', 2.550000, 'km²', 34567, '1485787396162326528', '2022-02-24 13:55:10', '1485787396162326528', '2022-02-24 13:55:10', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496725379363246080, 1485429851061096448, 2022, 2, 130.000000, '百万人民币', 65.000000, '百万人民币', 65.000000, '百万人民币', 2.550000, 'km²', 34567, '1485787396162326528', '2022-02-24 13:55:13', '1485787396162326528', '2022-02-24 13:55:13', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496725417145536512, 1485429851061096448, 2022, 3, 130.000000, '百万人民币', 65.000000, '百万人民币', 65.000000, '百万人民币', 2.550000, 'km²', 34567, '1485787396162326528', '2022-02-24 13:55:22', '1485787396162326528', '2022-02-24 13:55:22', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496725433515905024, 1485429851061096448, 2022, 4, 130.000000, '百万人民币', 65.000000, '百万人民币', 65.000000, '百万人民币', 2.550000, 'km²', 34567, '1485787396162326528', '2022-02-24 13:55:26', '1485787396162326528', '2022-02-24 13:55:26', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496727616877629440, 1485429852688486400, 2020, 1, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1000.000000, '百万人民币', 4.550000, 'km²', 57890, '1485787527892832256', '2022-02-24 14:04:06', '1485787527892832256', '2022-02-24 14:04:06', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496727642127339520, 1485429852688486400, 2020, 2, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1000.000000, '百万人民币', 4.550000, 'km²', 57890, '1485787527892832256', '2022-02-24 14:04:12', '1485787527892832256', '2022-02-24 14:04:12', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496727648590761984, 1485429852688486400, 2020, 3, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1000.000000, '百万人民币', 4.550000, 'km²', 56789, '1485787527892832256', '2022-02-24 14:04:14', '', '2022-02-24 14:04:14', 'fii', 2, 0);
+INSERT INTO `org_operation_info` VALUES (1496727734586576896, 1485429852688486400, 2020, 4, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1000.000000, '百万人民币', 4.550000, 'km²', 56789, '1485787527892832256', '2022-02-24 14:04:34', '1485787527892832256', '2022-02-24 14:04:34', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496727781315317760, 1485429852688486400, 2020, 0, 8000.000000, '百万人民币', 4000.000000, '百万人民币', 4000.000000, '百万人民币', 4.550000, 'km²', 67890, '1485787527892832256', '2022-02-24 14:04:46', '1485787527892832256', '2022-02-24 14:04:46', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496727799636037632, 1485429852688486400, 2021, 0, 8000.000000, '百万人民币', 4000.000000, '百万人民币', 4000.000000, '百万人民币', 4.550000, 'km²', 67890, '1485787527892832256', '2022-02-24 14:04:50', '', '2022-02-24 14:04:50', 'fii', 2, 0);
+INSERT INTO `org_operation_info` VALUES (1496727816203538432, 1485429852688486400, 2021, 1, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1000.000000, '百万人民币', 4.550000, 'km²', 56789, '1485787527892832256', '2022-02-24 14:04:54', '1485787527892832256', '2022-02-24 14:04:54', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496727825187737600, 1485429852688486400, 2021, 2, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1000.000000, '百万人民币', 4.550000, 'km²', 56789, '1485787527892832256', '2022-02-24 14:04:56', '1485787527892832256', '2022-02-24 14:04:56', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496727835048546304, 1485429852688486400, 2021, 3, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1000.000000, '百万人民币', 4.550000, 'km²', 56789, '1485787527892832256', '2022-02-24 14:04:58', '1485787527892832256', '2022-02-24 14:04:58', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496727845509140480, 1485429852688486400, 2021, 4, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1000.000000, '百万人民币', 4.550000, 'km²', 56789, '1485787527892832256', '2022-02-24 14:05:01', '1485787527892832256', '2022-02-24 14:05:01', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496727878509924352, 1485429852688486400, 2022, 0, 8000.000000, '百万人民币', 4000.000000, '百万人民币', 4000.000000, '百万人民币', 4.550000, 'km²', 67890, '1485787527892832256', '2022-02-24 14:05:09', '1485787527892832256', '2022-02-24 14:05:09', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496727888320401408, 1485429852688486400, 2022, 1, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1000.000000, '百万人民币', 4.550000, 'km²', 56789, '1485787527892832256', '2022-02-24 14:05:11', '1485787527892832256', '2022-02-24 14:05:11', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496727898512560128, 1485429852688486400, 2022, 2, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1000.000000, '百万人民币', 4.550000, 'km²', 56789, '1485787527892832256', '2022-02-24 14:05:14', '1485787527892832256', '2022-02-24 14:05:14', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496727908620832768, 1485429852688486400, 2022, 3, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1000.000000, '百万人民币', 4.550000, 'km²', 56789, '1485787527892832256', '2022-02-24 14:05:16', '1485787527892832256', '2022-02-24 14:05:16', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496727918821380096, 1485429852688486400, 2022, 4, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1000.000000, '百万人民币', 4.550000, 'km²', 56789, '1485787527892832256', '2022-02-24 14:05:18', '1485787527892832256', '2022-02-24 14:05:18', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496739485524824064, 1485429855775494144, 2022, 0, 96386.000000, '百万人民币', 196386.000000, '百万人民币', 96386.000000, '百万人民币', 2.500000, 'km²', 2567, '1485787600533983232', '2022-02-24 14:51:16', '', '2022-02-24 14:51:16', 'fii', 2, 0);
+INSERT INTO `org_operation_info` VALUES (1496739519096033280, 1485429855775494144, 2021, 2, 4500.000000, '百万人民币', 14500.000000, '百万人民币', 3000.000000, '百万人民币', 3.300000, 'km²', 2345, '1485787600533983232', '2022-02-24 14:51:24', '1485787600533983232', '2022-02-24 14:51:24', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496739529791508480, 1485429855775494144, 2021, 3, 4500.000000, '百万人民币', 14500.000000, '百万人民币', 3000.000000, '百万人民币', 3.300000, 'km²', 2345, '1485787600533983232', '2022-02-24 14:51:27', '1485787600533983232', '2022-02-24 14:51:27', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496739541741080576, 1485429855775494144, 2021, 4, 4500.000000, '百万人民币', 14500.000000, '百万人民币', 3000.000000, '百万人民币', 3.300000, 'km²', 2345, '1485787600533983232', '2022-02-24 14:51:29', '1485787600533983232', '2022-02-24 14:51:29', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496739551765467136, 1485429855775494144, 2022, 1, 4500.000000, '百万人民币', 14500.000000, '百万人民币', 3000.000000, '百万人民币', 3.300000, 'km²', 2345, '1485787600533983232', '2022-02-24 14:51:32', '1485787600533983232', '2022-02-24 14:51:32', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496739592018202624, 1485429855775494144, 2022, 2, 4500.000000, '百万人民币', 14500.000000, '百万人民币', 3000.000000, '百万人民币', 3.300000, 'km²', 2345, '1485787600533983232', '2022-02-24 14:51:41', '1485787600533983232', '2022-02-24 14:51:41', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496739602688512000, 1485429855775494144, 2022, 3, 4500.000000, '百万人民币', 14500.000000, '百万人民币', 3000.000000, '百万人民币', 3.300000, 'km²', 2345, '1485787600533983232', '2022-02-24 14:51:44', '1485787600533983232', '2022-02-24 14:51:44', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496739615200120832, 1485429855775494144, 2022, 4, 4500.000000, '百万人民币', 14500.000000, '百万人民币', 3000.000000, '百万人民币', 3.300000, 'km²', 2345, '1485787600533983232', '2022-02-24 14:51:47', '1485787600533983232', '2022-02-24 14:51:47', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496773004099719168, 1485429849513398272, 2022, 0, 2000.000000, '百万人民币', 1000.000000, '百万人民币', 1500.000000, '百万人民币', 2.500000, 'km²', 5000, '1485505880043687936', '2022-02-24 17:04:28', '1485505880043687936', '2022-02-24 17:04:28', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496773797666230272, 1485429854324264960, 2021, 0, 3000.000000, '百万人民币', 1500.000000, '百万人民币', 1500.000000, '百万人民币', 25.000000, 'km²', 67980, '1485506406554669056', '2022-02-24 17:07:37', '1485506406554669056', '2022-02-24 17:07:37', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1496773813008994304, 1485429854324264960, 2022, 0, 3000.000000, '百万人民币', 1500.000000, '百万人民币', 1500.000000, '百万人民币', 25.000000, 'km²', 67980, '1485506406554669056', '2022-02-24 17:07:40', '1485506406554669056', '2022-02-24 17:07:40', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1498457828426387456, 1485429848393519104, 2021, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 70000, '1485787600533983232', '2022-03-01 08:39:21', '1485787600533983232', '2022-03-01 08:39:21', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1500652409926586368, 1485429851061096448, 2024, 1, NULL, '百万人民币', NULL, '百万人民币', NULL, '百万人民币', 0.003096, 'km²', 258, '1485499720406274048', '2022-03-07 09:59:50', '1485499720406274048', '2022-03-07 09:59:50', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1500652421649666048, 1485429851061096448, 2024, 2, NULL, '百万人民币', NULL, '百万人民币', NULL, '百万人民币', 0.003096, 'km²', 258, '1485499720406274048', '2022-03-07 09:59:53', '1485499720406274048', '2022-03-07 09:59:53', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1500652433523740672, 1485429851061096448, 2024, 3, NULL, '百万人民币', NULL, '百万人民币', NULL, '百万人民币', 0.003096, 'km²', 258, '1485499720406274048', '2022-03-07 09:59:56', '1485499720406274048', '2022-03-07 09:59:56', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1500652443728482304, 1485429851061096448, 2024, 4, NULL, '百万人民币', NULL, '百万人民币', NULL, '百万人民币', 0.003096, 'km²', 258, '1485499720406274048', '2022-03-07 09:59:58', '1485499720406274048', '2022-03-07 09:59:58', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1500671506324262912, 1485429851061096448, 2023, 1, 130.000000, '百万人民币', 65.000000, '百万人民币', 65.000000, '百万人民币', 2.550000, 'km²', 34567, '1485787396162326528', '2022-03-07 11:15:43', '', '2022-03-07 11:15:43', 'fii', 2, 0);
+INSERT INTO `org_operation_info` VALUES (1500711515085475840, 1485429851061096448, 2023, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 56, '1490590134683439104', '2022-03-07 13:54:42', '1490590134683439104', '2022-03-07 13:54:42', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1501081267838521344, 1485429855775494144, 2024, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 2000, '1485787600533983232', '2022-03-08 14:23:58', '1485787600533983232', '2022-03-08 14:23:58', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1501458992398995456, 1485429851061096448, 2025, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 456, '1485787600533983232', '2022-03-09 15:24:54', '1485787600533983232', '2022-03-09 15:24:54', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1501460390234689536, 1485429851061096448, 2025, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 555, '1490590134683439104', '2022-03-09 15:30:27', '1490590134683439104', '2022-03-09 15:30:27', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1501460592345616384, 1485429851061096448, 2025, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 456, '1490590134683439104', '2022-03-09 15:31:16', '1490590134683439104', '2022-03-09 15:31:16', 'fii', 1, 0);
+INSERT INTO `org_operation_info` VALUES (1501460853914996736, 1485429851061096448, 2026, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 4567, '1490590134683439104', '2022-03-09 15:32:18', '1490590134683439104', '2022-03-09 15:32:18', 'fii', 1, 0);
+COMMIT;
 
-create table tb_inventory_status
-(
-    id           bigint(64)       not null comment '主键id'
-        primary key,
-    org_id       bigint(64)       not null comment '组织id',
-    year         int(4)           not null comment '年份',
-    quarter      int(2)           not null comment '季度',
-    status       int(2)           not null comment '状态',
-    tenant_id    varchar(32)      not null comment '租户号',
-    revision     int(10)          not null comment '乐观锁',
-    created_by   varchar(32)      not null comment '创建人工号',
-    created_time datetime         not null comment '创建时间',
-    updated_by   varchar(20)      not null comment '更新人工号',
-    updated_time datetime         not null comment '更新时间',
-    delete_flag  bigint default 0 not null comment '逻辑删除',
-    constraint uindex
-        unique (org_id, year, quarter)
-)
-    comment '碳排报告状态表' charset = utf8;
+-- ----------------------------
+-- Table structure for org_operation_message
+-- ----------------------------
+DROP TABLE IF EXISTS `org_operation_message`;
+CREATE TABLE `org_operation_message` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `year` int(4) NOT NULL COMMENT '年份',
+  `quarter` int(2) NOT NULL COMMENT '季度',
+  `org_id` bigint(20) NOT NULL COMMENT '组织id',
+  `user_id` bigint(20) NOT NULL COMMENT '用户id',
+  `content` varchar(200) NOT NULL COMMENT '内容',
+  `status` int(2) NOT NULL COMMENT '通知状态',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='待更新的运营信息';
 
-create table tb_sys_emission_factor
-(
-    id                           bigint                          not null comment '主键'
-        primary key,
-    category1                    varchar(20)                     not null comment '分类1',
-    category2                    varchar(20)                     null comment '分类2',
-    factor_name                  varchar(40)                     not null comment '因子名称',
-    emission_gas_type            varchar(40)                     not null comment '排放气体类型',
-    protocol_version             varchar(100)                    not null comment '协议版本',
-    carbon_emission_unit         varchar(30)    default ''       not null comment '排放气体单位',
-    fuel_unit                    varchar(30)    default ''       not null comment '活动数据单位',
-    factor                       decimal(24, 6) default 0.000000 not null comment '排放因子数值',
-    factor_unit                  varchar(40)                     null comment '排放因子单位',
-    density                      decimal(24, 6) default 0.000000 not null comment '密度',
-    density_unit                 varchar(30)    default ''       not null comment '密度单位',
-    density_source               varchar(200)   default ''       not null comment '密度来源',
-    heat_value                   decimal(24, 6) default 0.000000 not null comment '热值',
-    heat_value_unit              varchar(30)    default ''       not null comment '热值单位',
-    heat_value_source            varchar(200)   default ''       not null comment '热值来源',
-    ca_con_per_heat_value        decimal(24, 6) default 0.000000 not null comment '单位热值含碳量',
-    ca_con_per_heat_value_unit   varchar(30)    default ''       not null comment '单位热值含碳量单位',
-    ca_con_per_heat_value_source varchar(200)   default ''       not null comment '单位热值含碳量来源',
-    carbon_oxidation_rate        decimal(24, 6) default 0.000000 not null comment '碳氧化率',
-    carbon_oxidation_rate_source varchar(200)   default ''       not null comment '碳氧化率来源',
-    country                      varchar(30)    default ''       not null comment '国家',
-    region                       varchar(30)    default ''       not null comment '地区',
-    industry                     varchar(30)    default ''       not null comment '行业',
-    source                       varchar(500)   default ''       not null comment '来源',
-    year                         int(4)         default 1970     not null comment '年份',
-    revision                     int(10)                         not null comment '乐观锁',
-    created_by                   varchar(32)                     not null comment '创建人工号',
-    created_time                 datetime                        not null comment '创建时间',
-    updated_by                   varchar(20)                     not null comment '更新人工号',
-    updated_time                 datetime                        not null comment '更新时间',
-    delete_flag                  bigint         default 0        not null comment '逻辑删除',
-    org_id                       bigint                          null comment '组织id',
-    attachment_id                bigint                          null comment '文件id',
-    emission_factor_type_enum    int(2)                          not null comment '因子类型'
-)
-    comment '系统因子库' charset = utf8;
+-- ----------------------------
+-- Records of org_operation_message
+-- ----------------------------
+BEGIN;
+INSERT INTO `org_operation_message` VALUES (1485516522750349312, 2021, 1, 1485429854324264960, 1485506406554669056, '您需要完善2021年Q1运营信息', 1, '2022-01-24 15:35:13', '2022-01-24 15:35:13', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516523673096192, 2021, 2, 1485429854324264960, 1485506406554669056, '您需要完善2021年Q2运营信息', 1, '2022-01-24 15:35:13', '2022-01-24 15:35:13', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516524549705728, 2021, 3, 1485429854324264960, 1485506406554669056, '您需要完善2021年Q3运营信息', 1, '2022-01-24 15:35:14', '2022-01-24 15:35:14', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516525552144384, 2021, 4, 1485429854324264960, 1485506406554669056, '您需要完善2021年Q4运营信息', 1, '2022-01-24 15:35:14', '2022-01-24 15:35:14', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516525552144385, 2021, 4, 1485429854324264960, 1485506406554669056, '您需要完善2021年运营信息', 1, '2022-01-24 15:35:14', '2022-01-24 15:35:14', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516527208894464, 2021, 1, 1485429855775494144, 1485505619829067776, '您需要完善2021年Q1运营信息', 1, '2022-01-24 15:35:14', '2022-01-24 15:35:14', 'fii', 1485516527208894464);
+INSERT INTO `org_operation_message` VALUES (1485516528068726784, 2021, 2, 1485429855775494144, 1485505619829067776, '您需要完善2021年Q2运营信息', 1, '2022-01-24 15:35:15', '2022-01-24 15:35:15', 'fii', 1485516528068726784);
+INSERT INTO `org_operation_message` VALUES (1485516528920170496, 2021, 3, 1485429855775494144, 1485505619829067776, '您需要完善2021年Q3运营信息', 1, '2022-01-24 15:35:15', '2022-01-24 15:35:15', 'fii', 1485516528920170496);
+INSERT INTO `org_operation_message` VALUES (1485516529930997760, 2021, 4, 1485429855775494144, 1485505619829067776, '您需要完善2021年Q4运营信息', 1, '2022-01-24 15:35:15', '2022-01-24 15:35:15', 'fii', 1485516529930997760);
+INSERT INTO `org_operation_message` VALUES (1485516529930997761, 2021, 4, 1485429855775494144, 1485505619829067776, '您需要完善2021年运营信息', 1, '2022-01-24 15:35:15', '2022-01-24 15:35:15', 'fii', 1485516529930997761);
+INSERT INTO `org_operation_message` VALUES (1485516532434997248, 2021, 1, 1485429851061096448, 1485499720406274048, '您需要完善2021年Q1运营信息', 1, '2022-01-24 15:35:16', '2022-01-24 15:35:16', 'fii', 1485516532434997248);
+INSERT INTO `org_operation_message` VALUES (1485516534301462528, 2021, 2, 1485429851061096448, 1485499720406274048, '您需要完善2021年Q2运营信息', 1, '2022-01-24 15:35:16', '2022-01-24 15:35:16', 'fii', 1485516534301462528);
+INSERT INTO `org_operation_message` VALUES (1485516535148711936, 2021, 3, 1485429851061096448, 1485499720406274048, '您需要完善2021年Q3运营信息', 1, '2022-01-24 15:35:16', '2022-01-24 15:35:16', 'fii', 1485516535148711936);
+INSERT INTO `org_operation_message` VALUES (1485516536134373376, 2021, 4, 1485429851061096448, 1485499720406274048, '您需要完善2021年Q4运营信息', 1, '2022-01-24 15:35:16', '2022-01-24 15:35:16', 'fii', 1485516536134373376);
+INSERT INTO `org_operation_message` VALUES (1485516536134373377, 2021, 4, 1485429851061096448, 1485499720406274048, '您需要完善2021年运营信息', 1, '2022-01-24 15:35:16', '2022-01-24 15:35:16', 'fii', 1485516536134373377);
+INSERT INTO `org_operation_message` VALUES (1485516537652711424, 2021, 1, 1485429852688486400, 1485501628730707968, '您需要完善2021年Q1运营信息', 1, '2022-01-24 15:35:17', '2022-01-24 15:35:17', 'fii', 1485516537652711424);
+INSERT INTO `org_operation_message` VALUES (1485516537652711425, 2021, 1, 1485429852688486400, 1485501854300377088, '您需要完善2021年Q1运营信息', 1, '2022-01-24 15:35:17', '2022-01-24 15:35:17', 'fii', 1485516537652711425);
+INSERT INTO `org_operation_message` VALUES (1485516538634178560, 2021, 2, 1485429852688486400, 1485501628730707968, '您需要完善2021年Q2运营信息', 1, '2022-01-24 15:35:17', '2022-01-24 15:35:17', 'fii', 1485516538634178560);
+INSERT INTO `org_operation_message` VALUES (1485516538634178561, 2021, 2, 1485429852688486400, 1485501854300377088, '您需要完善2021年Q2运营信息', 1, '2022-01-24 15:35:17', '2022-01-24 15:35:17', 'fii', 1485516538634178561);
+INSERT INTO `org_operation_message` VALUES (1485516539615645696, 2021, 3, 1485429852688486400, 1485501628730707968, '您需要完善2021年Q3运营信息', 1, '2022-01-24 15:35:17', '2022-01-24 15:35:17', 'fii', 1485516539615645696);
+INSERT INTO `org_operation_message` VALUES (1485516539615645697, 2021, 3, 1485429852688486400, 1485501854300377088, '您需要完善2021年Q3运营信息', 1, '2022-01-24 15:35:17', '2022-01-24 15:35:17', 'fii', 1485516539615645697);
+INSERT INTO `org_operation_message` VALUES (1485516540727136256, 2021, 4, 1485429852688486400, 1485501628730707968, '您需要完善2021年Q4运营信息', 1, '2022-01-24 15:35:18', '2022-01-24 15:35:18', 'fii', 1485516540727136256);
+INSERT INTO `org_operation_message` VALUES (1485516540727136257, 2021, 4, 1485429852688486400, 1485501854300377088, '您需要完善2021年Q4运营信息', 1, '2022-01-24 15:35:18', '2022-01-24 15:35:18', 'fii', 1485516540727136257);
+INSERT INTO `org_operation_message` VALUES (1485516540727136258, 2021, 4, 1485429852688486400, 1485501628730707968, '您需要完善2021年运营信息', 1, '2022-01-24 15:35:18', '2022-01-24 15:35:18', 'fii', 1485516540727136258);
+INSERT INTO `org_operation_message` VALUES (1485516540727136259, 2021, 4, 1485429852688486400, 1485501854300377088, '您需要完善2021年运营信息', 1, '2022-01-24 15:35:18', '2022-01-24 15:35:18', 'fii', 1485516540727136259);
+INSERT INTO `org_operation_message` VALUES (1485516542509715456, 2021, 1, 1485429848393519104, 1481532236233838592, '您需要完善2021年Q1运营信息', 1, '2022-01-24 15:35:18', '2022-01-24 15:35:18', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516542509715457, 2021, 1, 1485429848393519104, 1482168077759156224, '您需要完善2021年Q1运营信息', 0, '2022-01-24 15:35:18', '2022-01-24 15:35:18', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516543486988288, 2021, 2, 1485429848393519104, 1481532236233838592, '您需要完善2021年Q2运营信息', 1, '2022-01-24 15:35:18', '2022-01-24 15:35:18', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516543486988289, 2021, 2, 1485429848393519104, 1482168077759156224, '您需要完善2021年Q2运营信息', 1, '2022-01-24 15:35:18', '2022-01-24 15:35:18', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516544502009856, 2021, 3, 1485429848393519104, 1481532236233838592, '您需要完善2021年Q3运营信息', 1, '2022-01-24 15:35:18', '2022-01-24 15:35:18', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516544502009857, 2021, 3, 1485429848393519104, 1482168077759156224, '您需要完善2021年Q3运营信息', 1, '2022-01-24 15:35:18', '2022-01-24 15:35:18', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516545638666240, 2021, 4, 1485429848393519104, 1481532236233838592, '您需要完善2021年Q4运营信息', 1, '2022-01-24 15:35:19', '2022-01-24 15:35:19', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516545638666241, 2021, 4, 1485429848393519104, 1482168077759156224, '您需要完善2021年Q4运营信息', 1, '2022-01-24 15:35:19', '2022-01-24 15:35:19', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516545638666242, 2021, 4, 1485429848393519104, 1481532236233838592, '您需要完善2021年运营信息', 1, '2022-01-24 15:35:19', '2022-01-24 15:35:19', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516545638666243, 2021, 4, 1485429848393519104, 1482168077759156224, '您需要完善2021年运营信息', 1, '2022-01-24 15:35:19', '2022-01-24 15:35:19', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516550067851264, 2021, 1, 1485429849513398272, 1485505880043687936, '您需要完善2021年Q1运营信息', 1, '2022-01-24 15:35:20', '2022-01-24 15:35:20', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516551770738688, 2021, 2, 1485429849513398272, 1485505880043687936, '您需要完善2021年Q2运营信息', 1, '2022-01-24 15:35:20', '2022-01-24 15:35:20', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516553490403328, 2021, 3, 1485429849513398272, 1485505880043687936, '您需要完善2021年Q3运营信息', 1, '2022-01-24 15:35:21', '2022-01-24 15:35:21', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516555772104704, 2021, 4, 1485429849513398272, 1485505880043687936, '您需要完善2021年Q4运营信息', 1, '2022-01-24 15:35:21', '2022-01-24 15:35:21', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1485516555772104705, 2021, 4, 1485429849513398272, 1485505880043687936, '您需要完善2021年运营信息', 1, '2022-01-24 15:35:21', '2022-01-24 15:35:21', 'fii', 0);
+INSERT INTO `org_operation_message` VALUES (1490872704109252608, 2021, 2, 1485429855775494144, 1490872547317780480, '您需要完善2021年Q2运营信息', 1, '2022-02-08 10:18:46', '2022-02-08 10:18:46', 'fii', 1490872704109252608);
+INSERT INTO `org_operation_message` VALUES (1490872800850874368, 2021, 1, 1485429855775494144, 1490872547317780480, '您需要完善2021年Q1运营信息', 1, '2022-02-08 10:19:09', '2022-02-08 10:19:09', 'fii', 1490872800850874368);
+INSERT INTO `org_operation_message` VALUES (1490872833520308224, 2021, 4, 1485429855775494144, 1490872547317780480, '您需要完善2021年Q4运营信息', 1, '2022-02-08 10:19:17', '2022-02-08 10:19:17', 'fii', 1490872833520308224);
+INSERT INTO `org_operation_message` VALUES (1490872833524502528, 2021, 0, 1485429855775494144, 1490872547317780480, '您需要完善2021年运营信息', 1, '2022-02-08 10:19:17', '2022-02-08 10:19:17', 'fii', 1490872833524502528);
+INSERT INTO `org_operation_message` VALUES (1490872854114340864, 2021, 3, 1485429855775494144, 1490872547317780480, '您需要完善2021年Q3运营信息', 1, '2022-02-08 10:19:22', '2022-02-08 10:19:22', 'fii', 1490872854114340864);
+COMMIT;
 
-create table transport_emission
-(
-    id                   bigint                          not null comment '主键'
-        primary key,
-    inventory_id         bigint                          not null comment '碳盘查报告id',
-    type                 varchar(30)    default ''       not null comment '分类',
-    transportation_mode  varchar(30)    default ''       not null comment '交通运输方式',
-    vehicle_type         varchar(30)    default ''       not null comment '车辆类型',
-    quantity             decimal(24, 6) default 0.000000 not null comment '数量',
-    fuel_unit            varchar(30)    default ''       not null comment '燃料单位',
-    factor_unit          varchar(30)    default ''       not null comment '排放因子单位',
-    use_default_factor   int(2)         default 0        not null comment '是否使用默认碳排放因子',
-    carbon_emission      decimal(24, 6) default 0.000000 not null comment '二氧化碳排放',
-    carbon_emission_unit varchar(30)    default ''       not null comment '二氧化碳排放单位',
-    factor               decimal(24, 6) default 0.000000 not null comment '排放因子',
-    description          varchar(500)   default ''       not null comment '描述',
-    revision             int(10)                         not null comment '乐观锁',
-    created_by           varchar(32)                     not null comment '创建人工号',
-    created_time         datetime                        not null comment '创建时间',
-    updated_by           varchar(20)                     not null comment '更新人工号',
-    updated_time         datetime                        not null comment '更新时间',
-    tenant_id            varchar(32)                     not null comment '租户号',
-    delete_flag          bigint         default 0        not null comment '逻辑删除'
-)
-    comment '交通运输排放' charset = utf8;
+-- ----------------------------
+-- Table structure for org_operation_message_schedule
+-- ----------------------------
+DROP TABLE IF EXISTS `org_operation_message_schedule`;
+CREATE TABLE `org_operation_message_schedule` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `year` int(4) NOT NULL COMMENT '年份',
+  `quarter` int(2) NOT NULL COMMENT '季度',
+  `org_id` bigint(20) NOT NULL COMMENT '组织id',
+  `next_time` datetime NOT NULL COMMENT '下次任务时间',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='待更新的运营信息通知定时任务';
 
+-- ----------------------------
+-- Records of org_operation_message_schedule
+-- ----------------------------
+BEGIN;
+INSERT INTO `org_operation_message_schedule` VALUES (1485516521722744832, 2022, 1, 1485429854324264960, '2022-04-01 00:00:00', '2022-01-24 15:35:13', '2022-01-24 15:35:13', 'fii', 0);
+INSERT INTO `org_operation_message_schedule` VALUES (1485516526349062144, 2022, 1, 1485429855775494144, '2022-04-01 00:00:00', '2022-01-24 15:35:14', '2022-01-24 15:35:14', 'fii', 0);
+INSERT INTO `org_operation_message_schedule` VALUES (1485516531600330752, 2022, 1, 1485429851061096448, '2022-04-01 00:00:00', '2022-01-24 15:35:15', '2022-01-24 15:35:15', 'fii', 0);
+INSERT INTO `org_operation_message_schedule` VALUES (1485516536818044928, 2022, 1, 1485429852688486400, '2022-04-01 00:00:00', '2022-01-24 15:35:17', '2022-01-24 15:35:17', 'fii', 0);
+INSERT INTO `org_operation_message_schedule` VALUES (1485516541679243264, 2022, 1, 1485429848393519104, '2022-04-01 00:00:00', '2022-01-24 15:35:18', '2022-01-24 15:35:18', 'fii', 0);
+INSERT INTO `org_operation_message_schedule` VALUES (1485516548008448000, 2022, 1, 1485429849513398272, '2022-04-01 00:00:00', '2022-01-24 15:35:19', '2022-01-24 15:35:19', 'fii', 0);
+COMMIT;
 
-# 美元兑换
-INSERT INTO cec.exchange_rate (id, rate, year, created_by, created_time, updated_by, updated_time, tenant_id, revision,
-                               delete_flag)
-VALUES (1479393590265384960, 6.381000, 2021, '', '2022-01-07 18:04:55', '', '2022-01-07 18:04:55', 'fii', 3, 0);
+-- ----------------------------
+-- Table structure for org_tree
+-- ----------------------------
+DROP TABLE IF EXISTS `org_tree`;
+CREATE TABLE `org_tree` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `ancestor_org_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '父组织id或祖先组织id',
+  `ancestor_type` int(2) NOT NULL DEFAULT '0' COMMENT '父组织或祖先组织类型',
+  `level` int(10) NOT NULL DEFAULT '0' COMMENT '层级关系',
+  `org_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '组织id',
+  `type` int(2) NOT NULL DEFAULT '0' COMMENT '组织类型',
+  `is_root` int(1) NOT NULL DEFAULT '0' COMMENT '是否是根节点',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(32) NOT NULL COMMENT '更新人工号',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `revision` int(10) NOT NULL DEFAULT '1' COMMENT '乐观锁',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='组织关系树';
 
-# 权限
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (111, '碳盘查', 'carbon_inventory', null);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (222, '报告查看', 'carbon_inventory:view', 111);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (333, '报告编辑', 'carbon_inventory:update', 111);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (444, '报告提交', 'carbon_inventory:submit', 111);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (555, '碳盘查管理', 'carbon_manager', null);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (666, '发起碳盘查', 'carbon_manager:start', 555);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (777, '修改截止时间', 'carbon_manager:update_deadline', 555);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (888, '查看报告', 'carbon_manager:view', 555);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (999, '组织信息', 'org_info', null);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (1111, '组织树（全）', 'org_info:org_structure', 999);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (1112, '动态', 'carbon_inventory:dynamic_message', 111);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (1113, '通知', 'carbon_inventory:notice', 111);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (2222, '账号与权限管理', 'org_info:authority', 999);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (3333, '新建账号', 'org_info:authority:new_account', 2222);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (4444, '编辑账号', 'org_info:authority:update_account', 2222);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (5551, '动态', 'carbon_manager:dynamic_message', 555);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (5552, '通知', 'carbon_manager:notice', 555);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (5555, '组织信息维护', 'org_info:info_maintenance', 999);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (6666, '编辑基础信息', 'org_info:info_maintenance:edit_basic_info', 5555);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (7777, '更新运营信息', 'org_info:info_maintenance:update_oper_info', 5555);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (9990, '基础信息（全）', 'org_info:base_info', 999);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (9991, '运营信息（全）', 'org_info:org_operation_info:all', 999);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (9992, '运营信息（自己+下属）', 'org_info:org_operation_info:sub', 999);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (9993, '运营信息（自己）', 'org_info:org_operation_info:self', 999);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (9994, '组织树（全）', 'carbon_manager:org_tree:all', 555);
-INSERT INTO cec.sys_permission (id, permission_name, permission_code, parent_id)
-VALUES (9995, '组织树（本组织+下属）', 'carbon_manager:org_tree:sub', 555);
+-- ----------------------------
+-- Records of org_tree
+-- ----------------------------
+BEGIN;
+INSERT INTO `org_tree` VALUES (1485429848993304576, 1485429848393519104, 0, 0, 1485429848393519104, 0, 1, '', '2022-01-24 09:50:49', '', '2022-01-24 09:50:49', 'fii', 1, 0);
+INSERT INTO `org_tree` VALUES (1485429850201264128, 1485429849513398272, 0, 0, 1485429849513398272, 0, 0, '', '2022-01-24 09:50:49', '', '2022-01-24 09:50:49', 'fii', 1, 0);
+INSERT INTO `org_tree` VALUES (1485429850398396416, 1485429848393519104, 0, 1, 1485429849513398272, 0, 0, '', '2022-01-24 09:50:49', '', '2022-01-24 09:50:49', 'fii', 1, 0);
+INSERT INTO `org_tree` VALUES (1485429851707019264, 1485429851061096448, 1, 0, 1485429851061096448, 1, 0, '', '2022-01-24 09:50:49', '', '2022-01-24 09:50:49', 'fii', 1, 0);
+INSERT INTO `org_tree` VALUES (1485429851878985728, 1485429849513398272, 0, 1, 1485429851061096448, 1, 0, '', '2022-01-24 09:50:49', '', '2022-01-24 09:50:49', 'fii', 1, 0);
+INSERT INTO `org_tree` VALUES (1485429851878985729, 1485429848393519104, 0, 2, 1485429851061096448, 1, 0, '', '2022-01-24 09:50:49', '', '2022-01-24 09:50:49', 'fii', 1, 0);
+INSERT INTO `org_tree` VALUES (1485429853380546560, 1485429852688486400, 1, 0, 1485429852688486400, 1, 0, '', '2022-01-24 09:50:50', '', '2022-01-24 09:50:50', 'fii', 1, 0);
+INSERT INTO `org_tree` VALUES (1485429853548318720, 1485429849513398272, 0, 1, 1485429852688486400, 1, 0, '', '2022-01-24 09:50:50', '', '2022-01-24 09:50:50', 'fii', 1, 0);
+INSERT INTO `org_tree` VALUES (1485429853552513024, 1485429848393519104, 0, 2, 1485429852688486400, 1, 0, '', '2022-01-24 09:50:50', '', '2022-01-24 09:50:50', 'fii', 1, 0);
+INSERT INTO `org_tree` VALUES (1485429854957604864, 1485429854324264960, 0, 0, 1485429854324264960, 0, 0, '', '2022-01-24 09:50:50', '', '2022-01-24 09:50:50', 'fii', 1, 0);
+INSERT INTO `org_tree` VALUES (1485429855125377024, 1485429848393519104, 0, 1, 1485429854324264960, 0, 0, '', '2022-01-24 09:50:50', '', '2022-01-24 09:50:50', 'fii', 1, 0);
+INSERT INTO `org_tree` VALUES (1485429857407078400, 1485429855775494144, 1, 0, 1485429855775494144, 1, 0, '', '2022-01-24 09:50:51', '', '2022-01-24 09:50:51', 'fii', 1, 0);
+INSERT INTO `org_tree` VALUES (1485429857570656256, 1485429854324264960, 0, 1, 1485429855775494144, 1, 0, '', '2022-01-24 09:50:51', '', '2022-01-24 09:50:51', 'fii', 1, 0);
+INSERT INTO `org_tree` VALUES (1485429857570656257, 1485429848393519104, 0, 2, 1485429855775494144, 1, 0, '', '2022-01-24 09:50:51', '', '2022-01-24 09:50:51', 'fii', 1, 0);
+COMMIT;
 
+-- ----------------------------
+-- Table structure for outsourcing_energy
+-- ----------------------------
+DROP TABLE IF EXISTS `outsourcing_energy`;
+CREATE TABLE `outsourcing_energy` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `inventory_id` bigint(20) NOT NULL COMMENT '碳盘查报告id',
+  `quantity` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '数量',
+  `type` varchar(30) NOT NULL DEFAULT '' COMMENT '能源类型',
+  `fuel_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '燃料单位',
+  `carbon_emission` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '二氧化碳排放',
+  `carbon_emission_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '二氧化碳排放单位',
+  `factor` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '排放因子',
+  `factor_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '排放因子单位',
+  `use_default_factor` int(2) NOT NULL DEFAULT '0' COMMENT '是否使用默认碳排放因子',
+  `revision` int(10) NOT NULL COMMENT '乐观锁',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(20) NOT NULL COMMENT '更新人工号',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  `region` varchar(30) NOT NULL DEFAULT '' COMMENT '区域',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='外购能源';
 
-# 角色
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (1, 555, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (2, 666, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (3, 777, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (4, 888, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (5, 999, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (7, 2222, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (8, 3333, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (9, 4444, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (10, 5555, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (11, 6666, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (12, 7777, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (13, 555, 22);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (14, 888, 22);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (15, 999, 22);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (17, 555, 33);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (18, 888, 33);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (19, 999, 33);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (24, 555, 44);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (25, 888, 44);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (26, 999, 44);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (27, 2222, 44);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (28, 3333, 44);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (29, 4444, 44);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (30, 5555, 44);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (31, 6666, 44);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (32, 7777, 44);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (33, 555, 55);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (34, 888, 55);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (35, 999, 55);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (37, 555, 66);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (38, 888, 66);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (39, 999, 66);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (44, 111, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (45, 222, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (46, 333, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (47, 444, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (48, 999, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (49, 2222, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (50, 3333, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (51, 4444, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (52, 5555, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (53, 6666, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (54, 7777, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (55, 111, 88);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (56, 222, 88);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (57, 333, 88);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (59, 444, 88);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (60, 999, 88);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (62, 555, 99);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (63, 888, 99);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (64, 999, 99);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (68, 9990, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (69, 9990, 22);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (70, 9990, 33);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (71, 9990, 44);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (72, 9990, 55);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (73, 9990, 66);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (74, 9990, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (75, 9990, 88);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (76, 9990, 99);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (77, 9991, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (79, 9991, 33);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (80, 9992, 44);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (82, 9992, 66);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (83, 9993, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (85, 9993, 99);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (86, 9994, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (87, 9994, 22);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (88, 9994, 33);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (89, 9995, 44);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (90, 9995, 55);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (91, 9995, 66);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (92, 1111, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (93, 1111, 22);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (94, 1111, 33);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (95, 1111, 44);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (96, 1111, 55);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (97, 1111, 66);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (98, 1111, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (99, 1111, 88);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (100, 1111, 99);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (101, 5551, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (102, 5551, 22);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (103, 5551, 33);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (104, 5551, 44);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (105, 5551, 55);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (106, 5551, 66);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (107, 5551, 99);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (108, 5552, 11);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (109, 5552, 22);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (110, 5552, 33);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (111, 5552, 99);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (112, 1112, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (113, 1112, 88);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (114, 1113, 77);
-INSERT INTO cec.sys_role_permission (id, permission_id, role_id)
-VALUES (115, 1113, 88);
+-- ----------------------------
+-- Records of outsourcing_energy
+-- ----------------------------
+BEGIN;
+INSERT INTO `outsourcing_energy` VALUES (1483352129371508736, 1483351979618078720, 32525.000000, '蒸汽', 'GJ', 18123255.250000, 'tCO₂e', 557.210000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-01-18 16:14:42', 'A024484593', '2022-01-18 16:14:42', 'fii', 0, '河北');
+INSERT INTO `outsourcing_energy` VALUES (1483377015758393344, 1483377015712256000, 70.000000, '蒸汽', 'GJ', 29922.200000, 'tCO₂e', 427.460000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-01-18 17:53:35', 'A024484593', '2022-01-18 17:53:35', 'fii', 0, '北京');
+INSERT INTO `outsourcing_energy` VALUES (1483378151580110848, 1483378067001970688, 800000.000000, '电力', 'kWh', 562.800000, 'tCO₂e', 0.703500, 'kgCO₂e/kWh', 1, 2, 'A024484593', '2022-01-18 17:58:06', 'A024484593', '2022-01-18 17:58:06', 'fii', 0, '华东');
+INSERT INTO `outsourcing_energy` VALUES (1483698243601829888, 1483698243555692544, 10000.000000, '电力', 'kWh', 6.671000, 'tCO₂e', 0.667100, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-01-19 15:10:02', 'A024484593', '2022-01-19 15:10:02', 'fii', 0, '西北');
+INSERT INTO `outsourcing_energy` VALUES (1483977621804027904, 1483709811030888448, 1000.000000, '电力', 'kWh', 0.340000, 'tCO₂e', 0.340000, 'kgCO₂e/kWh', 0, 1, 'A024484593', '2022-01-20 09:40:11', 'A024484593', '2022-01-20 09:40:11', 'fii', 0, '南方');
+INSERT INTO `outsourcing_energy` VALUES (1484341865347158016, 1484048192327782400, 11.000000, '热力', 'GJ', 4702.060000, 'tCO₂e', 427.460000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-01-21 09:47:33', 'A024484593', '2022-01-21 09:47:33', 'fii', 0, '北京');
+INSERT INTO `outsourcing_energy` VALUES (1484352867451146240, 1483698243555692544, 111.000000, '热力', 'GJ', 47448.060000, 'tCO₂e', 427.460000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-01-21 10:31:16', 'A024484593', '2022-01-21 10:31:16', 'fii', 0, '北京');
+INSERT INTO `outsourcing_energy` VALUES (1485499887939358720, 1485499855588691968, 100.000000, '热力', 'GJ', 42746.000000, 'tCO₂e', 427.460000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-01-24 14:29:07', 'A024484593', '2022-01-24 14:29:07', 'fii', 0, '北京');
+INSERT INTO `outsourcing_energy` VALUES (1485501992695631872, 1485501992657883136, 9000.000000, '电力', 'kWh', 4.743900, 'tCO₂e', 0.527100, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-01-24 14:37:29', 'A024484593', '2022-01-24 14:37:29', 'fii', 0, '南方');
+INSERT INTO `outsourcing_energy` VALUES (1485505722484658176, 1485505722472075264, 20000.000000, '电力', 'kWh', 10.514000, 'tCO₂e', 0.525700, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-01-24 14:52:18', 'A024484593', '2022-01-24 14:52:18', 'fii', 0, '华中');
+INSERT INTO `outsourcing_energy` VALUES (1485517804907139072, 1485517804894556160, 1000.000000, '热力', 'GJ', 427460.000000, 'tCO₂e', 427.460000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-01-24 15:40:19', 'A024484593', '2022-01-24 15:40:19', 'fii', 0, '北京');
+INSERT INTO `outsourcing_energy` VALUES (1486147541333577728, 1485810842233606144, 11.000000, '热力', 'GJ', 4702.060000, 'tCO₂e', 427.460000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-01-26 09:22:40', 'A024484593', '2022-01-26 09:22:40', 'fii', 0, '北京');
+INSERT INTO `outsourcing_energy` VALUES (1490884439994142720, 1490884277037043712, 10000.000000, '电力', 'kWh', 8.843000, 'tCO₂e', 0.884300, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-02-08 11:05:24', 'A024484593', '2022-02-08 11:05:24', 'fii', 0, '华北');
+INSERT INTO `outsourcing_energy` VALUES (1491312356196749312, 1491312356154806272, 3000.000000, '电力', 'kWh', 6.360000, 'tCO₂e', 2.120000, 'kgCO₂e/kWh', 0, 1, 'A024484593', '2022-02-09 15:25:48', 'A024484593', '2022-02-09 15:25:48', 'fii', 0, '南方');
+INSERT INTO `outsourcing_energy` VALUES (1491312439889891328, 1491312356154806272, 200.000000, '热力', 'GJ', 100610.000000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-09 15:26:08', 'A024484593', '2022-02-09 15:26:08', 'fii', 0, '广东');
+INSERT INTO `outsourcing_energy` VALUES (1491612587908009984, 1485866159176814592, 2000.000000, '电力', 'kWh', 4.000000, 'tCO₂e', 2.000000, 'kgCO₂e/kWh', 0, 2, 'A024484593', '2022-02-10 11:18:48', 'A024484593', '2022-02-10 11:18:48', 'fii', 0, '南方');
+INSERT INTO `outsourcing_energy` VALUES (1494116485717692416, 1494116485679943680, 91240.000000, '电力', 'kWh', 80.683532, 'tCO₂e', 0.884300, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-02-17 09:08:24', 'A024484593', '2022-02-17 09:08:24', 'fii', 0, '华北');
+INSERT INTO `outsourcing_energy` VALUES (1494495320682401792, 1494495034857361408, 200.000000, '电力', 'kWh', 0.176860, 'tCO₂e', 0.884300, 'kgCO₂e/kWh', 1, 2, 'A024484593', '2022-02-18 10:13:45', 'A024484593', '2022-02-18 10:13:45', 'fii', 0, '华北');
+INSERT INTO `outsourcing_energy` VALUES (1494495360113053696, 1494495034857361408, 2000.000000, '热力', 'GJ', 1115180.000000, 'tCO₂e', 557.590000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-18 10:13:55', 'A024484593', '2022-02-18 10:13:55', 'fii', 0, '天津');
+INSERT INTO `outsourcing_energy` VALUES (1494495410008494080, 1494495034857361408, 3000.000000, '蒸汽', 'GJ', 1672770.000000, 'tCO₂e', 557.590000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-18 10:14:07', 'A024484593', '2022-02-18 10:14:07', 'fii', 0, '天津');
+INSERT INTO `outsourcing_energy` VALUES (1496723050534670336, 1491292749218058240, 2000.000000, '电力', 'kWh', 1.054200, 'tCO₂e', 0.527100, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-02-24 13:45:58', 'A024484593', '2022-02-24 13:45:58', 'fii', 0, '南方');
+INSERT INTO `outsourcing_energy` VALUES (1496723110022483968, 1491292749218058240, 400.000000, '热力', 'GJ', 201220.000000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-24 13:46:12', 'A024484593', '2022-02-24 13:46:12', 'fii', 0, '广东');
+INSERT INTO `outsourcing_energy` VALUES (1496725603137753088, 1485796406550728704, 200.000000, '热力', 'GJ', 100610.000000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-24 13:56:06', 'A024484593', '2022-02-24 13:56:06', 'fii', 0, '广东');
+INSERT INTO `outsourcing_energy` VALUES (1496725633680674816, 1485796406550728704, 20000000.000000, '电力', 'kWh', 10542.000000, 'tCO₂e', 0.527100, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-02-24 13:56:14', 'A024484593', '2022-02-24 13:56:14', 'fii', 0, '南方');
+INSERT INTO `outsourcing_energy` VALUES (1496725665683214336, 1485796406550728704, 150.000000, '蒸汽', 'GJ', 75457.500000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-24 13:56:21', 'A024484593', '2022-02-24 13:56:21', 'fii', 0, '广东');
+INSERT INTO `outsourcing_energy` VALUES (1496725981170372608, 1486326919334072320, 500000.000000, '电力', 'kWh', 263.550000, 'tCO₂e', 0.527100, 'kgCO₂e/kWh', 1, 2, 'A024484593', '2022-02-24 13:57:36', 'A024484593', '2022-02-24 13:57:36', 'fii', 0, '南方');
+INSERT INTO `outsourcing_energy` VALUES (1496726005887406080, 1486326919334072320, 1.000000, '热力', 'GJ', 503.050000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-24 13:57:42', 'A024484593', '2022-02-24 13:57:42', 'fii', 0, '广东');
+INSERT INTO `outsourcing_energy` VALUES (1496726049118097408, 1486326919334072320, 0.500000, '蒸汽', 'GJ', 251.525000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-24 13:57:53', 'A024484593', '2022-02-24 13:57:53', 'fii', 0, '广东');
+INSERT INTO `outsourcing_energy` VALUES (1496726492535721984, 1496726370900905984, 2000000.000000, '电力', 'kWh', 1054.200000, 'tCO₂e', 0.527100, 'kgCO₂e/kWh', 1, 2, 'A024484593', '2022-02-24 13:59:38', 'A024484593', '2022-02-24 13:59:38', 'fii', 0, '南方');
+INSERT INTO `outsourcing_energy` VALUES (1496726946074202112, 1496726370900905984, 1.000000, '热力', 'GJ', 503.050000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-24 14:01:26', 'A024484593', '2022-02-24 14:01:26', 'fii', 0, '广东');
+INSERT INTO `outsourcing_energy` VALUES (1496726970124341248, 1496726370900905984, 1.000000, '蒸汽', 'GJ', 503.050000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-24 14:01:32', 'A024484593', '2022-02-24 14:01:32', 'fii', 0, '广东');
+INSERT INTO `outsourcing_energy` VALUES (1496728147440308224, 1496728009439318016, 2000000.000000, '电力', 'kWh', 1054.200000, 'tCO₂e', 0.527100, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-02-24 14:06:13', 'A024484593', '2022-02-24 14:06:13', 'fii', 0, '南方');
+INSERT INTO `outsourcing_energy` VALUES (1496728177517662208, 1496728009439318016, 2.000000, '热力', 'GJ', 1006.100000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-24 14:06:20', 'A024484593', '2022-02-24 14:06:20', 'fii', 0, '广东');
+INSERT INTO `outsourcing_energy` VALUES (1496728203874668544, 1496728009439318016, 2.000000, '蒸汽', 'GJ', 1006.100000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-24 14:06:26', 'A024484593', '2022-02-24 14:06:26', 'fii', 0, '广东');
+INSERT INTO `outsourcing_energy` VALUES (1496738818278166528, 1496738640934604800, 200000.000000, '电力', 'kWh', 105.420000, 'tCO₂e', 0.527100, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-02-24 14:48:37', 'A024484593', '2022-02-24 14:48:37', 'fii', 0, '南方');
+INSERT INTO `outsourcing_energy` VALUES (1496738845364981760, 1496738640934604800, 1.000000, '热力', 'GJ', 503.050000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-24 14:48:43', 'A024484593', '2022-02-24 14:48:43', 'fii', 0, '广东');
+INSERT INTO `outsourcing_energy` VALUES (1496738877312995328, 1496738640934604800, 0.500000, '蒸汽', 'GJ', 251.525000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-24 14:48:51', 'A024484593', '2022-02-24 14:48:51', 'fii', 0, '广东');
+INSERT INTO `outsourcing_energy` VALUES (1496739265474859008, 1496739110243667968, 1000000.000000, '电力', 'kWh', 527.100000, 'tCO₂e', 0.527100, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-02-24 14:50:24', 'A024484593', '2022-02-24 14:50:24', 'fii', 0, '南方');
+INSERT INTO `outsourcing_energy` VALUES (1496739284894486528, 1496739110243667968, 1.000000, '热力', 'GJ', 503.050000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-24 14:50:28', 'A024484593', '2022-02-24 14:50:28', 'fii', 0, '广东');
+INSERT INTO `outsourcing_energy` VALUES (1496739305022951424, 1496739110243667968, 1.000000, '蒸汽', 'GJ', 503.050000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-24 14:50:33', 'A024484593', '2022-02-24 14:50:33', 'fii', 0, '广东');
+INSERT INTO `outsourcing_energy` VALUES (1496741248399183872, 1496741099325231104, 11111111.000000, '电力', 'kWh', 9825.555457, 'tCO₂e', 0.884300, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-02-24 14:58:16', 'A024484593', '2022-02-24 14:58:16', 'fii', 0, '华北');
+INSERT INTO `outsourcing_energy` VALUES (1496741275674742784, 1496741099325231104, 19.000000, '热力', 'GJ', 10594.210000, 'tCO₂e', 557.590000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-24 14:58:23', 'A024484593', '2022-02-24 14:58:23', 'fii', 0, '天津');
+INSERT INTO `outsourcing_energy` VALUES (1496741314061012992, 1496741099325231104, 9.000000, '蒸汽', 'GJ', 5018.310000, 'tCO₂e', 557.590000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-02-24 14:58:32', 'A024484593', '2022-02-24 14:58:32', 'fii', 0, '天津');
+INSERT INTO `outsourcing_energy` VALUES (1498555631517437952, 1498554415903281152, 100.000000, '电力', 'kWh', 0.052710, 'tCO₂e', 0.527100, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-03-01 15:07:59', 'A024484593', '2022-03-01 15:07:59', 'fii', 0, '南方');
+INSERT INTO `outsourcing_energy` VALUES (1498559966691332096, 1498559966678749184, 91240.000000, '电力', 'kWh', 80.683532, 'tCO₂e', 0.884300, 'kgCO₂e/kWh', 1, 2, 'A024484593', '2022-03-01 15:25:13', 'A024484593', '2022-03-01 15:25:13', 'fii', 0, '华北');
+INSERT INTO `outsourcing_energy` VALUES (1498868076555407360, 1498867816995098624, 6000.000000, '电力', 'kWh', 5.305800, 'tCO₂e', 0.884300, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-03-02 11:49:32', 'A024484593', '2022-03-02 11:49:32', 'fii', 0, '华北');
+INSERT INTO `outsourcing_energy` VALUES (1500434001586950144, 1500433928304070656, 2000.000000, '电力', 'kWh', 1.768600, 'tCO₂e', 0.884300, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-03-06 19:31:57', 'A024484593', '2022-03-06 19:31:57', 'fii', 0, '华北');
+INSERT INTO `outsourcing_energy` VALUES (1500652669805662208, 1500652669772107776, 43150.000000, '电力', 'kWh', 22.744365, 'tCO₂e', 0.527100, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-03-07 10:00:52', 'A024484593', '2022-03-07 10:00:52', 'fii', 0, '南方');
+INSERT INTO `outsourcing_energy` VALUES (1501068890007015424, 1501068658473046016, 3000000.000000, '电力', 'kWh', 2652.900000, 'tCO₂e', 0.884300, 'kgCO₂e/kWh', 1, 2, 'A024484593', '2022-03-08 13:34:47', 'A024484593', '2022-03-08 13:34:47', 'fii', 0, '华北');
+INSERT INTO `outsourcing_energy` VALUES (1501068937402650624, 1501068658473046016, 20.000000, '热力', 'GJ', 11151.800000, 'tCO₂e', 557.590000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-03-08 13:34:58', 'A024484593', '2022-03-08 13:34:58', 'fii', 0, '天津');
+INSERT INTO `outsourcing_energy` VALUES (1501068970743173120, 1501068658473046016, 13.000000, '蒸汽', 'GJ', 7248.670000, 'tCO₂e', 557.590000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-03-08 13:35:06', 'A024484593', '2022-03-08 13:35:06', 'fii', 0, '天津');
+INSERT INTO `outsourcing_energy` VALUES (1501110784078516224, 1501105840944451584, 2000000.000000, '电力', 'kWh', 1054.200000, 'tCO₂e', 0.527100, 'kgCO₂e/kWh', 1, 1, 'A024484593', '2022-03-08 16:21:15', 'A024484593', '2022-03-08 16:21:15', 'fii', 0, '南方');
+INSERT INTO `outsourcing_energy` VALUES (1501111269548232704, 1501105840944451584, 2000.000000, '热力', 'MJ', 1006.100000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 2, 'A024484593', '2022-03-08 16:23:11', 'A024484593', '2022-03-08 16:23:11', 'fii', 0, '广东');
+INSERT INTO `outsourcing_energy` VALUES (1501111333402316800, 1501105840944451584, 20000.000000, '蒸汽', 'KJ', 10.061000, 'tCO₂e', 503.050000, 'tCO₂e/GJ', 1, 1, 'A024484593', '2022-03-08 16:23:26', 'A024484593', '2022-03-08 16:23:26', 'fii', 0, '广东');
+COMMIT;
 
-# 角色
-INSERT INTO cec.sys_role (id, role_name, role_org_type)
-VALUES (11, '管理员', 1);
-INSERT INTO cec.sys_role (id, role_name, role_org_type)
-VALUES (22, '用户', 1);
-INSERT INTO cec.sys_role (id, role_name, role_org_type)
-VALUES (33, '主管', 1);
-INSERT INTO cec.sys_role (id, role_name, role_org_type)
-VALUES (44, '管理员', 2);
-INSERT INTO cec.sys_role (id, role_name, role_org_type)
-VALUES (55, '用户', 2);
-INSERT INTO cec.sys_role (id, role_name, role_org_type)
-VALUES (66, '主管', 2);
-INSERT INTO cec.sys_role (id, role_name, role_org_type)
-VALUES (77, '管理员', 3);
-INSERT INTO cec.sys_role (id, role_name, role_org_type)
-VALUES (88, '用户', 3);
-INSERT INTO cec.sys_role (id, role_name, role_org_type)
-VALUES (99, '主管', 3);
+-- ----------------------------
+-- Table structure for process_emission
+-- ----------------------------
+DROP TABLE IF EXISTS `process_emission`;
+CREATE TABLE `process_emission` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `inventory_id` bigint(20) NOT NULL COMMENT '碳盘查报告id',
+  `process` varchar(30) NOT NULL DEFAULT '' COMMENT '制程',
+  `quantity` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '数量',
+  `type` varchar(30) NOT NULL DEFAULT '' COMMENT '气体类型',
+  `fuel_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '燃料单位',
+  `carbon_emission` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '二氧化碳排放',
+  `carbon_emission_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '二氧化碳排放单位',
+  `factor` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '排放因子',
+  `factor_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '排放因子单位',
+  `description` varchar(500) NOT NULL DEFAULT '' COMMENT '描述',
+  `revision` int(10) NOT NULL COMMENT '乐观锁',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(20) NOT NULL COMMENT '更新人工号',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='制程排放';
 
-## 用户角色
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1, 11111, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1481545726214410240, 1481545725996306432, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1481545992766623744, 1481545992724680704, 88);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1481546178792394752, 1481546178742063104, 88);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1481862985721974784, 1481862985617117184, 44);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1481900808336445440, 1481900808294502400, 22);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1482168079483015168, 1482168077759156224, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1482881351232393216, 1482881351152701440, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1482911390061694976, 1482911390023946240, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1483709720165486592, 1483709720098377728, 88);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1483988467254956032, 1483988467217207296, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1483988987755499520, 1483988987734528000, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1484056907558817792, 1484056907466543104, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1484339956993363968, 1484339956913672192, 66);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1485499720473382912, 1485499720406274048, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1485501628755873792, 1485501628730707968, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1485501854325542912, 1485501854300377088, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1485505619858427904, 1485505619829067776, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1485505880064659456, 1485505880043687936, 44);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1485506406592417792, 1485506406554669056, 44);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1485787396237824000, 1485787396162326528, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1485787527926386688, 1485787527892832256, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1485787600567537664, 1485787600533983232, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1490866898424958976, 1490866898341072896, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1490872548634791936, 1490872547317780480, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1491682453180518400, 1491682453117603840, 99);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1494135918251085824, 1490590134683439104, 88);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1496723793408823296, 1496723793341714432, 33);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1501829475330035712, 1501829475204206592, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1501830439621496832, 1501830439596331008, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1501835021927976960, 1501835021902811136, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1501845132478124032, 1501845132448763904, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1504323169006260224, 1481532236233838592, 88);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1506076440578363392, 1506076440511254528, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1514882912577785856, 1514882911676010496, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1514883128529915904, 1514883128458612736, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1514886138802868224, 1514886138710593536, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1514886224421195776, 1514886224383447040, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1514909970976608256, 1514909970087415808, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1514910447034306560, 1514910446992363520, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1514942793422868480, 1514942792525287424, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1514943054790922240, 1514943054748979200, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1514952260856188928, 1514952260826828800, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515338310585815040, 1515338310548066304, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515861994220163072, 1515861994111111168, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515863260442791936, 1515863260409237504, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515870007920300032, 1515870007878356992, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515875010852556800, 1515875009992724480, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515875303023579136, 1515875302998413312, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515875350016561152, 1515875349987201024, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515875386574114816, 1515875386548948992, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515875449908105216, 1515875449878745088, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515880969624752128, 1515880968613924864, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515881218099515392, 1515881218065960960, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515881345665077248, 1515881345635717120, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515881378649083904, 1515881378623918080, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515896510057943040, 1515896509118418944, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515896592840921088, 1515896592027226112, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515896722080010240, 1515896721291481088, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515896757119225856, 1515896756322308096, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515896813171904512, 1515896812379181056, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515957559696166912, 1515929961779826688, 88);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1515969874659250176, 1515969874629890048, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516241866151038976, 1516241865094074368, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516241898430402560, 1516241897478295552, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516241926301552640, 1516241925303308288, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516243867106676736, 1516243867047956480, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516259285074579456, 1516259285036830720, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516260578023313408, 1516260577004097536, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516260612764733440, 1516260611833597952, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516260640589746176, 1516260639633444864, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516260704158617600, 1516260703219093504, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516262831220199424, 1516262831199227904, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516262882151632896, 1516262882126467072, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516262929496936448, 1516262929471770624, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516262976653496320, 1516262976628330496, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516294365729918976, 1516294365662810112, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516309962299674624, 1516309962240954368, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516311703594340352, 1516311703564980224, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516312637468708864, 1516312637443543040, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516349783822962688, 1516349783739076608, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516362518824620032, 1516362518774288384, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1516586650933792768, 1516586650900238336, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1518976421752606720, 1518976421685497856, 44);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1519859015721553920, 1519859015608307712, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522031775612801024, 1522031774480338944, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522040646980997120, 1522040646859362304, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522049592814866432, 1522049591531409408, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522049824281726976, 1522049824223006720, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522049862739300352, 1522049862697357312, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522049922197753856, 1522049922155810816, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522106105663197184, 1522106105617059840, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522124428207591424, 1522124426508898304, 11);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522385699012218880, 1522385698894778368, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522396675254128640, 1522396675170242560, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522397863101992960, 1522397863047467008, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522400043968106496, 1522400039505367040, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522468872253476864, 1522468872169590784, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522506648793518080, 1522506648718020608, 44);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522516714993094656, 1522516714938568704, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522764372814991360, 1522764372735299584, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522776158444326912, 1522776158322692096, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522778321501425664, 1522778321451094016, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522778970150539264, 1522778970096013312, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522779819752951808, 1522779819694231552, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522780159189585920, 1522780159139254272, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522780506150801408, 1522780506092081152, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522781417002635264, 1522781416956497920, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522811215708033024, 1522811215561232384, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1522829920034754560, 1522829919959257088, 77);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1523319661377228800, 1523319661322702848, 44);
-INSERT INTO cec.sys_user_role (id, user_id, role_id)
-VALUES (1530109620922748928, 1530109620847251456, 77);
+-- ----------------------------
+-- Records of process_emission
+-- ----------------------------
+BEGIN;
+INSERT INTO `process_emission` VALUES (1483352052246646784, 1483351979618078720, 'fww', 23.000000, '氧化亚氮(N₂O)', 't', 6854.000000, 'tCO₂e', 298.000000, '', '', 1, 'A024484593', '2022-01-18 16:14:23', 'A024484593', '2022-01-18 16:14:23', 'fii', 0);
+INSERT INTO `process_emission` VALUES (1494495200884690944, 1494495034857361408, '手机制造', 2000.000000, '二氧化碳(CO₂)', 't', 2000.000000, 'tCO₂e', 1.000000, '', '', 1, 'A024484593', '2022-02-18 10:13:17', 'A024484593', '2022-02-18 10:13:17', 'fii', 0);
+INSERT INTO `process_emission` VALUES (1496723010613284864, 1491292749218058240, '先进工艺制程', 200.000000, '甲烷(CH₄)', 't', 5000.000000, 'tCO₂e', 25.000000, '', '', 1, 'A024484593', '2022-02-24 13:45:48', 'A024484593', '2022-02-24 13:45:48', 'fii', 0);
+INSERT INTO `process_emission` VALUES (1496739188865896448, 1496739110243667968, '制程A', 2000.000000, '二氧化碳(CO₂)', 't', 2000.000000, 'tCO₂e', 1.000000, '', '', 1, 'A024484593', '2022-02-24 14:50:05', 'A024484593', '2022-02-24 14:50:05', 'fii', 0);
+INSERT INTO `process_emission` VALUES (1496741182208872448, 1496741099325231104, '制程2', 3000.000000, '二氧化碳(CO₂)', 't', 3000.000000, 'tCO₂e', 1.000000, '', '', 1, 'A024484593', '2022-02-24 14:58:01', 'A024484593', '2022-02-24 14:58:01', 'fii', 0);
+INSERT INTO `process_emission` VALUES (1496741948512407552, 1496741862587895808, '制程4', 100.000000, '甲烷(CH₄)', 't', 2500.000000, 'tCO₂e', 25.000000, '', '', 1, 'A024484593', '2022-02-24 15:01:03', 'A024484593', '2022-02-24 15:01:03', 'fii', 0);
+INSERT INTO `process_emission` VALUES (1498558647146516480, 1498558509388795904, 'CNC', 18.000000, '氧化亚氮(N₂O)', 'kg', 5.364000, 'tCO₂e', 298.000000, '', '', 1, 'A024484593', '2022-03-01 15:19:58', 'A024484593', '2022-03-01 15:19:58', 'fii', 0);
+INSERT INTO `process_emission` VALUES (1498867958955511808, 1498867816995098624, 'CNC', 10.000000, '二氧化碳(CO₂)', 'kg', 0.010000, 'tCO₂e', 1.000000, '', '', 1, 'A024484593', '2022-03-02 11:49:04', 'A024484593', '2022-03-02 11:49:04', 'fii', 0);
+INSERT INTO `process_emission` VALUES (1501068797417754624, 1501068658473046016, '制程1', 2000.000000, '二氧化碳(CO₂)', 't', 2000.000000, 'tCO₂e', 1.000000, '', '', 1, 'A024484593', '2022-03-08 13:34:24', 'A024484593', '2022-03-08 13:34:24', 'fii', 0);
+COMMIT;
 
-# 用户
-INSERT INTO cec.sys_user (id, account_number, user_name, password, salt, org_id, created_by, created_time, updated_by,
-                          updated_time, revision, delete_flag)
-VALUES (1522049824223006720, 'admin', '管理员', 'b2042c185ac3d37c9b50b3b1bb1c3ec7b0f52f9b1106b5586257d6e2ef087092',
-        'qHDeI964rO0cg3YsJ2w7', 1522069238142078976, '', '2022-05-05 11:05:31', '', '2022-05-05 11:05:31', 1, 0);
-## 碳排因子
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953855631233024, '能源', '固定燃烧排放', '无烟煤', 'CO2e', 'AR4', 't', 't', 1.970000, 't/t', 0.000000, '', '',
-        20908.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 27.400000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 94.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:40', '1514943054748979200',
-        '2022-04-15 21:08:40', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953856012914688, '能源', '固定燃烧排放', '烟煤', 'CO2e', 'AR4', 't', 't', 1.860000, 't/t', 0.000000, '', '',
-        20908.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 26.100000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 93.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:40', '1514943054748979200',
-        '2022-04-15 21:08:40', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953856302321664, '能源', '固定燃烧排放', '褐煤', 'CO2e', 'AR4', 't', 't', 2.060000, 't/t', 0.000000, '', '',
-        20908.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 28.000000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 96.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:40', '1514943054748979200',
-        '2022-04-15 21:08:40', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953856591728640, '能源', '固定燃烧排放', '洗精煤', 'CO2e', 'AR4', 't', 't', 2.450000, 't/t', 0.000000, '', '',
-        26344.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 25.410000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 100.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:41', '1514943054748979200',
-        '2022-04-15 21:08:41', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953856868552704, '能源', '固定燃烧排放', '洗中煤', 'CO2e', 'AR4', 't', 't', 0.780000, 't/t', 0.000000, '', '',
-        8363.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 25.410000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 100.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:41', '1514943054748979200',
-        '2022-04-15 21:08:41', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953857145376768, '能源', '固定燃烧排放', '煤泥', 'CO2e', 'AR4', 't', 't', 1.170000, 't/t', 0.000000, '', '',
-        12545.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 25.410000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 100.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:41', '1514943054748979200',
-        '2022-04-15 21:08:41', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953857430589440, '能源', '固定燃烧排放', '焦炭', 'CO2e', 'AR4', 't', 't', 2.850000, 't/t', 0.000000, '', '',
-        28435.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 29.420000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 93.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:41', '1514943054748979200',
-        '2022-04-15 21:08:41', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953857833242624, '能源', '固定燃烧排放', '原油', 'CO2e', 'AR4', 't', 't', 3.020000, 't/t', 0.000000, '', '',
-        41816.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 20.080000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:41', '1514943054748979200',
-        '2022-04-15 21:08:41', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953858122649600, '能源', '固定燃烧排放', '燃料油', 'CO2e', 'AR4', 't', 't', 3.170000, 't/t', 0.000000, '', '',
-        41816.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 21.100000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:41', '1514943054748979200',
-        '2022-04-15 21:08:41', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953858391085056, '能源', '固定燃烧排放', '汽油', 'CO2e', 'AR4', 't', 't', 2.920000, 't/t', 775.000000, '',
-        'GB 17930-2016 《车用汽油》', 43070.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值',
-        18.900000, 'tC/TJ', '《省级温室气体清单编制指南》', 98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:41', '1514943054748979200',
-        '2022-04-15 21:08:41', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953858667909120, '能源', '固定燃烧排放', '一般煤油', 'CO2e', 'AR4', 't', 't', 3.030000, 't/t', 840.000000, '',
-        'GB 253-2008 《煤油》', 43070.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值',
-        19.600000, 'tC/TJ', '《省级温室气体清单编制指南》', 98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:41', '1514943054748979200',
-        '2022-04-15 21:08:41', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953858940538880, '能源', '固定燃烧排放', '柴油', 'CO2e', 'AR4', 't', 't', 3.100000, 't/t', 845.000000, '',
-        'GB 19147-2016 《车用柴油》', 42652.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值',
-        20.200000, 'tC/TJ', '《省级温室气体清单编制指南》', 98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:41', '1514943054748979200',
-        '2022-04-15 21:08:41', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953859208974336, '能源', '固定燃烧排放', '液化天然气', 'CO2e', 'AR4', 't', 't', 2.580000, 't/t', 0.000000, '', '',
-        46900.000000, 'kJ/kg', 'IPCC 第2 卷表1.2《缺省净发热值（NCVs）和95%置信区间的下限和上限》的上限值', 15.320000, 'tC/TJ', '《省级温室气体清单编制指南》',
-        98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:41', '1514943054748979200',
-        '2022-04-15 21:08:41', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953859481604096, '能源', '固定燃烧排放', '液化石油气', 'CO2e', 'AR4', 't', 't', 3.100000, 't/t', 0.000000, '', '',
-        50179.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 17.200000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:41', '1514943054748979200',
-        '2022-04-15 21:08:41', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953859741650944, '能源', '固定燃烧排放', '炼厂干气', 'CO2e', 'AR4', 't', 't', 3.040000, 't/t', 0.000000, '', '',
-        46055.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 18.200000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 99.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:41', '1514943054748979200',
-        '2022-04-15 21:08:41', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953860010086400, '能源', '固定燃烧排放', '乙烷', 'CO2e', 'AR4', 't', 't', 3.280000, 't/t', 0.000000, '', '',
-        48800.000000, 'kJ/kg', 'IPCC 第2 卷表1.2《缺省净发热值（NCVs）和95%置信区间的下限和上限》的上限值', 18.700000, 'tC/TJ',
-        'IPCC 第2 卷表1.3《碳含量的缺省值》的上限值', 98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:41', '1514943054748979200',
-        '2022-04-15 21:08:41', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953860303687680, '能源', '固定燃烧排放', '沥青', 'CO2e', 'AR4', 't', 't', 3.260000, 't/t', 0.000000, '', '',
-        41200.000000, 'kJ/kg', 'IPCC 第2 卷表1.2《缺省净发热值（NCVs）和95%置信区间的下限和上限》的上限值', 22.000000, 'tC/TJ', '《省级温室气体清单编制指南》',
-        98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:41', '1514943054748979200',
-        '2022-04-15 21:08:41', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953860572123136, '能源', '固定燃烧排放', '润滑油', 'CO2e', 'AR4', 't', 't', 3.040000, 't/t', 0.000000, '', '',
-        42300.000000, 'kJ/kg', 'IPCC 第2 卷表1.2《缺省净发热值（NCVs）和95%置信区间的下限和上限》的上限值', 20.000000, 'tC/TJ', '《省级温室气体清单编制指南》',
-        98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:42', '1514943054748979200',
-        '2022-04-15 21:08:42', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953860848947200, '能源', '固定燃烧排放', '石油焦', 'CO2e', 'AR4', 't', 't', 4.140000, 't/t', 0.000000, '', '',
-        41900.000000, 'kJ/kg', 'IPCC 第2 卷表1.2《缺省净发热值（NCVs）和95%置信区间的下限和上限》的上限值', 27.500000, 'tC/TJ', '《省级温室气体清单编制指南》',
-        98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:42', '1514943054748979200',
-        '2022-04-15 21:08:42', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953861121576960, '能源', '固定燃烧排放', '天然气', 'CO2e', 'AR4', 't', 'm³', 0.002200, 't/m³', 0.000000, '', '',
-        38931.000000, 'kJ/m3', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 15.320000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 99.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:42', '1514943054748979200',
-        '2022-04-15 21:08:42', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953861390012416, '能源', '固定燃烧排放', '焦炉煤气', 'CO2e', 'AR4', 't', 'm³', 0.000890, 't/m³', 0.000000, '', '',
-        17981.000000, 'kJ/m3', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 13.580000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 99.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:42', '1514943054748979200',
-        '2022-04-15 21:08:42', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953861654253568, '能源', '固定燃烧排放', '高炉煤气', 'CO2e', 'AR4', 't', 'm³', 0.000170, 't/m³', 0.000000, '', '',
-        3763.000000, 'kJ/m3', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 12.200000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 99.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:42', '1514943054748979200',
-        '2022-04-15 21:08:42', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953861922689024, '能源', '固定燃烧排放', '发生炉煤气', 'CO2e', 'AR4', 't', 'm³', 0.000230, 't/m³', 0.000000, '', '',
-        5227.000000, 'kJ/m3', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 12.200000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 99.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:42', '1514943054748979200',
-        '2022-04-15 21:08:42', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953862316953600, '能源', '固定燃烧排放', '重油催化裂解煤气', 'CO2e', 'AR4', 't', 'm³', 0.000850, 't/m³', 0.000000, '', '',
-        19235.000000, 'kJ/m3', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 12.200000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 99.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:42', '1514943054748979200',
-        '2022-04-15 21:08:42', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953862585389056, '能源', '固定燃烧排放', '重油热裂解煤气', 'CO2e', 'AR4', 't', 'm³', 0.001600, 't/m³', 0.000000, '', '',
-        35544.000000, 'kJ/m3', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 12.200000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 99.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:42', '1514943054748979200',
-        '2022-04-15 21:08:42', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953862849630208, '能源', '固定燃烧排放', '焦炭制气', 'CO2e', 'AR4', 't', 'm³', 0.000720, 't/m³', 0.000000, '', '',
-        16308.000000, 'kJ/m3', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 12.200000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 99.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:42', '1514943054748979200',
-        '2022-04-15 21:08:42', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953863113871360, '能源', '固定燃烧排放', '压力水化煤气', 'CO2e', 'AR4', 't', 'm³', 0.000670, 't/m³', 0.000000, '', '',
-        15054.000000, 'kJ/m3', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 12.200000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 99.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:42', '1514943054748979200',
-        '2022-04-15 21:08:42', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953863445221376, '能源', '固定燃烧排放', '水煤气', 'CO2e', 'AR4', 't', 'm³', 0.000460, 't/m³', 0.000000, '', '',
-        10454.000000, 'kJ/m3', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 12.200000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 99.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '', 2018, 3, '1514943054748979200', '2022-04-15 21:08:42', '1514943054748979200',
-        '2022-04-15 21:08:42', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953863713656832, '能源', null, '压缩天然气', 'CO2e', 'AR4', 'kg', 't', 2542.040000, 'kg/t', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:42', '1514943054748979200', '2022-04-15 21:08:42', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953863977897984, '能源', null, '液化天然气', 'CO2e', 'AR4', 'kg', 'L', 1.153870, 'kg/L', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:42', '1514943054748979200', '2022-04-15 21:08:42', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953864246333440, '能源', null, '液化石油气', 'CO2e', 'AR4', 'kg', 'kWh', 0.230290, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:42', '1514943054748979200', '2022-04-15 21:08:42', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953864510574592, '能源', null, '天然气', 'CO2e', 'AR4', 'kg', 'kWh', 0.183850, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:42', '1514943054748979200', '2022-04-15 21:08:42', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953864779010048, '能源', null, '矿物柴油', 'CO2e', 'AR4', 'kg', 'L', 2.686970, 'kg/L', 0.000000, '', '', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3, '1514943054748979200',
-        '2022-04-15 21:08:43', '1514943054748979200', '2022-04-15 21:08:43', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953865043251200, '能源', null, '燃料油', 'CO2e', 'AR4', 'kg', 'L', 3.177990, 'kg/L', 0.000000, '', '', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3, '1514943054748979200',
-        '2022-04-15 21:08:43', '1514943054748979200', '2022-04-15 21:08:43', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953865311686656, '能源', null, '矿物汽油', 'CO2e', 'AR4', 'kg', 'L', 2.314950, 'kg/L', 0.000000, '', '', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3, '1514943054748979200',
-        '2022-04-15 21:08:43', '1514943054748979200', '2022-04-15 21:08:43', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953865588510720, '能源', null, '汽油（生物燃料混合物）', 'CO2e', 'AR4', 'kg', 'L', 2.209040, 'kg/L', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:43', '1514943054748979200', '2022-04-15 21:08:43', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953865861140480, '能源', null, '瓦斯油', 'CO2e', 'AR4', 'kg', 'L', 2.758210, 'kg/L', 0.000000, '', '', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3, '1514943054748979200',
-        '2022-04-15 21:08:43', '1514943054748979200', '2022-04-15 21:08:43', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953866133770240, '能源', null, '柴油（生物燃料混合物）', 'CO2e', 'AR4', 'kg', 'L', 2.594110, 'kg/L', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:43', '1514943054748979200', '2022-04-15 21:08:43', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953866406400000, '能源', null, '石油焦炭', 'CO2e', 'AR4', 'kg', 't', 3393.760000, 'kg/t', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:43', '1514943054748979200', '2022-04-15 21:08:43', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953866804858880, '能源', null, '焦炭', 'CO2e', 'AR4', 'kg', 't', 3094.600000, 'kg/t', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:43', '1514943054748979200', '2022-04-15 21:08:43', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953867069100032, '运输', '里程·重量', '乘用车-汽油', 'CO2e', 'AR4', 'kg', 'km', 0.256800, 'kg/km', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:43', '1514943054748979200', '2022-04-15 21:08:43', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953867354312704, '运输', '里程·重量', '乘用车-柴油', 'CO2e', 'AR4', 'kg', 'km', 0.173360, 'kg/km', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:43', '1514943054748979200', '2022-04-15 21:08:43', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953867618553856, '运输', '里程·重量', '重型货车/铰接式货车-柴油', 'CO2e', 'AR4', 'kg', 't km', 0.113600, 'kg/t km', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'DEFRA 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:43', '1514943054748979200', '2022-04-15 21:08:43', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953867899572224, '运输', '里程·重量', '重型货车/未铰接货车（总重3.5-7.5t）-柴油', 'CO2e', 'AR4', 'kg', 't km', 0.486740,
-        'kg/t km', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '',
-        '英国环境、食品和农村事务部(Defra)-2019', 2018, 3, '1514943054748979200', '2022-04-15 21:08:43', '1514943054748979200',
-        '2022-04-15 21:08:43', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953868163813376, '运输', '里程·重量', '轻型货车(平均载重量<1.25t)-汽油', 'CO2e', 'AR4', 'kg', 't km', 0.811500, 'kg/t km',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'DEFRA 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:43', '1514943054748979200', '2022-04-15 21:08:43', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953868432248832, '运输', '里程·重量', '轻型货车-柴油', 'CO2e', 'AR4', 'kg', 't km', 0.256800, 'kg/t km', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:43', '1514943054748979200', '2022-04-15 21:08:43', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953868704878592, '运输', '里程·重量', '航空货机', 'CO2e', 'AR4', 'kg', 't km', 5.833300, 'kg/t km', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2020', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:43', '1514943054748979200', '2022-04-15 21:08:43', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953868964925440, '运输', '里程·重量', '海运货船', 'CO2e', 'AR4', 'kg', 't km', 0.016142, 'kg/t km', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2021', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:44', '1514943054748979200', '2022-04-15 21:08:44', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953869233360896, '能源', '移动燃烧排放', '汽油', 'CO2e', 'AR4', 't', 't', 2.920000, 't/t', 775.000000, '',
-        'GB 17930-2016 《车用汽油》', 43070.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值',
-        18.900000, 'tC/TJ', '《省级温室气体清单编制指南》', 98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '英国环境、食品和农村事务部(Defra)-2022', 2018, 3, '1514943054748979200', '2022-04-15 21:08:44',
-        '1514943054748979200', '2022-04-15 21:08:44', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953869497602048, '能源', '移动燃烧排放', '喷气煤油', 'CO2e', 'AR4', 't', 't', 3.020000, 't/t', 840.000000, '',
-        'GB 253-2008 《煤油》', 43070.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值',
-        19.500000, 'tC/TJ', '《省级温室气体清单编制指南》', 98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '英国环境、食品和农村事务部(Defra)-2023', 2018, 3, '1514943054748979200', '2022-04-15 21:08:44',
-        '1514943054748979200', '2022-04-15 21:08:44', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953869766037504, '能源', '移动燃烧排放', '柴油', 'CO2e', 'AR4', 't', 't', 3.100000, 't/t', 845.000000, '',
-        'GB 19147-2016 《车用柴油》', 42652.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值',
-        20.200000, 'tC/TJ', '《省级温室气体清单编制指南》', 98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '英国环境、食品和农村事务部(Defra)-2024', 2018, 3, '1514943054748979200', '2022-04-15 21:08:44',
-        '1514943054748979200', '2022-04-15 21:08:44', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953870034472960, '能源', '移动燃烧排放', '液化石油气', 'CO2e', 'AR4', 't', 't', 3.100000, 't/t', 0.000000, '', '',
-        50179.000000, 'kJ/kg', 'GB/T 2589-2008《综合能耗计算通则》附录A 各种能源折标煤参考系数表中的平均低位发热量以区间段给出的取其最高值', 17.200000, 'tC/TJ',
-        '《省级温室气体清单编制指南》', 98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '英国环境、食品和农村事务部(Defra)-2025', 2018, 3, '1514943054748979200', '2022-04-15 21:08:44',
-        '1514943054748979200', '2022-04-15 21:08:44', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953870298714112, '能源', '移动燃烧排放', '液化天然气', 'CO2e', 'AR4', 't', 't', 2.680000, 't/t', 0.000000, '', '',
-        46900.000000, 'kJ/kg', 'IPCC 第2 卷表1.2《缺省净发热值（NCVs）和95％置信区间的下限和上限》的上限值', 15.900000, 'tC/TJ',
-        '《2006 年IPCC 国家温室气体清单指南》第2 卷表3.2.1 《道路运输缺省CO2 排放因子和不确定性范围》', 98.000000, '《省级温
-室气体清单编制指南》', '中国', '', '', '英国环境、食品和农村事务部(Defra)-2026', 2018, 3, '1514943054748979200', '2022-04-15 21:08:44',
-        '1514943054748979200', '2022-04-15 21:08:44', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953870567149568, '外购电力', null, '中国华北电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.884300, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '华北', '', '中国气候变化信息网《2011 年和 2012 年中国区域电网平均二氧化碳排放因子》',
-        2012, 3, '1514943054748979200', '2022-04-15 21:08:44', '1514943054748979200', '2022-04-15 21:08:44', 0, null,
-        -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953870831390720, '外购电力', null, '中国东北电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.776900, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '东北', '', '中国气候变化信息网《2011 年和 2012 年中国区域电网平均二氧化碳排放因子》',
-        2012, 3, '1514943054748979200', '2022-04-15 21:08:44', '1514943054748979200', '2022-04-15 21:08:44', 0, null,
-        -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953871225655296, '外购电力', null, '中国华东电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.703500, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '华东', '', '中国气候变化信息网《2011 年和 2012 年中国区域电网平均二氧化碳排放因子》',
-        2012, 3, '1514943054748979200', '2022-04-15 21:08:44', '1514943054748979200', '2022-04-15 21:08:44', 0, null,
-        -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953871489896448, '外购电力', null, '中国华中电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.525700, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '华中', '', '中国气候变化信息网《2011 年和 2012 年中国区域电网平均二氧化碳排放因子》',
-        2012, 3, '1514943054748979200', '2022-04-15 21:08:44', '1514943054748979200', '2022-04-15 21:08:44', 0, null,
-        -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953871758331904, '外购电力', null, '中国西北电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.667100, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '西北', '', '中国气候变化信息网《2011 年和 2012 年中国区域电网平均二氧化碳排放因子》',
-        2012, 3, '1514943054748979200', '2022-04-15 21:08:44', '1514943054748979200', '2022-04-15 21:08:44', 0, null,
-        -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953872026767360, '外购电力', null, '中国南方电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.527100, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '南方', '', '中国气候变化信息网《2011 年和 2012 年中国区域电网平均二氧化碳排放因子》',
-        2012, 3, '1514943054748979200', '2022-04-15 21:08:44', '1514943054748979200', '2022-04-15 21:08:44', 0, null,
-        -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953872311980032, '外购电力', null, '全球平均电力', 'CO2e', 'AR4', 'kg', 'kWh', 0.520000, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '全球', '', '', '国际能源署（IEA）-2011', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:44', '1514943054748979200', '2022-04-15 21:08:44', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953872580415488, '外购电力', null, '巴西电网', 'CO2e', 'AR4', 'g', 'kWh', 99.800000, 'g/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '巴西', '', '', '国际能源署（IEA）-2020', 2020, 3,
-        '1514943054748979200', '2022-04-15 21:08:44', '1514943054748979200', '2022-04-15 21:08:44', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953872844656640, '外购电力', null, '中国平均电力', 'CO2e', 'AR4', 'g', 'kWh', 616.000000, 'g/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '国际能源署（IEA）-2020', 2020, 3,
-        '1514943054748979200', '2022-04-15 21:08:44', '1514943054748979200', '2022-04-15 21:08:44', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953873108897792, '外购电力', null, '中国平均电力', 'CO2e', 'AR4', 't', 'MWh', 0.583900, 't/MWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '中国生态环境部《企业温室气体排放核算方法与报告指南 发电设施（2021年修订版）》',
-        2021, 3, '1514943054748979200', '2022-04-15 21:08:44', '1514943054748979200', '2022-04-15 21:08:44', 0, null,
-        -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953873377333248, '外购电力', null, '捷克共和国', 'CO2e', 'AR4', 'g', 'kWh', 495.600000, 'g/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '捷克共和国', '', '', '国际能源署（IEA）-2020', 2020, 3,
-        '1514943054748979200', '2022-04-15 21:08:45', '1514943054748979200', '2022-04-15 21:08:45', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953873645768704, '外购电力', null, '匈牙利电网', 'CO2e', 'AR4', 'g', 'kWh', 253.900000, 'g/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '匈牙利', '', '', '国际能源署（IEA）-2020', 2020, 3,
-        '1514943054748979200', '2022-04-15 21:08:45', '1514943054748979200', '2022-04-15 21:08:45', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953873918398464, '外购电力', null, '印度电网', 'CO2e', 'AR4', 'g', 'kWh', 751.900000, 'g/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '印度', '', '', '国际能源署（IEA）-2020', 2020, 3,
-        '1514943054748979200', '2022-04-15 21:08:45', '1514943054748979200', '2022-04-15 21:08:45', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953874186833920, '外购电力', null, '墨西哥电网', 'CO2e', 'AR4', 'g', 'kWh', 456.300000, 'g/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '墨西哥', '', '', '国际能源署（IEA）-2020', 2020, 3,
-        '1514943054748979200', '2022-04-15 21:08:45', '1514943054748979200', '2022-04-15 21:08:45', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953874451075072, '外购电力', null, '新加坡电网', 'CO2e', 'AR4', 'g', 'kWh', 389.100000, 'g/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '新加坡', '', '', '国际能源署（IEA）-2020', 2020, 3,
-        '1514943054748979200', '2022-04-15 21:08:45', '1514943054748979200', '2022-04-15 21:08:45', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953874719510528, '外购电力', null, '中国台湾电力', 'CO2e', 'AR4', 'g', 'kWh', 559.000000, 'g/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '台湾', '', '国际能源署（IEA）-2020', 2020, 3,
-        '1514943054748979200', '2022-04-15 21:08:45', '1514943054748979200', '2022-04-15 21:08:45', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953874983751680, '外购电力', null, '美国AKGD电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.473987, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:45', '1514943054748979200', '2022-04-15 21:08:45', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953875260575744, '外购电力', null, '美国AKMS电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.238986, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:45', '1514943054748979200', '2022-04-15 21:08:45', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953875654840320, '外购电力', null, '美国AZNM电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.466092, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:45', '1514943054748979200', '2022-04-15 21:08:45', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953875914887168, '外购电力', null, '美国CAMX电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.226151, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:45', '1514943054748979200', '2022-04-15 21:08:45', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953876179128320, '外购电力', null, '美国ERCT电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.424564, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:45', '1514943054748979200', '2022-04-15 21:08:45', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953876443369472, '外购电力', null, '美国FRCC电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.424641, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:45', '1514943054748979200', '2022-04-15 21:08:45', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953876707610624, '外购电力', null, '美国HIMS电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.507571, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:45', '1514943054748979200', '2022-04-15 21:08:45', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953876971851776, '外购电力', null, '美国HIOA电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.763164, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:45', '1514943054748979200', '2022-04-15 21:08:45', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953877240287232, '外购电力', null, '美国MROE电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.766431, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:45', '1514943054748979200', '2022-04-15 21:08:45', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953877504528384, '外购电力', null, '美国MROW电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.566654, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:46', '1514943054748979200', '2022-04-15 21:08:46', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953877772963840, '外购电力', null, '美国NEWE电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.239333, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:46', '1514943054748979200', '2022-04-15 21:08:46', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953878041399296, '外购电力', null, '美国NWPP电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.291805, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:46', '1514943054748979200', '2022-04-15 21:08:46', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953878305640448, '外购电力', null, '美国NYCW电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.271184, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:46', '1514943054748979200', '2022-04-15 21:08:46', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953878569881600, '外购电力', null, '美国NYLI电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.541172, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:46', '1514943054748979200', '2022-04-15 21:08:46', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953878842511360, '外购电力', null, '美国NYUP电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.115284, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:46', '1514943054748979200', '2022-04-15 21:08:46', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953879110946816, '外购电力', null, '美国RFCE电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.326530, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:46', '1514943054748979200', '2022-04-15 21:08:46', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953879379382272, '外购电力', null, '美国RFCM电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.599263, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:46', '1514943054748979200', '2022-04-15 21:08:46', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953879643623424, '外购电力', null, '美国RFCW电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.532557, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:46', '1514943054748979200', '2022-04-15 21:08:46', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953880033693696, '外购电力', null, '美国RMPA电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.581530, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:46', '1514943054748979200', '2022-04-15 21:08:46', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953880297934848, '外购电力', null, '美国SPNO电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.531452, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:46', '1514943054748979200', '2022-04-15 21:08:46', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953880557981696, '外购电力', null, '美国SPSO电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.531942, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:46', '1514943054748979200', '2022-04-15 21:08:46', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953880830611456, '外购电力', null, '美国SRMV电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.389366, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:46', '1514943054748979200', '2022-04-15 21:08:46', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953881103241216, '外购电力', null, '美国SRMW电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.760593, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:46', '1514943054748979200', '2022-04-15 21:08:46', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953881371676672, '外购电力', null, '美国SRSO电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.468801, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:46', '1514943054748979200', '2022-04-15 21:08:46', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953881648500736, '外购电力', null, '美国SRTV电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.470890, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:47', '1514943054748979200', '2022-04-15 21:08:47', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953881925324800, '外购电力', null, '美国SRVC电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.339144, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:47', '1514943054748979200', '2022-04-15 21:08:47', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953882210537472, '外购电力', null, '美国平均电力', 'CO2e', 'AR4', 'kg', 'kWh', 0.432220, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:47', '1514943054748979200', '2022-04-15 21:08:47', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953882478972928, '外购电力', null, '美国AKGD电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.473934, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:47', '1514943054748979200', '2022-04-15 21:08:47', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953882743214080, '外购电力', null, '美国AKMS电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.238959, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:47', '1514943054748979200', '2022-04-15 21:08:47', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953883011649536, '外购电力', null, '美国AZNM电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.466033, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:47', '1514943054748979200', '2022-04-15 21:08:47', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953883280084992, '外购电力', null, '美国CAMX电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.226138, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:47', '1514943054748979200', '2022-04-15 21:08:47', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953883548520448, '外购电力', null, '美国ERCT电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.424519, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:47', '1514943054748979200', '2022-04-15 21:08:47', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953883812761600, '外购电力', null, '美国FRCC电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.424596, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:47', '1514943054748979200', '2022-04-15 21:08:47', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953884077002752, '外购电力', null, '美国HIMS电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.507462, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:47', '1514943054748979200', '2022-04-15 21:08:47', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953884471267328, '外购电力', null, '美国HIOA电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.763005, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:47', '1514943054748979200', '2022-04-15 21:08:47', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953884739702784, '外购电力', null, '美国MROE电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.766287, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:47', '1514943054748979200', '2022-04-15 21:08:47', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953885008138240, '外购电力', null, '美国MROW电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.566542, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:47', '1514943054748979200', '2022-04-15 21:08:47', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953885272379392, '外购电力', null, '美国NEWE电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.239280, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:47', '1514943054748979200', '2022-04-15 21:08:47', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953885536620544, '外购电力', null, '美国NWPP电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.291757, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:47', '1514943054748979200', '2022-04-15 21:08:47', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953885805056000, '外购电力', null, '美国NYCW电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.271169, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953886065102848, '外购电力', null, '美国NYLI电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.541092, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953886329344000, '外购电力', null, '美国NYUP电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.115279, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953886593585152, '外购电力', null, '美国RFCE电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.326493, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953886853632000, '外购电力', null, '美国RFCM电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.599169, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953887117873152, '外购电力', null, '美国RFCW电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.532462, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953887386308608, '外购电力', null, '美国RMPA电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.581428, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953887650549760, '外购电力', null, '美国SPNO电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.531351, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953887914790912, '外购电力', null, '美国SPSO电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.531871, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953888183226368, '外购电力', null, '美国SRMV电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.389321, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953888451661824, '外购电力', null, '美国SRMW电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.760441, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953888841732096, '外购电力', null, '美国SRSO电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.468731, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953889105973248, '外购电力', null, '美国SRTV电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.470812, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953889374408704, '外购电力', null, '美国SRVC电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.339101, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953889655427072, '外购电力', null, '美国平均电力', 'CO2e', 'AR5', 'kg', 'kWh', 0.432157, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953889928056832, '外购电力', null, '加拿大平均电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.130000, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:48', '1514943054748979200', '2022-04-15 21:08:48', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953890192297984, '外购电力', null, '加拿大-纽芬兰与拉布拉多电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.040313, 'kg/kWh', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '纽芬兰与拉布拉多', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:49', '1514943054748979200', '2022-04-15 21:08:49', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953890452344832, '外购电力', null, '加拿大-爱德华王子岛电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.014072, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '爱德华王子岛', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:49', '1514943054748979200', '2022-04-15 21:08:49', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953890716585984, '外购电力', null, '加拿大-新斯科舍电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.673730, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '新斯科舍', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:49', '1514943054748979200', '2022-04-15 21:08:49', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953890980827136, '外购电力', null, '加拿大-新不伦瑞克省电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.311692, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '新不伦瑞克省', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:49', '1514943054748979200', '2022-04-15 21:08:49', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953891245068288, '外购电力', null, '加拿大-魁北克电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.001230, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '魁北克', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:49', '1514943054748979200', '2022-04-15 21:08:49', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953891505115136, '外购电力', null, '加拿大-安大略省电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.017298, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '安大略省', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:49', '1514943054748979200', '2022-04-15 21:08:49', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953891781939200, '外购电力', null, '加拿大-马尼托巴湖电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.001932, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '马尼托巴湖', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:49', '1514943054748979200', '2022-04-15 21:08:49', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953892050374656, '外购电力', null, '加拿大- 萨斯喀彻温省电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.657210, 'kg/kWh', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '萨斯喀彻温省', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:49', '1514943054748979200', '2022-04-15 21:08:49', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953892314615808, '外购电力', null, '加拿大-亚伯达电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.753980, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '亚伯达', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:49', '1514943054748979200', '2022-04-15 21:08:49', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953892583051264, '外购电力', null, '加拿大-不列颠哥伦比亚电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.009284, 'kg/kWh', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '不列颠哥伦比亚', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:49', '1514943054748979200', '2022-04-15 21:08:49', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953892847292416, '外购电力', null, '加拿大-育空电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.051080, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '育空', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:49', '1514943054748979200', '2022-04-15 21:08:49', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953893237362688, '外购电力', null, '加拿大-西北地区和努纳武特电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.176210, 'kg/kWh', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '西北地区和努纳武特', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:49', '1514943054748979200', '2022-04-15 21:08:49', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953893501603840, '外购电力', null, '加拿大平均电力', 'CO2e', 'AR5', 'kg', 'kWh', 0.130000, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:49', '1514943054748979200', '2022-04-15 21:08:49', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953893770039296, '外购电力', null, '加拿大-纽芬兰与拉布拉多电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.040282, 'kg/kWh', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '纽芬兰与拉布拉多', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:49', '1514943054748979200', '2022-04-15 21:08:49', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953894030086144, '外购电力', null, '加拿大-爱德华王子岛电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.014067, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '爱德华王子岛', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:49', '1514943054748979200', '2022-04-15 21:08:49', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953894298521600, '外购电力', null, '加拿大-新斯科舍电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.673490, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '新斯科舍', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:50', '1514943054748979200', '2022-04-15 21:08:50', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953894566957056, '外购电力', null, '加拿大-新不伦瑞克省电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.311620, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '新不伦瑞克省', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:50', '1514943054748979200', '2022-04-15 21:08:50', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953894827003904, '外购电力', null, '加拿大-魁北克电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.001226, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '魁北克', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:50', '1514943054748979200', '2022-04-15 21:08:50', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953895091245056, '外购电力', null, '加拿大-安大略省电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.017265, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '安大略省', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:50', '1514943054748979200', '2022-04-15 21:08:50', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953895355486208, '外购电力', null, '加拿大-马尼托巴湖电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.001929, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '马尼托巴湖', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:50', '1514943054748979200', '2022-04-15 21:08:50', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953895615533056, '外购电力', null, '加拿大- 萨斯喀彻温省电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.656700, 'kg/kWh', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '萨斯喀彻温省', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:50', '1514943054748979200', '2022-04-15 21:08:50', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953895879774208, '外购电力', null, '加拿大-亚伯达电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.753770, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '亚伯达', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:50', '1514943054748979200', '2022-04-15 21:08:50', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953896139821056, '外购电力', null, '加拿大-不列颠哥伦比亚电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.009270, 'kg/kWh', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '不列颠哥伦比亚', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:50', '1514943054748979200', '2022-04-15 21:08:50', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953896408256512, '外购电力', null, '加拿大-育空电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.050762, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '育空', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:50', '1514943054748979200', '2022-04-15 21:08:50', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953896668303360, '外购电力', null, '加拿大-西北地区和努纳武特电网', 'CO2e', 'AR5', 'kg', 'kWh', 0.175580, 'kg/kWh', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '加拿大', '西北地区和努纳武特', '', 'Canada NIR 2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:50', '1514943054748979200', '2022-04-15 21:08:50', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953896928350208, '外购电力', null, '澳大利亚新南威尔士州和首都领地电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.810000, 'kg/kWh',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '澳大利亚', '新南威尔士州和首都领地', '',
-        '澳大利亚环境与能源部-2019', 2019, 3, '1514943054748979200', '2022-04-15 21:08:50', '1514943054748979200',
-        '2022-04-15 21:08:50', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953897192591360, '外购电力', null, '澳大利亚维多利亚州电网', 'CO2e', 'AR4', 'kg', 'kWh', 1.020000, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '澳大利亚', '维多利亚州', '', '澳大利亚环境与能源部-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:50', '1514943054748979200', '2022-04-15 21:08:50', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953897586855936, '外购电力', null, '澳大利亚昆士兰电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.810000, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '澳大利亚', '昆士兰', '', '澳大利亚环境与能源部-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:50', '1514943054748979200', '2022-04-15 21:08:50', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953897846902784, '外购电力', null, '澳大利亚南澳大利亚州电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.440000, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '澳大利亚', '南澳大利亚州', '', '澳大利亚环境与能源部-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:50', '1514943054748979200', '2022-04-15 21:08:50', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953898106949632, '外购电力', null, '澳大利亚西澳大利亚州SWIS电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.690000, 'kg/kWh', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '澳大利亚', '西澳大利亚州SWIS', '', '澳大利亚环境与能源部-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:50', '1514943054748979200', '2022-04-15 21:08:50', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953898379579392, '外购电力', null, '澳大利亚塔斯马尼亚岛电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.150000, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '澳大利亚', '塔斯马尼亚岛', '', '澳大利亚环境与能源部-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953898643820544, '外购电力', null, '澳大利亚北领地电网', 'CO2e', 'AR4', 'kg', 'kWh', 0.630000, 'kg/kWh', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '澳大利亚', '北领地', '', '澳大利亚环境与能源部-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953898908061696, '外购热能', null, '平均热能排放', 'CO2e', 'AR4', 'kg', 'kWh', 0.176060, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '全球', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953899172302848, '外购热能', null, '平均热能排放', 'CO3e', 'AR5', 'kg', 'mmBTU', 66.398500, 'kg/mmBTU', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '全球', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953899436544000, '外购热能', null, '热能-北京', 'CO2e', 'AR4', 't', 'GJ', 0.100427, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '北京', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953899704979456, '外购热能', null, '热能-天津', 'CO2e', 'AR4', 't', 'GJ', 0.110557, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '天津', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953899969220608, '外购热能', null, '热能-河北', 'CO2e', 'AR4', 't', 'GJ', 0.190557, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '河北', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953900233461760, '外购热能', null, '热能-山西', 'CO2e', 'AR4', 't', 'GJ', 0.140606, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '山西', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953900497702912, '外购热能', null, '热能-内蒙古', 'CO2e', 'AR4', 't', 'GJ', 0.170813, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '内蒙古', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953900761944064, '外购热能', null, '热能-辽宁', 'CO2e', 'AR4', 't', 'GJ', 0.150632, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '辽宁', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953901026185216, '外购热能', null, '热能-吉林', 'CO2e', 'AR4', 't', 'GJ', 0.130659, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '吉林', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953901294620672, '外购热能', null, '热能-黑龙江', 'CO2e', 'AR4', 't', 'GJ', 0.170732, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '黑龙江', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953901554667520, '外购热能', null, '热能-上海', 'CO2e', 'AR4', 't', 'GJ', 0.100469, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '上海', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953901940543488, '外购热能', null, '热能-江苏', 'CO2e', 'AR4', 't', 'GJ', 0.110526, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '江苏', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953902204784640, '外购热能', null, '热能-浙江', 'CO2e', 'AR4', 't', 'GJ', 0.120630, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '浙江', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953902469025792, '外购热能', null, '热能-安徽', 'CO2e', 'AR4', 't', 'GJ', 0.110514, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '安徽', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:51', '1514943054748979200', '2022-04-15 21:08:51', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953902733266944, '外购热能', null, '热能-福建', 'CO2e', 'AR4', 't', 'GJ', 0.130493, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '福建', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:52', '1514943054748979200', '2022-04-15 21:08:52', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953902997508096, '外购热能', null, '热能-江西', 'CO2e', 'AR4', 't', 'GJ', 0.150674, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '江西', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:52', '1514943054748979200', '2022-04-15 21:08:52', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953903257554944, '外购热能', null, '热能-山东', 'CO2e', 'AR4', 't', 'GJ', 0.120572, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '山东', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:52', '1514943054748979200', '2022-04-15 21:08:52', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953903517601792, '外购热能', null, '热能-河南', 'CO2e', 'AR4', 't', 'GJ', 0.130650, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '河南', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:52', '1514943054748979200', '2022-04-15 21:08:52', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953903777648640, '外购热能', null, '热能-湖北', 'CO2e', 'AR4', 't', 'GJ', 0.160552, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '湖北', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:52', '1514943054748979200', '2022-04-15 21:08:52', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953904037695488, '外购热能', null, '热能-湖南', 'CO2e', 'AR4', 't', 'GJ', 0.130508, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '湖南', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:52', '1514943054748979200', '2022-04-15 21:08:52', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953904297742336, '外购热能', null, '热能-广东', 'CO2e', 'AR4', 't', 'GJ', 0.110503, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '广东', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:52', '1514943054748979200', '2022-04-15 21:08:52', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953904557789184, '外购热能', null, '热能-广西', 'CO2e', 'AR4', 't', 'GJ', 0.170821, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '广西', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:52', '1514943054748979200', '2022-04-15 21:08:52', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953904834613248, '外购热能', null, '热能-海南', 'CO2e', 'AR4', 't', 'GJ', 0.030028, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '海南', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:52', '1514943054748979200', '2022-04-15 21:08:52', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953905094660096, '外购热能', null, '热能-重庆', 'CO2e', 'AR4', 't', 'GJ', 0.130655, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '重庆', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:52', '1514943054748979200', '2022-04-15 21:08:52', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953905363095552, '外购热能', null, '热能-四川', 'CO2e', 'AR4', 't', 'GJ', 0.150528, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '四川', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:52', '1514943054748979200', '2022-04-15 21:08:52', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953905648308224, '外购热能', null, '热能-贵州', 'CO2e', 'AR4', 't', 'GJ', 0.150752, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '贵州', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:52', '1514943054748979200', '2022-04-15 21:08:52', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953905912549376, '外购热能', null, '热能-云南', 'CO2e', 'AR4', 't', 'GJ', 0.180878, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '云南', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:52', '1514943054748979200', '2022-04-15 21:08:52', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953906306813952, '外购热能', null, '热能-陕西', 'CO2e', 'AR4', 't', 'GJ', 0.130624, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '陕西', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:52', '1514943054748979200', '2022-04-15 21:08:52', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953906579443712, '外购热能', null, '热能-甘肃', 'CO2e', 'AR4', 't', 'GJ', 0.120542, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '甘肃', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:52', '1514943054748979200', '2022-04-15 21:08:52', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953906843684864, '外购热能', null, '热能-青海', 'CO2e', 'AR4', 't', 'GJ', 0.160268, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '青海', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:53', '1514943054748979200', '2022-04-15 21:08:53', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953907116314624, '外购热能', null, '热能-宁夏', 'CO2e', 'AR4', 't', 'GJ', 0.130656, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '宁夏', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:53', '1514943054748979200', '2022-04-15 21:08:53', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953907380555776, '外购热能', null, '热能-新疆', 'CO2e', 'AR4', 't', 'GJ', 0.130563, 't/GJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '新疆', '', 'GHG中国能源消耗引起的温室气体排放计算工具指南（2.1版）', 2011, 3,
-        '1514943054748979200', '2022-04-15 21:08:53', '1514943054748979200', '2022-04-15 21:08:53', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953907661574144, '运输', '里程·重量', '轻型汽油货车运输（载重2t）', 'CO2e', 'AR4', 'kg', 't km', 0.288200, 'kg/t km',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:53', '1514943054748979200', '2022-04-15 21:08:53', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953907921620992, '运输', '里程·重量', '中型汽油货车运输（载重8t）', 'CO2e', 'AR4', 'kg', 't km', 0.103400, 'kg/t km',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:53', '1514943054748979200', '2022-04-15 21:08:53', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953908185862144, '运输', '里程·重量', '重型汽油货车运输(载重10t)', 'CO2e', 'AR4', 'kg', 't km', 0.140200, 'kg/t km',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:53', '1514943054748979200', '2022-04-15 21:08:53', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953908450103296, '运输', '里程·重量', '重型汽油货车运输（载重18t）', 'CO2e', 'AR4', 'kg', 't km', 0.095850, 'kg/t km',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:53', '1514943054748979200', '2022-04-15 21:08:53', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953908714344448, '运输', '里程·重量', '轻型柴油货车运输（载重2t）', 'CO2e', 'AR4', 'kg', 't km', 0.246100, 'kg/t km',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:53', '1514943054748979200', '2022-04-15 21:08:53', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953908978585600, '运输', '里程·重量', '中型柴油货车运输（载重8t）', 'CO2e', 'AR4', 'kg', 't km', 0.166300, 'kg/t km',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:53', '1514943054748979200', '2022-04-15 21:08:53', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953909238632448, '运输', '里程·重量', '重型柴油货车运输（载重10t）', 'CO2e', 'AR4', 'kg', 't km', 0.177200, 'kg/t km',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:53', '1514943054748979200', '2022-04-15 21:08:53', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953909502873600, '运输', '里程·重量', '重型柴油货车运输（载重18t）', 'CO2e', 'AR4', 'kg', 't km', 0.121100, 'kg/t km',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:53', '1514943054748979200', '2022-04-15 21:08:53', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953909762920448, '运输', '里程·重量', '重型柴油货车运输（载重30t）', 'CO2e', 'AR4', 'kg', 't km', 0.072690, 'kg/t km',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:53', '1514943054748979200', '2022-04-15 21:08:53', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953910022967296, '运输', '里程·重量', '重型柴油货车运输(载重46t)', 'CO2e', 'AR4', 'kg', 't km', 0.057770, 'kg/t km',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:53', '1514943054748979200', '2022-04-15 21:08:53', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953910287208448, '运输', '里程·重量', '电力机车运输', 'CO2e', 'AR4', 'kg', 't km', 0.010940, 'kg/t km', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3, '1514943054748979200',
-        '2022-04-15 21:08:53', '1514943054748979200', '2022-04-15 21:08:53', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953910677278720, '运输', '里程·重量', '内燃机车运输', 'CO2e', 'AR4', 'kg', 't km', 0.009634, 'kg/t km', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3, '1514943054748979200',
-        '2022-04-15 21:08:53', '1514943054748979200', '2022-04-15 21:08:53', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953910941519872, '运输', '里程·重量', '铁路运输-中国市场平均', 'CO2e', 'AR4', 'kg', 't km', 0.010130, 'kg/t km', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953911201566720, '运输', '里程·重量', '液货船运输（载重2000t）', 'CO2e', 'AR4', 'kg', 't km', 0.018390, 'kg/t km',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953911465807872, '运输', '里程·重量', '干散货船运输(载重2500t)', 'CO2e', 'AR4', 'kg', 't km', 0.014710, 'kg/t km',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953911734243328, '运输', '里程·重量', '集装箱船运输（载重200TEU）', 'CO2e', 'AR4', 'kg', 't km', 0.011820, 'kg/t km',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '', '碳排放交易网', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953911998484480, '运输', '里程·重量', '飞机', 'CO2e', 'AR4', 'kg', 't mile', 1.318653, 'kg/t mile', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953912262725632, '运输', '里程·重量', '飞机', 'CO2e', 'AR4', 'kg', 't km', 5.833300, 'kg/t km', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953912526966784, '商务旅行', '里程', '短途航空（<300里）', 'CO2e', 'AR4', 'kg', 'mile', 0.227011, 'kg/mile', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953912795402240, '商务旅行', '里程', '中途航空（300-2300里）', 'CO2e', 'AR4', 'kg', 'mile', 0.137156, 'kg/mile',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953913055449088, '商务旅行', '里程', '长途航空（>2300里）', 'CO2e', 'AR4', 'kg', 'mile', 0.167421, 'kg/mile', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '美国环境保护局（EPA）-2018', 2018, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953913323884544, '商务旅行', '里程', '国内航班（普通舱）', 'CO2e', 'AR4', 'kg', 'km', 0.134830, 'kg/km', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953913592320000, '商务旅行', '里程', '国际航班（普通舱）', 'CO2e', 'AR4', 'kg', 'km', 0.095580, 'kg/km', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953913852366848, '商务旅行', '里程', '短途航空', 'CO2e', 'AR4', 'kg', 'km', 0.083700, 'kg/km', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953914108219392, '废弃物', '重量', '危险废弃物焚烧', 'CO2e', 'AR4', 'kg', 't', 21.353800, 'kg/t', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953914372460544, '废弃物', '重量', '非危险废弃物焚烧', 'CO2e', 'AR4', 'kg', 't', 21.353800, 'kg/t', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953914632507392, '废弃物', '重量', '非危险废弃物填埋', 'CO2e', 'AR4', 'kg', 't', 586.513800, 'kg/t', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953915018383360, '废弃物', '重量', '非危险废弃物回收利用', 'CO2e', 'AR4', 'kg', 't', 21.353800, 'kg/t', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', '英国环境、食品和农村事务部(Defra)-2019', 2019, 3,
-        '1514943054748979200', '2022-04-15 21:08:54', '1514943054748979200', '2022-04-15 21:08:54', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953915278430208, '设施排放', '花费', '教育行业', 'CO2e', 'AR4', 'kg', 'm²', 50.350000, 'kg/m²', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:55', '1514943054748979200', '2022-04-15 21:08:55', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953915538477056, '设施排放', '花费', '食品销售行业', 'CO2e', 'AR4', 'kg', 'm²', 65.962500, 'kg/m²', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:55', '1514943054748979200', '2022-04-15 21:08:55', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953915811106816, '设施排放', '花费', '餐饮服务行业', 'CO2e', 'AR4', 'kg', 'm²', 66.325000, 'kg/m²', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:55', '1514943054748979200', '2022-04-15 21:08:55', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953916071153664, '设施排放', '花费', '健康关怀行业', 'CO2e', 'AR4', 'kg', 'm²', 47.767500, 'kg/m²', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:55', '1514943054748979200', '2022-04-15 21:08:55', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953916331200512, '设施排放', '花费', '住宿行业', 'CO2e', 'AR4', 'kg', 'm²', 43.347500, 'kg/m²', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:55', '1514943054748979200', '2022-04-15 21:08:55', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953916591247360, '设施排放', '花费', '商品行业', 'CO2e', 'AR4', 'kg', 'm²', 27.550000, 'kg/m²', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:55', '1514943054748979200', '2022-04-15 21:08:55', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953916851294208, '设施排放', '花费', '办公室行业', 'CO2e', 'AR4', 'kg', 'm²', 30.577500, 'kg/m²', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:55', '1514943054748979200', '2022-04-15 21:08:55', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953917115535360, '设施排放', '花费', '公共场所行业', 'CO2e', 'AR4', 'kg', 'm²', 58.585000, 'kg/m²', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:55', '1514943054748979200', '2022-04-15 21:08:55', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953917379776512, '设施排放', '花费', '公共秩序与安全行业', 'CO2e', 'AR4', 'kg', 'm²', 24.567500, 'kg/m²', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:55', '1514943054748979200', '2022-04-15 21:08:55', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953917644017664, '设施排放', '花费', '宗教场地行业', 'CO2e', 'AR4', 'kg', 'm²', 60.057500, 'kg/m²', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:55', '1514943054748979200', '2022-04-15 21:08:55', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953917908258816, '设施排放', '花费', '仓库行业', 'CO2e', 'AR4', 'kg', 'm²', 21.585000, 'kg/m²', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:55', '1514943054748979200', '2022-04-15 21:08:55', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953918172499968, '设施排放', '花费', '其他行业', 'CO2e', 'AR4', 'kg', 'm²', 36.632500, 'kg/m²', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:55', '1514943054748979200', '2022-04-15 21:08:55', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953918436741120, '设施排放', '花费', '空', 'CO2e', 'AR4', 'kg', 'm²', 6.230000, 'kg/m²', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:55', '1514943054748979200', '2022-04-15 21:08:55', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953918705176576, '设施排放', '花费', '制造行业', 'CO2e', 'AR4', 'kg', 'm²', 187.817500, 'kg/m²', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:55', '1514943054748979200', '2022-04-15 21:08:55', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953918969417728, '分行业排放', '花费', '农业，狩猎，林业和渔业', 'CO2e', 'AR4', 'kg', 'USD', 2.090000, 'kg/USD', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:55', '1514943054748979200', '2022-04-15 21:08:55', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953919367876608, '分行业排放', '花费', '采矿业', 'CO2e', 'AR4', 'kg', 'USD', 1.780000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200', '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953919636312064, '分行业排放', '花费', '食品、饮料和烟草', 'CO2e', 'AR4', 'kg', 'USD', 0.890000, 'kg/USD', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200', '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953919908941824, '分行业排放', '花费', '纺织原料及纺织制品', 'CO2e', 'AR4', 'kg', 'USD', 0.940000, 'kg/USD', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200', '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953920168988672, '分行业排放', '花费', '皮革和鞋类', 'CO2e', 'AR4', 'kg', 'USD', 0.870000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200', '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953920429035520, '分行业排放', '花费', '木材、木材及软木产品', 'CO2e', 'AR4', 'kg', 'USD', 0.940000, 'kg/USD', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200', '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953920693276672, '分行业排放', '花费', '纸浆，纸，印刷和出版', 'CO2e', 'AR4', 'kg', 'USD', 0.640000, 'kg/USD', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200', '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953920953323520, '分行业排放', '花费', '焦炭，精炼石油和核燃料', 'CO2e', 'AR4', 'kg', 'USD', 1.880000, 'kg/USD', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200', '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953921213370368, '分行业排放', '花费', '化学品及化学品产品', 'CO2e', 'AR4', 'kg', 'USD', 1.120000, 'kg/USD', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200', '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953921473417216, '分行业排放', '花费', '橡胶和塑料', 'CO2e', 'AR4', 'kg', 'USD', 1.060000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200', '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953921737658368, '分行业排放', '花费', '非金属矿物', 'CO2e', 'AR4', 'kg', 'USD', 2.440000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200', '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953922001899520, '分行业排放', '花费', '基本金属和金属制品', 'CO2e', 'AR4', 'kg', 'USD', 1.540000, 'kg/USD', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200', '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953922266140672, '分行业排放', '花费', '机器(未算在其他分类中', 'CO2e', 'AR4', 'kg', 'USD', 0.710000, 'kg/USD', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200', '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953922530381824, '分行业排放', '花费', '光电设备', 'CO2e', 'AR4', 'kg', 'USD', 0.810000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200', '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953922794622976, '分行业排放', '花费', '运输设备', 'CO2e', 'AR4', 'kg', 'USD', 0.750000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200', '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953923058864128, '分行业排放', '花费', '制造业与回收', 'CO3e', 'AR5', 'kg', 'USD', 0.720000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 4 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200', '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953923318910976, '分行业排放', '花费', '零售业(汽车及电单车除外);家居用品修理', 'CO2e', 'AR4', 'kg', 'USD', 0.220000, 'kg/USD',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '',
-        'GHG Protocal Scope 3 Evaluator', 1970, 3, '1514943054748979200', '2022-04-15 21:08:56', '1514943054748979200',
-        '2022-04-15 21:08:56', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953923708981248, '分行业排放', '花费', '电、气、水供应', 'CO2e', 'AR4', 'kg', 'USD', 4.870000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:57', '1514943054748979200', '2022-04-15 21:08:57', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953923973222400, '分行业排放', '花费', '建筑', 'CO2e', 'AR4', 'kg', 'USD', 0.690000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:57', '1514943054748979200', '2022-04-15 21:08:57', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953924237463552, '分行业排放', '花费', '汽车及摩托车的销售、保养及修理;燃料零售', 'CO2e', 'AR4', 'kg', 'USD', 0.210000, 'kg/USD',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '',
-        'GHG Protocal Scope 3 Evaluator', 1970, 3, '1514943054748979200', '2022-04-15 21:08:57', '1514943054748979200',
-        '2022-04-15 21:08:57', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953924510093312, '分行业排放', '花费', '批发贸易及代销贸易（汽车、摩托车除外）', 'CO2e', 'AR4', 'kg', 'USD', 0.230000, 'kg/USD',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '',
-        'GHG Protocal Scope 3 Evaluator', 1970, 3, '1514943054748979200', '2022-04-15 21:08:57', '1514943054748979200',
-        '2022-04-15 21:08:57', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953924774334464, '分行业排放', '花费', '旅馆及餐饮业', 'CO2e', 'AR4', 'kg', 'USD', 0.460000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:57', '1514943054748979200', '2022-04-15 21:08:57', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953925038575616, '分行业排放', '花费', '内陆运输', 'CO2e', 'AR4', 'kg', 'USD', 0.780000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:57', '1514943054748979200', '2022-04-15 21:08:57', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953925307011072, '分行业排放', '花费', '水路运输', 'CO2e', 'AR4', 'kg', 'USD', 1.930000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:57', '1514943054748979200', '2022-04-15 21:08:57', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953925567057920, '分行业排放', '花费', '航空运输', 'CO2e', 'AR4', 'kg', 'USD', 1.640000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:57', '1514943054748979200', '2022-04-15 21:08:57', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953925843881984, '分行业排放', '花费', '其他支援及辅助运输活动;旅行社的活动', 'CO2e', 'AR4', 'kg', 'USD', 0.420000, 'kg/USD',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '',
-        'GHG Protocal Scope 3 Evaluator', 1970, 3, '1514943054748979200', '2022-04-15 21:08:57', '1514943054748979200',
-        '2022-04-15 21:08:57', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953926129094656, '分行业排放', '花费', '邮政电信', 'CO2e', 'AR4', 'kg', 'USD', 0.300000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:57', '1514943054748979200', '2022-04-15 21:08:57', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953926401724416, '分行业排放', '花费', '金融中介', 'CO2e', 'AR4', 'kg', 'USD', 0.120000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:57', '1514943054748979200', '2022-04-15 21:08:57', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953926665965568, '分行业排放', '花费', '房地产业', 'CO2e', 'AR4', 'kg', 'USD', 0.100000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:57', '1514943054748979200', '2022-04-15 21:08:57', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953926926012416, '分行业排放', '花费', '经营活动租赁', 'CO2e', 'AR4', 'kg', 'USD', 0.210000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:57', '1514943054748979200', '2022-04-15 21:08:57', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953927186059264, '分行业排放', '花费', '公共行政与国防;强制性社会保障', 'CO2e', 'AR4', 'kg', 'USD', 0.260000, 'kg/USD', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:57', '1514943054748979200', '2022-04-15 21:08:57', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953927450300416, '分行业排放', '花费', '教育', 'CO2e', 'AR4', 'kg', 'USD', 0.250000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:57', '1514943054748979200', '2022-04-15 21:08:57', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953927710347264, '分行业排放', '花费', '卫生与社会工作', 'CO2e', 'AR4', 'kg', 'USD', 0.260000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953928092028928, '分行业排放', '花费', '其他社区、社会和个人服务', 'CO2e', 'AR4', 'kg', 'USD', 0.630000, 'kg/USD', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953928352075776, '分行业排放', '花费', '家庭服务业', 'CO2e', 'AR4', 'kg', 'USD', 0.010000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953928607928320, '分行业排放', '花费', '其他', 'CO2e', 'AR4', 'kg', 'USD', 0.630000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953928872169472, '运输', '花费', '航空', 'CO2e', 'AR4', 'kg', 'USD', 1.640000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953929132216320, '运输', '花费', '水运', 'CO2e', 'AR4', 'kg', 'USD', 1.930000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953929392263168, '运输', '花费', '铁路', 'CO2e', 'AR4', 'kg', 'USD', 0.780000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953929652310016, '运输', '花费', '公路', 'CO2e', 'AR4', 'kg', 'USD', 0.780000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953929916551168, '商务旅行', '花费', '汽车', 'CO2e', 'AR4', 'kg', 'USD', 0.780000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953930176598016, '商务旅行', '花费', '公共汽车', 'CO2e', 'AR4', 'kg', 'USD', 0.780000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953930440839168, '商务旅行', '花费', '面包车', 'CO2e', 'AR4', 'kg', 'USD', 0.780000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953930705080320, '商务旅行', '花费', '地铁', 'CO2e', 'AR4', 'kg', 'USD', 0.780000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953930965127168, '商务旅行', '花费', '轮船', 'CO2e', 'AR4', 'kg', 'USD', 0.780000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953931229368320, '商务旅行', '花费', '航空', 'CO2e', 'AR4', 'kg', 'USD', 1.640000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953931493609472, '商务旅行', '花费', '酒店', 'CO2e', 'AR4', 'kg', 'USD', 0.460000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953931770433536, '商务旅行', '里程', '汽车', 'CO2e', 'AR4', 'kg', 'km', 0.220000, 'kg/km', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:58', '1514943054748979200', '2022-04-15 21:08:58', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953932034674688, '商务旅行', '里程', '公共汽车', 'CO2e', 'AR4', 'kg', 'km', 0.120000, 'kg/km', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:59', '1514943054748979200', '2022-04-15 21:08:59', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953932424744960, '商务旅行', '里程', '面包车', 'CO2e', 'AR4', 'kg', 'km', 0.320000, 'kg/km', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:59', '1514943054748979200', '2022-04-15 21:08:59', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953932688986112, '商务旅行', '里程', '地铁', 'CO2e', 'AR4', 'kg', 'km', 0.070000, 'kg/km', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:59', '1514943054748979200', '2022-04-15 21:08:59', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953932953227264, '商务旅行', '里程', '轮船', 'CO2e', 'AR4', 'kg', 'km', 0.000000, 'kg/km', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:59', '1514943054748979200', '2022-04-15 21:08:59', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953933230051328, '商务旅行', '里程', '航空', 'CO2e', 'AR4', 'kg', 'km', 0.180000, 'kg/km', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:59', '1514943054748979200', '2022-04-15 21:08:59', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953933498486784, '商务旅行', '间夜', '酒店', 'CO2e', 'AR4', 'kg', 'room night', 17.980000, 'kg/room night',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '',
-        'GHG Protocal Scope 3 Evaluator', 1970, 3, '1514943054748979200', '2022-04-15 21:08:59', '1514943054748979200',
-        '2022-04-15 21:08:59', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953933758533632, '能源', '范围三', '天然气', 'CO2e', 'AR4', 'kg', 'MJ', 0.056630, 'kg/MJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:59', '1514943054748979200', '2022-04-15 21:08:59', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953934031163392, '能源', '范围三', '丙烷/丁烷', 'CO2e', 'AR4', 'kg', 'MJ', 0.074000, 'kg/MJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:59', '1514943054748979200', '2022-04-15 21:08:59', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953934291210240, '能源', '范围三', '柴油', 'CO2e', 'AR4', 'kg', 'MJ', 0.086000, 'kg/MJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:59', '1514943054748979200', '2022-04-15 21:08:59', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953934555451392, '能源', '范围三', '重油', 'CO2e', 'AR4', 'kg', 'MJ', 0.088410, 'kg/MJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:59', '1514943054748979200', '2022-04-15 21:08:59', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953934815498240, '能源', '范围三', '生物柴油', 'CO2e', 'AR4', 'kg', 'MJ', 0.108000, 'kg/MJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:59', '1514943054748979200', '2022-04-15 21:08:59', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953935079739392, '能源', '范围三', '乙醇', 'CO2e', 'AR4', 'kg', 'MJ', 0.011600, 'kg/MJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:59', '1514943054748979200', '2022-04-15 21:08:59', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953935348174848, '能源', '范围三', '生物乙醇', 'CO2e', 'AR4', 'kg', 'MJ', 0.152280, 'kg/MJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:59', '1514943054748979200', '2022-04-15 21:08:59', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953935616610304, '能源', '范围三', '无铅汽油', 'CO2e', 'AR4', 'kg', 'MJ', 0.083350, 'kg/MJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:59', '1514943054748979200', '2022-04-15 21:08:59', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953935889240064, '能源', '范围三', '煤油', 'CO2e', 'AR4', 'kg', 'MJ', 0.079860, 'kg/MJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:08:59', '1514943054748979200', '2022-04-15 21:08:59', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953936178647040, '能源', '范围三', '无烟煤', 'CO2e', 'AR4', 'kg', 'MJ', 0.092510, 'kg/MJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:00', '1514943054748979200', '2022-04-15 21:09:00', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953936447082496, '能源', '范围三', '浓缩铀', 'CO2e', 'AR4', 'kg', 'MJ', 0.000026, 'kg/MJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:00', '1514943054748979200', '2022-04-15 21:09:00', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953936837152768, '能源', '范围三', '沼气', 'CO2e', 'AR4', 'kg', 'MJ', 0.097140, 'kg/MJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:00', '1514943054748979200', '2022-04-15 21:09:00', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953937097199616, '能源', '范围三', '甲烷', 'CO2e', 'AR4', 'kg', 'MJ', 0.159450, 'kg/MJ', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:00', '1514943054748979200', '2022-04-15 21:09:00', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953937357246464, '能源', '范围三', '天然气', 'CO2e', 'AR4', 'kg', 'kg', 3.013000, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:00', '1514943054748979200', '2022-04-15 21:09:00', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953937617293312, '能源', '范围三', '丙烷/丁烷', 'CO2e', 'AR4', 'kg', 'kg', 3.190000, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:00', '1514943054748979200', '2022-04-15 21:09:00', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953937881534464, '能源', '范围三', '柴油', 'CO2e', 'AR4', 'kg', 'kg', 3.684000, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:00', '1514943054748979200', '2022-04-15 21:09:00', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953938145775616, '能源', '范围三', '重油', 'CO2e', 'AR4', 'kg', 'kg', 3.642000, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:00', '1514943054748979200', '2022-04-15 21:09:00', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953938405822464, '能源', '范围三', '生物柴油', 'CO2e', 'AR4', 'kg', 'kg', 4.049700, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:00', '1514943054748979200', '2022-04-15 21:09:00', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953938670063616, '能源', '范围三', '乙醇', 'CO2e', 'AR4', 'kg', 'kg', 3.130000, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:00', '1514943054748979200', '2022-04-15 21:09:00', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953938934304768, '能源', '范围三', '生物乙醇', 'CO2e', 'AR4', 'kg', 'kg', 4.096200, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:00', '1514943054748979200', '2022-04-15 21:09:00', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953939198545920, '能源', '范围三', '无铅汽油', 'CO2e', 'AR4', 'kg', 'kg', 3.542500, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:00', '1514943054748979200', '2022-04-15 21:09:00', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953939462787072, '能源', '范围三', '煤油', 'CO2e', 'AR4', 'kg', 'kg', 3.434130, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:00', '1514943054748979200', '2022-04-15 21:09:00', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953939731222528, '能源', '范围三', '无烟煤', 'CO2e', 'AR4', 'kg', 'kg', 2.673530, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:00', '1514943054748979200', '2022-04-15 21:09:00', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953939995463680, '能源', '范围三', '浓缩铀', 'CO2e', 'AR4', 'kg', 'kg', 2060.920630, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:00', '1514943054748979200', '2022-04-15 21:09:00', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953940272287744, '能源', '范围三', '沼气', 'CO2e', 'AR4', 'kg', 'kg', 2.078870, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953940532334592, '能源', '范围三', '甲烷', 'CO2e', 'AR4', 'kg', 'kg', 3.412230, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953940792381440, '废弃物', '花费', '纸', 'CO2e', 'AR4', 'kg', 'kg', 0.460000, 'kg/kg', 0.000000, '', '', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953941174063104, '废弃物', '花费', '金属', 'CO2e', 'AR4', 'kg', 'kg', 0.460000, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953941434109952, '废弃物', '花费', '塑料', 'CO2e', 'AR4', 'kg', 'kg', 0.040000, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953941694156800, '废弃物', '花费', '有机物质', 'CO2e', 'AR4', 'kg', 'kg', 0.040000, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953941954203648, '废弃物', '花费', '混合物', 'CO2e', 'AR4', 'kg', 'kg', 0.530000, 'kg/kg', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953942214250496, '下游租赁资产排放', '花费', '内陆运输', 'CO2e', 'AR4', 'kg', 'USD', 0.780000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953942474297344, '下游租赁资产排放', '花费', '水路运输', 'CO2e', 'AR4', 'kg', 'USD', 1.930000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953942759510016, '下游租赁资产排放', '花费', '航空运输', 'CO2e', 'AR4', 'kg', 'USD', 1.640000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953943023751168, '下游租赁资产排放', '花费', '教育', 'CO2e', 'AR4', 'kg', 'USD', 4.870000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953943279603712, '下游租赁资产排放', '花费', '食品销售', 'CO2e', 'AR4', 'kg', 'USD', 4.870000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953943552233472, '下游租赁资产排放', '花费', '餐饮服务', 'CO2e', 'AR4', 'kg', 'USD', 4.870000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953943816474624, '下游租赁资产排放', '花费', '健康关怀', 'CO2e', 'AR4', 'kg', 'USD', 4.870000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953944080715776, '下游租赁资产排放', '花费', '住宿', 'CO2e', 'AR4', 'kg', 'USD', 4.870000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953944349151232, '下游租赁资产排放', '花费', '商品', 'CO2e', 'AR4', 'kg', 'USD', 4.870000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:01', '1514943054748979200', '2022-04-15 21:09:01', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953944613392384, '下游租赁资产排放', '花费', '办公室', 'CO2e', 'AR4', 'kg', 'USD', 4.870000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:02', '1514943054748979200', '2022-04-15 21:09:02', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953944877633536, '下游租赁资产排放', '花费', '公共场所', 'CO2e', 'AR4', 'kg', 'USD', 4.870000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:02', '1514943054748979200', '2022-04-15 21:09:02', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953945141874688, '下游租赁资产排放', '花费', '公共秩序与安全', 'CO2e', 'AR4', 'kg', 'USD', 4.870000, 'kg/USD', 0.000000, '',
-        '', 0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:02', '1514943054748979200', '2022-04-15 21:09:02', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953945523556352, '下游租赁资产排放', '花费', '宗教场地', 'CO2e', 'AR4', 'kg', 'USD', 4.870000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:02', '1514943054748979200', '2022-04-15 21:09:02', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953945787797504, '下游租赁资产排放', '花费', '仓库', 'CO2e', 'AR4', 'kg', 'USD', 4.870000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:02', '1514943054748979200', '2022-04-15 21:09:02', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953946052038656, '下游租赁资产排放', '花费', '其他', 'CO2e', 'AR4', 'kg', 'USD', 4.870000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:02', '1514943054748979200', '2022-04-15 21:09:02', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953946312085504, '下游租赁资产排放', '花费', '空', 'CO2e', 'AR4', 'kg', 'USD', 4.870000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:02', '1514943054748979200', '2022-04-15 21:09:02', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1514953946576326656, '下游租赁资产排放', '花费', '制造', 'CO2e', 'AR4', 'kg', 'USD', 4.870000, 'kg/USD', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '', '', '', 'GHG Protocal Scope 3 Evaluator', 1970, 3,
-        '1514943054748979200', '2022-04-15 21:09:02', '1514943054748979200', '2022-04-15 21:09:02', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1516233845396082688, '外购电力', null, '美国平均电力', 'CO2e', 'AR4', 'g', 'kWh', 412.800000, 'g/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '美国', '', '',
-        'Based on IEA data from  CO2 Emissions from Fuel Combustion © OECD/IEA 2020, www.iea.org/statistics, Licence:  www.iea.org/t&c; as modified by UL E&S. Users are only permitted to disclose those IEA Factors relevant to their emissions calculations in their sustainability reports to third parties for the purposes of emissions audits and/or reporting (e.g. to CDP) and only to the extent they are required to do so by the relevant entity to which they report or which audits them.',
-        2020, 3, '1515896721291481088', '2022-04-19 09:54:54', '1515896721291481088', '2022-04-19 09:54:54', 0, null,
-        -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1516292284470136832, '外购电力', null, '越南自定义电力', 'CO2e', 'AR4', 'kg', 'kWh', 0.845800, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '越南', '', '', '自定义', 2021, 3, '1516260703219093504',
-        '2022-04-19 13:47:07', '1516260703219093504', '2022-04-19 13:47:07', 0, null, -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1516292284814069760, '外购电力', null, '台湾自定义电力', 'CO2e', 'AR4', 'kg', 'kWh', 0.502000, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '台湾', '', '自定义', 2021, 3, '1516260703219093504',
-        '2022-04-19 13:47:07', '1516260703219093504', '2022-04-19 13:47:07', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1522751677713747968, '能源', '固定燃烧排放', '2', 'CO₂e', 'AR4', 'kg', 't', 14.670000, 'kg/t', 0.000000, '', '',
-        2.000000, 'KJ/t', '23', 1.000000, 'TC/KJ', '32', 2.000000, '23', '中国', '华北', '通用', '', 1971, 1,
-        '1522106105617059840', '2022-05-07 09:34:26', '1522106105617059840', '2022-05-07 09:34:26', 1522751677713747968,
-        null, -1, 6);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1522755106704068608, '运输', '里程·重量', '乘用车-汽油自定义', 'CO₂e', 'AR4', 't', 'km', 0.000181, 't/km', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '全球', '', '通用', '', 2020, 1, '1522468872169590784',
-        '2022-05-07 09:48:04', '1522468872169590784', '2022-05-07 09:48:04', 0, null, -1, 1);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1522760392646987776, '外购电力', null, '中国台湾电力', 'CO2e', 'AR4', 'kg', 'kWh', 0.509000, 'kg/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '台湾', '', '自定义', 2020, 1, '1522124426508898304',
-        '2022-05-07 10:09:04', '1522124426508898304', '2022-05-07 10:09:04', 0, null, -1, 3);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1522761763660107776, '运输', '里程·重量', 'se', 'CO₂e', 'AR4', 't', 't', 12.000000, 't/t', 0.000000, '', '', 0.000000,
-        '', '', 0.000000, '', '', 0.000000, '', '中国', '华北', '通用', '22', 1972, 1, '1522106105617059840',
-        '2022-05-07 10:14:31', '1522106105617059840', '2022-05-07 10:14:31', 1522761763660107776, null, -1, 5);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1522765678417940480, '外购电力', null, '越南电力', 'CO2e', 'AR4', 'g', 'kWh', 454.800000, 'g/kWh', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '越南', '', '',
-        'Based on IEA data from  CO2 Emissions from Fuel Combustion © OECD/IEA 2020, www.iea.org/statistics, Licence:  www.iea.org/t&c; as modified by UL E&S. Users are only permitted to',
-        2020, 1, '1522124426508898304', '2022-05-07 10:30:04', '1522124426508898304', '2022-05-07 10:30:04', 0, null,
-        -1, 2);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1522766728701022208, '运输', '里程·重量', 'q2', 'CO₂e', 'AR6', 'kg', 't', 22.000000, 'kg/t', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '通用', 'we', 1971, 1, '1522106105617059840',
-        '2022-05-07 10:34:14', '1522106105617059840', '2022-05-07 10:34:14', 1522766728701022208, null, -1, 4);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1522766906300436480, '外购热能', null, 'q22', 'CO₂e', 'AR6', 'kg', 't', 22.000000, 'kg/t', 0.000000, '', '',
-        0.000000, '', '', 0.000000, '', '', 0.000000, '', '中国', '', '通用', 'we', 1971, 1, '1522106105617059840',
-        '2022-05-07 10:34:57', '1522106105617059840', '2022-05-07 10:34:57', 1522766906300436480, null, -1, 4);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1522768385673400320, '能源', '固定燃烧排放', 'w', 'CO₂e', 'AR4', 'kg', 'km', 22.000002, 'kg/km', 0.000000, '', '',
-        2.000000, 'KJ/km', '1', 1.000000, 'TC/KJ', '1', 3.000000, '1', '中国', '华北', '通用', '', 2023, 1,
-        '1522106105617059840', '2022-05-07 10:40:49', '1522106105617059840', '2022-05-07 10:40:49', 1522768385673400320,
-        null, -1, 5);
-INSERT INTO cec.tb_sys_emission_factor (id, category1, category2, factor_name, emission_gas_type, protocol_version,
-                                        carbon_emission_unit, fuel_unit, factor, factor_unit, density, density_unit,
-                                        density_source, heat_value, heat_value_unit, heat_value_source,
-                                        ca_con_per_heat_value, ca_con_per_heat_value_unit, ca_con_per_heat_value_source,
-                                        carbon_oxidation_rate, carbon_oxidation_rate_source, country, region, industry,
-                                        source, year, revision, created_by, created_time, updated_by, updated_time,
-                                        delete_flag, org_id, attachment_id, emission_factor_type_enum)
-VALUES (1522768495941652480, '能源', '固定燃烧排放', 'w', 'CO₂e', 'AR4', 'kg', 'km', 22.000002, 'kg/km', 0.000000, '', '',
-        2.000000, 'KJ/km', '1', 1.000000, 'TC/KJ', '1', 3.000000, '1', '中国', '华北', '通用', '', 2023, 1,
-        '1522106105617059840', '2022-05-07 10:41:16', '1522106105617059840', '2022-05-07 10:41:16', 1522768495941652480,
-        null, -1, 5);
+-- ----------------------------
+-- Table structure for summary_scope_three
+-- ----------------------------
+DROP TABLE IF EXISTS `summary_scope_three`;
+CREATE TABLE `summary_scope_three` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `inventory_id` bigint(20) NOT NULL COMMENT '碳盘查报告id',
+  `scope_three_type_enum` int(2) NOT NULL COMMENT '类别（1~15类）',
+  `group_enum` int(2) DEFAULT NULL COMMENT '具体板块',
+  `quantity` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '数量',
+  `fuel_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '燃料单位',
+  `factor_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '排放因子单位',
+  `factor` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '排放因子',
+  `carbon_emission` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '二氧化碳排放',
+  `carbon_emission_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '二氧化碳排放单位',
+  `source` varchar(400) DEFAULT '' COMMENT '排放因子来源',
+  `detail` varchar(500) NOT NULL DEFAULT '' COMMENT '其他属性',
+  `revision` int(10) NOT NULL COMMENT '乐观锁',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(20) NOT NULL COMMENT '更新人工号',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='范围三排放清单';
+
+-- ----------------------------
+-- Records of summary_scope_three
+-- ----------------------------
+BEGIN;
+INSERT INTO `summary_scope_three` VALUES (1497146125768069120, 1485804745699495936, 7, 1, 2567.000000, 'a', 'kgCO₂e', 425.000000, 1090975.000000, 'kgCO₂e', '', '', 1, '1485787600533983232', '2022-02-25 17:47:07', '1485787600533983232', '2022-02-25 17:47:07', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1497146125768069121, 1485804745699495936, 7, 2, 2567.000000, 'a', 'kgCO₂e', 425.000000, 1090975.000000, 'kgCO₂e', '', '', 1, '1485787600533983232', '2022-02-25 17:47:07', '1485787600533983232', '2022-02-25 17:47:07', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498457828736765952, 1496741862587895808, 7, NULL, 70000.000000, '', 'kgCO₂e', 425.000000, 29750000.000000, 'kgCO₂e', '', '', 1, '1485787600533983232', '2022-03-01 08:39:21', '1485787600533983232', '2022-03-01 08:39:21', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498458730268856320, 1496726370900905984, 7, NULL, 34567.000000, '', 'kgCO₂e', 425.000000, 14690975.000000, 'kgCO₂e', '', '', 1, '1490590134683439104', '2022-03-01 08:42:56', '1490590134683439104', '2022-03-01 08:42:56', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498460730712788992, 1496726370900905984, 7, NULL, 34567.000000, '', 'kgCO₂e', 425.000000, 14690975.000000, 'kgCO₂e', '', '', 1, '1490590134683439104', '2022-03-01 08:50:53', '1490590134683439104', '2022-03-01 08:50:53', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498467510117339136, 1496726370900905984, 7, NULL, 10.000000, 'm²', 'kgCO₂e/m²', 50.350000, 0.503500, 'tCO₂e', '', '{\"propertyType\":\"自己拥有\",\"factoryType\":\"教育\"}', 1, '1490590134683439104', '2022-03-01 09:17:49', '1490590134683439104', '2022-03-01 09:17:49', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498469261641912320, 1496726370900905984, 7, 1, 10.000000, 'm²', 'kgCO₂e/m²', 50.350000, 0.503500, 'tCO₂e', '', '{\"propertyType\":\"自己拥有\",\"factoryType\":\"教育\"}', 1, '1490590134683439104', '2022-03-01 09:24:47', '1490590134683439104', '2022-03-01 09:24:47', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498469378033848320, 1496726370900905984, 7, 1, 10.000000, 'm²', 'kgCO₂e/m²', 50.350000, 0.503500, 'tCO₂e', '', '{\"propertyType\":\"自己拥有\",\"factoryType\":\"教育\"}', 1, '1490590134683439104', '2022-03-01 09:25:15', '1490590134683439104', '2022-03-01 09:25:15', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498480589198725120, 1496726370900905984, 8, 1, 190.000000, 'm²', 'kgCO₂e/m²', 50.350000, 9.566500, 'tCO₂e', '', '{\"propertyType\":\"自己拥有\",\"factoryType\":\"教育\"}', 1, '1490590134683439104', '2022-03-01 10:09:48', '1490590134683439104', '2022-03-01 10:09:48', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498483133673246720, 1496726370900905984, 5, 1, 10.000000, 'USD', 'kgCO₂/USD', 1.820000, 18.200000, 'kgCO₂e', '', '', 1, '1490590134683439104', '2022-03-01 10:19:54', '1490590134683439104', '2022-03-01 10:19:54', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498484914276929536, 1496726370900905984, 1, NULL, 100.000000, 'USD', 'kgCO₂e/USD', 2.090000, 209.000000, 'kgCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"标准产品\",\"purchaseType\":\"农业，狩猎，林业和渔业\"}', 1, '1485787600533983232', '2022-03-01 10:26:59', '1485787600533983232', '2022-03-01 10:26:59', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498486273512443904, 1496726370900905984, 1, NULL, 100.000000, 'USD', 'kgCO₂e/USD', 2.090000, 209.000000, 'kgCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"标准产品\",\"purchaseType\":\"农业，狩猎，林业和渔业\"}', 1, '1485787600533983232', '2022-03-01 10:32:23', '1485787600533983232', '2022-03-01 10:32:23', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498486304428658688, 1496726370900905984, 1, 2, 100.000000, 'USD', 'kgCO₂e/USD', 2.090000, 209.000000, 'kgCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"标准产品\",\"purchaseType\":\"农业，狩猎，林业和渔业\"}', 1, '1485787600533983232', '2022-03-01 10:32:30', '1485787600533983232', '2022-03-01 10:32:30', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498487151447379968, 1496726370900905984, 1, 2, 100.000000, 'USD', 'kgCO₂e/USD', 2.090000, 209.000000, 'kgCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"标准产品\",\"purchaseType\":\"农业，狩猎，林业和渔业\"}', 1, '1485787600533983232', '2022-03-01 10:35:52', '1485787600533983232', '2022-03-01 10:35:52', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498495195031932928, 1496726370900905984, 1, NULL, 100.000000, 'USD', 'kgCO₂e/USD', 2.090000, 0.209000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"标准产品\",\"purchaseType\":\"农业，狩猎，林业和渔业\"}', 1, '1490590134683439104', '2022-03-01 11:07:50', '1490590134683439104', '2022-03-01 11:07:50', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498506269185675264, 1496726370900905984, 8, 3, 2000.500000, 'USD', 'kgCO₂/USD', 0.480000, 960.240000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方物流\",\"type\":\"空运\"}', 1, '1485787600533983232', '2022-03-01 11:51:50', '1485787600533983232', '2022-03-01 11:51:50', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498507121162063872, 1496726370900905984, 8, 1, 44.000000, 'm²', 'kgCO₂e/m²', 65.962500, 2.902350, 'tCO₂e', '', '{\"propertyType\":\"自己拥有\",\"factoryType\":\"食品销售\"}', 1, '1490590134683439104', '2022-03-01 11:55:13', '1490590134683439104', '2022-03-01 11:55:13', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498507147892363264, 1496726370900905984, 4, 3, 2000.500000, 'USD', 'kgCO₂/USD', 0.480000, 960.240000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方物流\",\"type\":\"空运\"}', 1, '1485787600533983232', '2022-03-01 11:55:20', '1485787600533983232', '2022-03-01 11:55:20', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498507190921728000, 1496726370900905984, 1, NULL, 33.000000, 'USD', 'kgCO₂e/USD', 1.780000, 0.058740, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"标准产品\",\"purchaseType\":\"采矿业\"}', 1, '1490590134683439104', '2022-03-01 11:55:30', '1490590134683439104', '2022-03-01 11:55:30', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498507206990106624, 1496726370900905984, 4, 3, 2000.500000, 'USD', 'kgCO₂/USD', 0.480000, 960.240000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方物流\",\"type\":\"空运\"}', 1, '1485787600533983232', '2022-03-01 11:55:34', '1485787600533983232', '2022-03-01 11:55:34', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498507469008277504, 1496726370900905984, 4, 3, 2000.500000, 'USD', 'kgCO₂/USD', 0.480000, 960.240000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方物流\",\"type\":\"空运\"}', 1, '1485787600533983232', '2022-03-01 11:56:36', '1485787600533983232', '2022-03-01 11:56:36', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498507615427235840, 1496726370900905984, 4, 3, 2000.500000, 'USD', 'kgCO₂/USD', 0.480000, 960.240000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方物流\",\"type\":\"空运\"}', 1, '1485787600533983232', '2022-03-01 11:57:11', '1485787600533983232', '2022-03-01 11:57:11', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498536993611714560, 1496726370900905984, 4, 3, 2000.500000, 'USD', 'kgCO₂/USD', 1.640000, 3.280820, 'tCO₂e', '', '{\"logisticsType\":\"第三方运输\",\"type\":\"航空\"}', 1, '1485787600533983232', '2022-03-01 13:53:55', '1485787600533983232', '2022-03-01 13:53:55', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498539830001405952, 1496726370900905984, 8, 1, 55.000000, 'm²', 'kgCO₂e/m²', 47.767500, 2.627213, 'tCO₂e', '', '{\"propertyType\":\"租赁\",\"factoryType\":\"健康关怀\"}', 1, '1490590134683439104', '2022-03-01 14:05:12', '1490590134683439104', '2022-03-01 14:05:12', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498559039926308864, 1496726370900905984, 8, 1, 35.000000, 'm²', 'kgCO₂e/m²', 66.325000, 2.321375, 'tCO₂e', '', '{\"propertyType\":\"租赁\",\"factoryType\":\"餐饮服务\"}', 1, '1490590134683439104', '2022-03-01 15:21:32', '1490590134683439104', '2022-03-01 15:21:32', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498672594902192128, 1498558509388795904, 8, 1, 2.000000, 'm²', 'kgCO₂e/m²', 50.350000, 0.100700, 'tCO₂e', '', '{\"propertyType\":\"自己拥有\",\"factoryType\":\"教育\"}', 1, '1490590134683439104', '2022-03-01 22:52:45', '1490590134683439104', '2022-03-01 22:52:45', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498824307533549568, 1498558509388795904, 1, NULL, 45.000000, 'USD', 'kgCO₂e/USD', 2.090000, 0.094050, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"服务\",\"purchaseType\":\"农业，狩猎，林业和渔业\"}', 1, '1490590134683439104', '2022-03-02 08:55:36', '1490590134683439104', '2022-03-02 08:55:36', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498824562358489088, 1498558509388795904, 1, NULL, 33.000000, 'USD', 'kgCO₂e/USD', 1.780000, 0.058740, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"标准产品\",\"purchaseType\":\"采矿业\"}', 1, '1490590134683439104', '2022-03-02 08:56:37', '1490590134683439104', '2022-03-02 08:56:37', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498827058799841280, 1498558509388795904, 1, 2, 33.000000, 'USD', 'kgCO₂e/USD', 1.780000, 0.058740, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"标准产品\",\"purchaseType\":\"采矿业\"}', 1, '1490590134683439104', '2022-03-02 09:06:32', '1490590134683439104', '2022-03-02 09:06:32', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498828173566152704, 1498558509388795904, 1, 2, 23.000000, 'USD', 'kgCO₂e/USD', 0.890000, 0.020470, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"服务\",\"purchaseType\":\"食品、饮料和烟草\"}', 1, '1490590134683439104', '2022-03-02 09:10:58', '1490590134683439104', '2022-03-02 09:10:58', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498828448616026112, 1498558509388795904, 1, 2, 233.000000, 'USD', 'kgCO₂e/USD', 1.780000, 0.414740, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"标准产品\",\"purchaseType\":\"采矿业\"}', 1, '1490590134683439104', '2022-03-02 09:12:04', '1490590134683439104', '2022-03-02 09:12:04', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498828575548248064, 1498558509388795904, 8, 1, 112.000000, 'm²', 'kgCO₂e/m²', 50.350000, 5.639200, 'tCO₂e', '', '{\"propertyType\":\"租赁\",\"factoryType\":\"教育\"}', 2, '1490590134683439104', '2022-03-02 09:12:34', '1490590134683439104', '2022-03-02 09:12:34', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498829214424633344, 1498558509388795904, 1, 2, 11.000000, 'USD', 'kgCO₂e/USD', 0.890000, 0.009790, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"标准产品\",\"purchaseType\":\"食品、饮料和烟草\"}', 1, '1490590134683439104', '2022-03-02 09:15:06', '1490590134683439104', '2022-03-02 09:15:06', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498829526636040192, 1498558509388795904, 1, 2, 345.000000, 'USD', 'kgCO₂e/USD', 0.940000, 0.324300, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"服务\",\"purchaseType\":\"木材、木材及软木产品\"}', 2, '1490590134683439104', '2022-03-02 09:16:21', '1490590134683439104', '2022-03-02 09:16:21', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498835313487908864, 1498558509388795904, 4, 3, 109.000000, 'USD', 'kgCO₂/USD', 0.480000, 52.320000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方配送\",\"type\":\"上游第三方物流\"}', 2, '1490590134683439104', '2022-03-02 09:39:20', '1490590134683439104', '2022-03-02 09:39:20', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498868172135206912, 1498867816995098624, 8, 1, 200.000000, 'm²', 'kgCO₂e/m²', 187.817500, 37.563500, 'tCO₂e', '', '{\"propertyType\":\"租赁\",\"factoryType\":\"制造\"}', 1, '1485505619829067776', '2022-03-02 11:49:55', '1485505619829067776', '2022-03-02 11:49:55', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498868202422276096, 1498867816995098624, 8, 1, 200.000000, 'm²', 'kgCO₂e/m²', 21.585000, 4.317000, 'tCO₂e', '', '{\"propertyType\":\"租赁\",\"factoryType\":\"仓库\"}', 1, '1485505619829067776', '2022-03-02 11:50:02', '1485505619829067776', '2022-03-02 11:50:02', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498868325718036480, 1498867816995098624, 1, 2, 1000.000000, 'USD', 'kgCO₂e/USD', 0.750000, 0.750000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"标准产品\",\"purchaseType\":\"运输设备\"}', 1, '1485505619829067776', '2022-03-02 11:50:31', '1485505619829067776', '2022-03-02 11:50:31', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498903140102180864, 1498559703452618752, 4, 3, 345.000000, 'USD', 'kgCO₂/USD', 1.640000, 0.565800, 'tCO₂e', '', '{\"logisticsType\":\"第三方运输\",\"type\":\"航空\"}', 1, '1490590134683439104', '2022-03-02 14:08:52', '1490590134683439104', '2022-03-02 14:08:52', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498903490251067392, 1498559703452618752, 4, 3, 23.000000, 'USD', 'kgCO₂/USD', 0.480000, 11.040000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方配送\",\"type\":\"仓储\"}', 1, '1490590134683439104', '2022-03-02 14:10:15', '1490590134683439104', '2022-03-02 14:10:15', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498903707595706368, 1498559703452618752, 9, 3, 23.000000, 'USD', 'kgCO₂/USD', 0.480000, 11.040000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方配送\",\"type\":\"下游第三方物流\"}', 1, '1490590134683439104', '2022-03-02 14:11:07', '1490590134683439104', '2022-03-02 14:11:07', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498928984015114240, 1498559703452618752, 8, 1, 33.000000, 'm²', 'kgCO₂e/m²', 50.350000, 1.661550, 'tCO₂e', '', '{\"propertyType\":\"自己拥有\",\"factoryType\":\"教育\"}', 1, '1490590134683439104', '2022-03-02 15:51:33', '1490590134683439104', '2022-03-02 15:51:33', 'fii', 1498928984015114240);
+INSERT INTO `summary_scope_three` VALUES (1498938107427426304, 1498559703452618752, 8, 1, 1.000000, 'm²', 'kgCO₂e/m²', 65.962500, 0.065963, 'tCO₂e', '', '{\"propertyType\":\"自己拥有\",\"factoryType\":\"食品销售\"}', 1, '1490590134683439104', '2022-03-02 16:27:48', '1490590134683439104', '2022-03-02 16:27:48', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1498938162267951104, 1498559703452618752, 1, 2, 111.000000, 'USD', 'kgCO₂e/USD', 2.090000, 0.231990, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"服务\",\"purchaseType\":\"农业，狩猎，林业和渔业\"}', 1, '1490590134683439104', '2022-03-02 16:28:01', '1490590134683439104', '2022-03-02 16:28:01', 'fii', 1498938162267951104);
+INSERT INTO `summary_scope_three` VALUES (1499230201991794688, 1498559703452618752, 6, 4, 1000.000000, 'mile', 'kgCO₂e/mile', 0.167421, 0.167421, 'tCO₂e', 'EPA, \"Emission Factors for Greenhouse Gas   Inventories,\" Table 8 Business Travel and Employee Commuting, March 9, 2018', '{\"dataType\":\"【更具体的】不同旅行类型的具体里程数及住宿天数\",\"type\":\"长途\"}', 1, '1485787600533983232', '2022-03-03 11:48:29', '1485787600533983232', '2022-03-03 11:48:29', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1499410553964204032, 1498554415903281152, 6, 4, 22.000000, 'USD', 'kgCO₂e/USD', 1.780000, 0.039160, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"不同旅行类型、住宿的花费\",\"type\":\"汽车\"}', 1, '1490590134683439104', '2022-03-03 23:45:08', '1490590134683439104', '2022-03-03 23:45:08', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1499410929266331648, 1498554415903281152, 6, 4, 22.000000, 'USD', 'kgCO₂e/USD', 0.780000, 0.017160, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"不同旅行类型、住宿的花费\",\"type\":\"公共汽车\"}', 1, '1490590134683439104', '2022-03-03 23:46:38', '1490590134683439104', '2022-03-03 23:46:38', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1499414663220301824, 1498554415903281152, 6, 4, 3.000000, 'room nights', 'kgCO₂e/room nights', 17.980000, 0.053940, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"【更具体的】不同旅行类型的具体里程数及住宿天数\",\"type\":\"酒店\"}', 3, '1490590134683439104', '2022-03-04 00:01:28', '1490590134683439104', '2022-03-04 00:01:28', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1499417331292573696, 1498554415903281152, 6, 4, 56.000000, 'USD', 'kgCO₂e/USD', 0.780000, 0.043680, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"不同旅行类型、住宿的花费\",\"type\":\"公共汽车\"}', 1, '1490590134683439104', '2022-03-04 00:12:04', '1490590134683439104', '2022-03-04 00:12:04', 'fii', 1499417331292573696);
+INSERT INTO `summary_scope_three` VALUES (1500159809809420288, 1498554415903281152, 13, NULL, 44.000000, 'USD', 'kgCO₂e/USD', 0.780000, 0.034320, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"内陆运输\"}', 1, '1490590134683439104', '2022-03-06 01:22:25', '1490590134683439104', '2022-03-06 01:22:25', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500159931515539456, 1498554415903281152, 13, NULL, 44.000000, 'USD', 'kgCO₂e/USD', 0.780000, 0.034320, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"内陆运输\"}', 1, '1490590134683439104', '2022-03-06 01:22:54', '1490590134683439104', '2022-03-06 01:22:54', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500160700755087360, 1498554415903281152, 13, 6, 44.000000, 'USD', 'kgCO₂e/USD', 0.780000, 0.034320, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"内陆运输\"}', 1, '1490590134683439104', '2022-03-06 01:25:57', '1490590134683439104', '2022-03-06 01:25:57', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500287404341334016, 1498554415903281152, 10, 5, 33.000000, 'USD', 'kgCO₂e/USD', 2.090000, 0.068970, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"industryType\":\"农业，狩猎，林业和渔业\",\"type\":\"纸\"}', 1, '1485787600533983232', '2022-03-06 09:49:26', '1485787600533983232', '2022-03-06 09:49:26', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500287686135648256, 1498554415903281152, 13, NULL, 44.000000, 'USD', 'kgCO₂e/USD', 0.780000, 0.034320, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"内陆运输\"}', 1, '1485787600533983232', '2022-03-06 09:50:33', '1485787600533983232', '2022-03-06 09:50:33', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500288979751276544, 1498554415903281152, 11, 5, 2.000000, 'MJ', 'kgCO₂e/kWh', 0.520000, 198.000000, 'tCO₂e', '中国气候变化信息网《2011 年和 2012 年中国区域电网平均二氧化碳排放因子》', '{\"energyType\":\"电\",\"predictedLife\":3,\"gridType\":\"全球平均\",\"saleCount\":33,\"name\":\"532\",\"type\":\"纸\"}', 1, '1485787600533983232', '2022-03-06 09:55:41', '1485787600533983232', '2022-03-06 09:55:41', 'fii', 1500288979751276544);
+INSERT INTO `summary_scope_three` VALUES (1500289286308761600, 1498554415903281152, 14, 6, 22.000000, 'm²', 'kgCO₂e/m²', 2.840000, 0.062480, 'tCO₂e', '', '', 1, '1485787600533983232', '2022-03-06 09:56:55', '1485787600533983232', '2022-03-06 09:56:55', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500292633510154240, 1498554415903281152, 10, 5, 34.000000, 'USD', 'kgCO₂e/USD', 0.890000, 0.030260, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"industryType\":\"食品、饮料和烟草\",\"type\":\"纸\"}', 1, '1490590134683439104', '2022-03-06 10:10:13', '1490590134683439104', '2022-03-06 10:10:13', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500292824657170432, 1498554415903281152, 13, NULL, 35.000000, 'USD', 'kgCO₂e/USD', 0.780000, 0.027300, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"内陆运输\"}', 1, '1490590134683439104', '2022-03-06 10:10:58', '1490590134683439104', '2022-03-06 10:10:58', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500292966751801344, 1498554415903281152, 13, NULL, 56.000000, 'USD', 'kgCO₂e/USD', 0.780000, 0.043680, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"内陆运输\"}', 1, '1490590134683439104', '2022-03-06 10:11:32', '1490590134683439104', '2022-03-06 10:11:32', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500293472920408064, 1498554415903281152, 13, NULL, 345.000000, 'USD', 'kgCO₂e/USD', 0.780000, 0.269100, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"内陆运输\"}', 1, '1490590134683439104', '2022-03-06 10:13:33', '1490590134683439104', '2022-03-06 10:13:33', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500293690848055296, 1498554415903281152, 13, 6, 563.000000, 'USD', 'kgCO₂e/USD', 0.780000, 0.439140, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"内陆运输\"}', 2, '1490590134683439104', '2022-03-06 10:14:25', '1490590134683439104', '2022-03-06 10:14:25', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500293743981498368, 1498554415903281152, 15, 6, 2.000000, 'USD', 'kgCO₂e/USD', 1.780000, 0.003560, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"industryType\":\"采矿业\",\"type\":\"合资企业\"}', 2, '1490590134683439104', '2022-03-06 10:14:37', '1490590134683439104', '2022-03-06 10:14:37', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500293774075629568, 1498554415903281152, 15, 6, 2.000000, 'USD', 'kgCO₂e/USD', 0.940000, 0.001880, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"industryType\":\"纺织原料及纺织制品\",\"type\":\"关联公司\"}', 1, '1490590134683439104', '2022-03-06 10:14:45', '1490590134683439104', '2022-03-06 10:14:45', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500293917680209920, 1498554415903281152, 10, 5, 56.000000, 'USD', 'kgCO₂e/USD', 1.780000, 0.099680, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"industryType\":\"采矿业\",\"type\":\"金属\"}', 2, '1490590134683439104', '2022-03-06 10:15:19', '1490590134683439104', '2022-03-06 10:15:19', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500294075344097280, 1498554415903281152, 11, 5, 1.000000, 'MJ', 'kgCO₂e/kWh', 0.520000, 70.000000, 'tCO₂e', '中国气候变化信息网《2011 年和 2012 年中国区域电网平均二氧化碳排放因子》', '{\"energyType\":\"电\",\"predictedLife\":2,\"gridType\":\"全球平均\",\"saleCount\":35,\"name\":\"22\",\"type\":\"金属\"}', 1, '1490590134683439104', '2022-03-06 10:15:56', '1490590134683439104', '2022-03-06 10:15:56', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500295221026623488, 1498554415903281152, 12, 5, 34.000000, 'kg', 'kgCO₂e/kg', 0.460000, 0.015640, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"金属\"}', 2, '1485787600533983232', '2022-03-06 10:20:31', '1490590134683439104', '2022-03-06 10:20:31', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500295672472145920, 1498554415903281152, 11, 5, 22.000000, 'kg', 'kgCO₂e/kg', 3.190000, 2112.000000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"energyType\":\"丙烷/丁烷\",\"predictedLife\":3,\"gridType\":\"\",\"saleCount\":32,\"name\":\"23\",\"type\":\"金属\"}', 2, '1485787600533983232', '2022-03-06 10:22:17', '1490590134683439104', '2022-03-06 10:22:17', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500398808268410880, 1498867816995098624, 13, NULL, 200000.000000, 'USD', 'kgCO₂e/USD', 0.780000, 156.000000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"内陆运输\"}', 1, '1485787600533983232', '2022-03-06 17:12:07', '1485787600533983232', '2022-03-06 17:12:07', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500398958172835840, 1498867816995098624, 1, 2, 500000.000000, 'USD', 'kgCO₂e/USD', 2.090000, 1045.000000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"标准产品\",\"purchaseType\":\"农业，狩猎，林业和渔业\"}', 1, '1485787600533983232', '2022-03-06 17:12:42', '1485787600533983232', '2022-03-06 17:12:42', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500399002074615808, 1498867816995098624, 4, 3, 500000.000000, 'USD', 'kgCO₂/USD', 1.930000, 965.000000, 'tCO₂e', '', '{\"logisticsType\":\"第三方运输\",\"type\":\"水运\"}', 1, '1485787600533983232', '2022-03-06 17:12:53', '1485787600533983232', '2022-03-06 17:12:53', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500399028188352512, 1498867816995098624, 4, 3, 400000.000000, 'USD', 'kgCO₂/USD', 0.480000, 192000.000000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方配送\",\"type\":\"上游第三方物流\"}', 1, '1485787600533983232', '2022-03-06 17:12:59', '1485787600533983232', '2022-03-06 17:12:59', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500399346779295744, 1498867816995098624, 12, 5, 2000.000000, 'tonne', 'kgCO₂e/kg', 0.460000, 920.000000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"金属\"}', 1, '1485787600533983232', '2022-03-06 17:14:15', '1485787600533983232', '2022-03-06 17:14:15', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500399861135183872, 1498867816995098624, 11, 5, 1.000000, 'MJ', 'kgCO₂e/kWh', 0.520000, 48000.000000, 'tCO₂e', '中国气候变化信息网《2011 年和 2012 年中国区域电网平均二氧化碳排放因子》', '{\"energyType\":\"电\",\"predictedLife\":24,\"gridType\":\"全球平均\",\"saleCount\":2000,\"name\":\"日用纸\",\"type\":\"纸\"}', 1, '1485787600533983232', '2022-03-06 17:16:18', '1485787600533983232', '2022-03-06 17:16:18', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500399954131292160, 1498867816995098624, 10, 5, 2000.000000, 'USD', 'kgCO₂e/USD', 2.090000, 4.180000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"industryType\":\"农业，狩猎，林业和渔业\",\"type\":\"纸\"}', 1, '1485787600533983232', '2022-03-06 17:16:40', '1485787600533983232', '2022-03-06 17:16:40', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500434065092907008, 1500433928304070656, 8, 1, 220000.000000, 'm²', 'kgCO₂e/m²', 50.350000, 11077.000000, 'tCO₂e', '', '{\"propertyType\":\"自己拥有\",\"factoryType\":\"教育\"}', 1, '1485787600533983232', '2022-03-06 19:32:12', '1485787600533983232', '2022-03-06 19:32:12', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500434129299312640, 1500433928304070656, 1, 2, 30000.000000, 'USD', 'kgCO₂e/USD', 2.440000, 73.200000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"标准产品\",\"purchaseType\":\"非金属矿物\"}', 1, '1485787600533983232', '2022-03-06 19:32:28', '1485787600533983232', '2022-03-06 19:32:28', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500434157153685504, 1500433928304070656, 4, 3, 5000.000000, 'USD', 'kgCO₂/USD', 1.640000, 8.200000, 'tCO₂e', '', '{\"logisticsType\":\"第三方运输\",\"type\":\"航空\"}', 1, '1485787600533983232', '2022-03-06 19:32:34', '1485787600533983232', '2022-03-06 19:32:34', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500434195808391168, 1500433928304070656, 4, 3, 3000.000000, 'USD', 'kgCO₂/USD', 0.480000, 1440.000000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方配送\",\"type\":\"上游第三方物流\"}', 1, '1485787600533983232', '2022-03-06 19:32:44', '1485787600533983232', '2022-03-06 19:32:44', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500434225592143872, 1500433928304070656, 9, 3, 3000.000000, 'USD', 'kgCO₂/USD', 0.480000, 1440.000000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方配送\",\"type\":\"下游第三方物流\"}', 1, '1485787600533983232', '2022-03-06 19:32:51', '1485787600533983232', '2022-03-06 19:32:51', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500434380655562752, 1500433928304070656, 6, 4, 2000.000000, 'USD', 'kgCO₂e/USD', 0.780000, 1.560000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"不同旅行类型、住宿的花费\",\"type\":\"公共汽车\"}', 1, '1485787600533983232', '2022-03-06 19:33:28', '1485787600533983232', '2022-03-06 19:33:28', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500434561987907584, 1500433928304070656, 11, 5, 0.200000, 'kg', 'kgCO₂e/kg', 3.013000, 14400.000000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"energyType\":\"天然气\",\"predictedLife\":24,\"gridType\":\"全球平均\",\"saleCount\":3000,\"name\":\"铁制品\",\"type\":\"金属\"}', 1, '1485787600533983232', '2022-03-06 19:34:11', '1485787600533983232', '2022-03-06 19:34:11', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500434606334283776, 1500433928304070656, 13, NULL, 2000.000000, 'USD', 'kgCO₂e/USD', 0.780000, 1.560000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"内陆运输\"}', 1, '1485787600533983232', '2022-03-06 19:34:22', '1485787600533983232', '2022-03-06 19:34:22', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500434659195097088, 1500433928304070656, 15, NULL, 40000.000000, 'USD', 'kgCO₂e/USD', 1.780000, 71.200000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"industryType\":\"采矿业\",\"type\":\"合资企业\"}', 1, '1485787600533983232', '2022-03-06 19:34:34', '1485787600533983232', '2022-03-06 19:34:34', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500640309531512832, 1498867816995098624, 6, 4, 20000.000000, 'USD', 'kgCO₂e/USD', 1.780000, 35.600000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"不同旅行类型、住宿的花费\",\"type\":\"汽车\"}', 1, '1485787600533983232', '2022-03-07 09:11:45', '1485787600533983232', '2022-03-07 09:11:45', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500643968457773056, 1498867816995098624, 6, 4, 20000.000000, 'km', 'kgCO₂e/km', 0.120000, 2.400000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"【更具体的】不同旅行类型的具体里程数及住宿天数\",\"type\":\"公共汽车\"}', 1, '1485787600533983232', '2022-03-07 09:26:31', '1485787600533983232', '2022-03-07 09:26:31', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500645075665948672, 1498588564802375680, 13, 6, 10000.000000, 'USD', 'kgCO₂e/USD', 0.780000, 7.800000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"内陆运输\"}', 1, '1490872547317780480', '2022-03-07 09:30:41', '1490872547317780480', '2022-03-07 09:30:41', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500657066614853632, 1498867816995098624, 6, 4, 1000.000000, 'room nights', 'kgCO₂e/room nights', 17.980000, 17.980000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"【更具体的】不同旅行类型的具体里程数及住宿天数\",\"type\":\"酒店\"}', 1, '1490872547317780480', '2022-03-07 10:18:20', '1490872547317780480', '2022-03-07 10:18:20', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500657128728301568, 1498867816995098624, 6, 4, 1000.000000, 'room nights', 'kgCO₂e/room nights', 17.980000, 17.980000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"【更具体的】不同旅行类型的具体里程数及住宿天数\",\"type\":\"酒店\"}', 1, '1490872547317780480', '2022-03-07 10:18:35', '1490872547317780480', '2022-03-07 10:18:35', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500657240791715840, 1498867816995098624, 6, 4, 1000.000000, 'USD', 'kgCO₂e/USD', 0.460000, 0.460000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"不同旅行类型、住宿的花费\",\"type\":\"酒店\"}', 1, '1490872547317780480', '2022-03-07 10:19:02', '1490872547317780480', '2022-03-07 10:19:02', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500658288067481600, 1500652669772107776, 6, 4, 5113.000000, 'mile', 'kgCO₂e/mile', 0.137156, 0.701279, 'tCO₂e', 'EPA, \"Emission Factors for Greenhouse Gas   Inventories,\" Table 8 Business Travel and Employee Commuting, March 9, 2018', '{\"dataType\":\"【更具体的】不同旅行类型的具体里程数及住宿天数\",\"type\":\"中途\"}', 1, '1485499720406274048', '2022-03-07 10:23:11', '1485499720406274048', '2022-03-07 10:23:11', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500660473534746624, 1500652669772107776, 6, 4, 2500.310000, 'USD', 'kgCO₂e/USD', 1.640000, 4.100508, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"不同旅行类型、住宿的花费\",\"type\":\"长途\"}', 1, '1485499720406274048', '2022-03-07 10:31:52', '1485499720406274048', '2022-03-07 10:31:52', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500664133404725248, 1500652669772107776, 6, 4, 39058.000000, 'USD', 'kgCO₂e/USD', 0.780000, 30.465240, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"不同旅行类型、住宿的花费\",\"type\":\"地铁\"}', 1, '1485499720406274048', '2022-03-07 10:46:25', '1485499720406274048', '2022-03-07 10:46:25', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500664248429318144, 1500652669772107776, 6, 4, 3977.000000, 'room nights', 'kgCO₂e/room nights', 17.980000, 71.506460, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"【更具体的】不同旅行类型的具体里程数及住宿天数\",\"type\":\"酒店\"}', 1, '1485499720406274048', '2022-03-07 10:46:52', '1485499720406274048', '2022-03-07 10:46:52', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500664360786333696, 1500652669772107776, 8, 1, 4440.000000, 'm²', 'kgCO₂e/m²', 187.817500, 833.909700, 'tCO₂e', '', '{\"propertyType\":\"租赁\",\"factoryType\":\"制造\"}', 1, '1485499720406274048', '2022-03-07 10:47:19', '1485499720406274048', '2022-03-07 10:47:19', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500711515152584704, 1498558509388795904, 7, 1, 56.000000, '', 'kgCO₂e', 425.000000, 23800.000000, 'kgCO₂e', '', '', 1, '1490590134683439104', '2022-03-07 13:54:42', '1490590134683439104', '2022-03-07 13:54:42', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500718859924148224, 1498558509388795904, 5, 1, 454.000000, 'USD', 'kgCO₂/USD', 1.820000, 826.280000, 'kgCO₂e', '', '', 2, '1490590134683439104', '2022-03-07 14:23:53', '1490590134683439104', '2022-03-07 14:23:53', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500724377971462144, 1498558509388795904, 14, NULL, 34.000000, 'm²', 'kgCO₂e/m²', 2.840000, 0.096560, 'tCO₂e', '', '', 1, '1490590134683439104', '2022-03-07 14:45:48', '1490590134683439104', '2022-03-07 14:45:48', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500725232946778112, 1498558509388795904, 14, 6, 45.000000, 'm²', 'kgCO₂e/m²', 2.840000, 0.127800, 'tCO₂e', '', '', 1, '1490590134683439104', '2022-03-07 14:49:12', '1490590134683439104', '2022-03-07 14:49:12', 'fii', 1500725232946778112);
+INSERT INTO `summary_scope_three` VALUES (1500725274457804800, 1498558509388795904, 14, 6, 453.000000, 'm²', 'kgCO₂e/m²', 2.840000, 1.286520, 'tCO₂e', '', '', 1, '1490590134683439104', '2022-03-07 14:49:22', '1490590134683439104', '2022-03-07 14:49:22', 'fii', 1500725274457804800);
+INSERT INTO `summary_scope_three` VALUES (1500726128736866304, 1498558509388795904, 14, 6, 453.000000, 'm²', 'kgCO₂e/m²', 2.840000, 1.286520, 'tCO₂e', '', '', 2, '1490590134683439104', '2022-03-07 14:52:46', '1490590134683439104', '2022-03-07 14:52:46', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1500753874263347200, 1498554415903281152, 7, 1, 34567.000000, '', 'kgCO₂e', 425.000000, 14690975.000000, 'kgCO₂e', '', '', 1, '1485499720406274048', '2022-03-07 16:43:01', '1485499720406274048', '2022-03-07 16:43:01', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501070266107826176, 1501068658473046016, 8, 1, 30000.000000, 'm²', 'kgCO₂e/m²', 27.550000, 826.500000, 'tCO₂e', '', '{\"propertyType\":\"自己拥有\",\"factoryType\":\"商品\"}', 1, '1485787600533983232', '2022-03-08 13:40:15', '1485787600533983232', '2022-03-08 13:40:15', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501070340313452544, 1501068658473046016, 1, 2, 20000.000000, 'USD', 'kgCO₂e/USD', 2.090000, 41.800000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"标准产品\",\"purchaseType\":\"农业，狩猎，林业和渔业\"}', 1, '1485787600533983232', '2022-03-08 13:40:32', '1485787600533983232', '2022-03-08 13:40:32', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501070383313457152, 1501068658473046016, 1, 2, 20000.000000, 'USD', 'kgCO₂e/USD', 2.090000, 41.800000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"服务\",\"purchaseType\":\"农业，狩猎，林业和渔业\"}', 1, '1485787600533983232', '2022-03-08 13:40:43', '1485787600533983232', '2022-03-08 13:40:43', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501070425575264256, 1501068658473046016, 4, 3, 20000.000000, 'USD', 'kgCO₂/USD', 1.640000, 32.800000, 'tCO₂e', '', '{\"logisticsType\":\"第三方运输\",\"type\":\"航空\"}', 1, '1485787600533983232', '2022-03-08 13:40:53', '1485787600533983232', '2022-03-08 13:40:53', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501070453068926976, 1501068658473046016, 4, 3, 20000.000000, 'USD', 'kgCO₂/USD', 0.480000, 9600.000000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方配送\",\"type\":\"上游第三方物流\"}', 1, '1485787600533983232', '2022-03-08 13:40:59', '1485787600533983232', '2022-03-08 13:40:59', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501070484240994304, 1501068658473046016, 9, 3, 20000.000000, 'USD', 'kgCO₂/USD', 0.480000, 9600.000000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方配送\",\"type\":\"下游第三方物流\"}', 1, '1485787600533983232', '2022-03-08 13:41:07', '1485787600533983232', '2022-03-08 13:41:07', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501071484217593856, 1501068658473046016, 4, 3, 20000.000000, 'USD', 'kgCO₂/USD', 0.480000, 9600.000000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方配送\",\"type\":\"仓储\"}', 1, '1485787600533983232', '2022-03-08 13:45:05', '1485787600533983232', '2022-03-08 13:45:05', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501071558934925312, 1501068658473046016, 4, 3, 20000.000000, 'USD', 'kgCO₂/USD', 0.480000, 9600.000000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方配送\",\"type\":\"上游第三方物流\"}', 1, '1485787600533983232', '2022-03-08 13:45:23', '1485787600533983232', '2022-03-08 13:45:23', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501081267905630208, 1501068658473046016, 7, 1, 2000.000000, '', 'kgCO₂e', 425.000000, 850000.000000, 'kgCO₂e', '', '', 1, '1485787600533983232', '2022-03-08 14:23:58', '1485787600533983232', '2022-03-08 14:23:58', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501081304811311104, 1501068658473046016, 6, 4, 30000.000000, 'USD', 'kgCO₂e/USD', 1.640000, 49.200000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"不同旅行类型、住宿的花费\",\"type\":\"短途航空（<300里）\"}', 1, '1485787600533983232', '2022-03-08 14:24:06', '1485787600533983232', '2022-03-08 14:24:06', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501081415062786048, 1501068658473046016, 6, 4, 3000.000000, 'mile', 'kgCO₂e/mile', 0.137156, 0.411468, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"【更具体的】不同旅行类型的具体里程数及住宿天数\",\"type\":\"中途航空（300-2300里）\"}', 1, '1485787600533983232', '2022-03-08 14:24:33', '1485787600533983232', '2022-03-08 14:24:33', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501081480691060736, 1501068658473046016, 12, 5, 20000.000000, 'kg', 'kgCO₂e/kg', 0.460000, 9.200000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"纸\"}', 1, '1485787600533983232', '2022-03-08 14:24:48', '1485787600533983232', '2022-03-08 14:24:48', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501081514178383872, 1501068658473046016, 12, 5, 20.000000, 'tonne', 'kgCO₂e/kg', 0.460000, 9.200000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"金属\"}', 1, '1485787600533983232', '2022-03-08 14:24:56', '1485787600533983232', '2022-03-08 14:24:56', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501083407654981632, 1501068658473046016, 10, 5, 3000.000000, 'USD', 'kgCO₂e/USD', 2.090000, 6.270000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"industryType\":\"农业，狩猎，林业和渔业\",\"type\":\"纸\"}', 1, '1485787600533983232', '2022-03-08 14:32:28', '1485787600533983232', '2022-03-08 14:32:28', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501087243933192192, 1501068658473046016, 11, 5, 1.000000, 'kWh', 'kgCO₂e/kWh', 0.520000, 374.400000, 'tCO₂e', '中国气候变化信息网《2011 年和 2012 年中国区域电网平均二氧化碳排放因子》', '{\"energyType\":\"电\",\"predictedLife\":36,\"gridType\":\"全球平均\",\"saleCount\":20000,\"name\":\"办公用纸\",\"type\":\"纸\"}', 1, '1485787600533983232', '2022-03-08 14:47:42', '1485787600533983232', '2022-03-08 14:47:42', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501093782911848448, 1498554415903281152, 8, 1, 3.000000, 'm²', 'kgCO₂e/m²', 65.962500, 0.197888, 'tCO₂e', '', '{\"propertyType\":\"自己拥有\",\"factoryType\":\"食品销售\"}', 1, '1490590134683439104', '2022-03-08 15:13:41', '1490590134683439104', '2022-03-08 15:13:41', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501111416680222720, 1501105840944451584, 8, 1, 2000.000000, 'm²', 'kgCO₂e/m²', 50.350000, 100.700000, 'tCO₂e', '', '{\"propertyType\":\"自己拥有\",\"factoryType\":\"教育\"}', 1, '1485787396162326528', '2022-03-08 16:23:46', '1485787396162326528', '2022-03-08 16:23:46', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501111454911303680, 1501105840944451584, 8, 1, 3000.000000, 'm²', 'kgCO₂e/m²', 65.962500, 197.887500, 'tCO₂e', '', '{\"propertyType\":\"租赁\",\"factoryType\":\"食品销售\"}', 1, '1485787396162326528', '2022-03-08 16:23:55', '1485787396162326528', '2022-03-08 16:23:55', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501111514659164160, 1501105840944451584, 1, 2, 20000.000000, 'USD', 'kgCO₂e/USD', 2.090000, 41.800000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"标准产品\",\"purchaseType\":\"农业，狩猎，林业和渔业\"}', 1, '1485787396162326528', '2022-03-08 16:24:09', '1485787396162326528', '2022-03-08 16:24:09', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501111556883222528, 1501105840944451584, 4, 3, 3000.000000, 'USD', 'kgCO₂/USD', 1.640000, 4.920000, 'tCO₂e', '', '{\"logisticsType\":\"第三方运输\",\"type\":\"航空\"}', 1, '1485787396162326528', '2022-03-08 16:24:19', '1485787396162326528', '2022-03-08 16:24:19', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501111578202869760, 1501105840944451584, 4, 3, 3000.000000, 'USD', 'kgCO₂/USD', 1.930000, 5.790000, 'tCO₂e', '', '{\"logisticsType\":\"第三方运输\",\"type\":\"水运\"}', 1, '1485787396162326528', '2022-03-08 16:24:24', '1485787396162326528', '2022-03-08 16:24:24', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501111609169416192, 1501105840944451584, 4, 3, 5000.000000, 'USD', 'kgCO₂/USD', 0.480000, 2400.000000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方配送\",\"type\":\"上游第三方物流\"}', 1, '1485787396162326528', '2022-03-08 16:24:32', '1485787396162326528', '2022-03-08 16:24:32', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501111637128646656, 1501105840944451584, 4, 3, 3000.000000, 'USD', 'kgCO₂/USD', 0.480000, 1440.000000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方配送\",\"type\":\"仓储\"}', 1, '1485787396162326528', '2022-03-08 16:24:38', '1485787396162326528', '2022-03-08 16:24:38', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501111664995602432, 1501105840944451584, 9, 3, 6000.000000, 'USD', 'kgCO₂/USD', 0.480000, 2880.000000, 'kgCO₂e', '', '{\"logisticsType\":\"第三方配送\",\"type\":\"下游第三方物流\"}', 1, '1485787396162326528', '2022-03-08 16:24:45', '1485787396162326528', '2022-03-08 16:24:45', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501111699825102848, 1501105840944451584, 6, 4, 3000.000000, 'USD', 'kgCO₂e/USD', 1.780000, 5.340000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"不同旅行类型、住宿的花费\",\"type\":\"汽车\"}', 1, '1485787396162326528', '2022-03-08 16:24:53', '1485787396162326528', '2022-03-08 16:24:53', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501111727557840896, 1501105840944451584, 6, 4, 5000.000000, 'USD', 'kgCO₂e/USD', 1.640000, 8.200000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"不同旅行类型、住宿的花费\",\"type\":\"短途航空（<300里）\"}', 1, '1485787396162326528', '2022-03-08 16:25:00', '1485787396162326528', '2022-03-08 16:25:00', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501111762198597632, 1501105840944451584, 12, 5, 2000.000000, 'kg', 'kgCO₂e/kg', 0.460000, 0.920000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"金属\"}', 1, '1485787396162326528', '2022-03-08 16:25:08', '1485787396162326528', '2022-03-08 16:25:08', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501111880566050816, 1501105840944451584, 11, 5, 0.050000, 'kg', 'kgCO₂e/kg', 3.013000, 1200.000000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"energyType\":\"天然气\",\"predictedLife\":12,\"gridType\":\"全球平均\",\"saleCount\":2000,\"name\":\"办公用纸\",\"type\":\"纸\"}', 1, '1485787396162326528', '2022-03-08 16:25:36', '1485787396162326528', '2022-03-08 16:25:36', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501111945896529920, 1501105840944451584, 10, 5, 30000.000000, 'USD', 'kgCO₂e/USD', 1.780000, 53.400000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"industryType\":\"采矿业\",\"type\":\"金属\"}', 1, '1485787396162326528', '2022-03-08 16:25:52', '1485787396162326528', '2022-03-08 16:25:52', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501113820909801472, 1501105840944451584, 14, 6, 3000.000000, 'm²', 'kgCO₂e/m²', 2.840000, 8.520000, 'tCO₂e', '', '', 2, '1485787396162326528', '2022-03-08 16:33:19', '1485787396162326528', '2022-03-08 16:33:19', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501113854342598656, 1501105840944451584, 15, 6, 30000.000000, 'USD', 'kgCO₂e/USD', 2.090000, 62.700000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"industryType\":\"农业，狩猎，林业和渔业\",\"type\":\"合资企业\"}', 1, '1485787396162326528', '2022-03-08 16:33:27', '1485787396162326528', '2022-03-08 16:33:27', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501126066482319360, 1498558509388795904, 4, 3, 22.000000, 'USD', 'kgCO₂/USD', 0.780000, 0.017160, 'tCO₂e', '', '{\"logisticsType\":\"第三方运输\",\"type\":\"铁路\"}', 2, '1490590134683439104', '2022-03-08 17:21:58', '1490590134683439104', '2022-03-08 17:21:58', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501126867049123840, 1498558509388795904, 6, 4, 20.000000, 'USD', 'kgCO₂e/USD', 0.780000, 0.015600, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"dataType\":\"不同旅行类型、住宿的花费\",\"type\":\"面包车\"}', 2, '1490590134683439104', '2022-03-08 17:25:09', '1490590134683439104', '2022-03-08 17:25:09', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501127105637912576, 1498558509388795904, 12, 5, 20.000000, 'kg', 'kgCO₂e/kg', 0.460000, 0.000800, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"塑料\"}', 2, '1490590134683439104', '2022-03-08 17:26:06', '1485787600533983232', '2022-03-08 17:26:06', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501127307602038784, 1498558509388795904, 11, 5, 2.000000, 'kg', 'kgCO₂e/kg', 3.013000, 8.000000, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"energyType\":\"天然气\",\"predictedLife\":2,\"saleCount\":2,\"name\":\"2\",\"type\":\"塑料\"}', 2, '1490590134683439104', '2022-03-08 17:26:54', '1485787600533983232', '2022-03-08 17:26:54', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501127455241539584, 1498558509388795904, 10, 5, 2.000000, 'USD', 'kgCO₂e/USD', 1.780000, 0.003560, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"industryType\":\"采矿业\",\"type\":\"纸\"}', 2, '1490590134683439104', '2022-03-08 17:27:30', '1490590134683439104', '2022-03-08 17:27:30', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501127584228970496, 1498558509388795904, 13, 6, 2.000000, 'USD', 'kgCO₂e/USD', 1.930000, 0.003860, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"type\":\"水路运输\"}', 2, '1490590134683439104', '2022-03-08 17:28:00', '1490590134683439104', '2022-03-08 17:28:00', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501128179002249216, 1498558509388795904, 15, 6, 2.000000, 'USD', 'kgCO₂e/USD', 2.090000, 0.004180, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"industryType\":\"农业，狩猎，林业和渔业\",\"type\":\"股权投资\"}', 1, '1490590134683439104', '2022-03-08 17:30:22', '1490590134683439104', '2022-03-08 17:30:22', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501129976752246784, 1498558509388795904, 15, 6, 45.000000, 'USD', 'kgCO₂e/USD', 1.780000, 0.080100, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"industryType\":\"采矿业\",\"type\":\"股权投资\"}', 1, '1490590134683439104', '2022-03-08 17:37:31', '1490590134683439104', '2022-03-08 17:37:31', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501130079651106816, 1498558509388795904, 15, 6, 45.000000, 'USD', 'kgCO₂e/USD', 1.780000, 0.080100, 'tCO₂e', 'GHG Protocal Scope 3 Evaluator', '{\"industryType\":\"采矿业\",\"type\":\"合资企业\"}', 3, '1490590134683439104', '2022-03-08 17:37:55', '1490590134683439104', '2022-03-08 17:37:55', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501458992847785984, 1501458991115538432, 7, 1, 456.000000, '', 'kgCO₂e', 425.000000, 193800.000000, 'kgCO₂e', '', '', 1, '1485787600533983232', '2022-03-09 15:24:54', '1485787600533983232', '2022-03-09 15:24:54', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501460390243078144, 1501460390217912320, 7, 1, 555.000000, '', 'kgCO₂e', 425.000000, 235875.000000, 'kgCO₂e', '', '', 1, '1490590134683439104', '2022-03-09 15:30:27', '1490590134683439104', '2022-03-09 15:30:27', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501460592354004992, 1501460592324644864, 7, 1, 456.000000, '', 'kgCO₂e', 425.000000, 193800.000000, 'kgCO₂e', '', '', 1, '1490590134683439104', '2022-03-09 15:31:16', '1490590134683439104', '2022-03-09 15:31:16', 'fii', 0);
+INSERT INTO `summary_scope_three` VALUES (1501460853923385344, 1501460853898219520, 7, 1, 4567.000000, '', 'kgCO₂e', 425.000000, 1940975.000000, 'kgCO₂e', '', '', 1, '1490590134683439104', '2022-03-09 15:32:18', '1490590134683439104', '2022-03-09 15:32:18', 'fii', 0);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for sys_permission
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_permission`;
+CREATE TABLE `sys_permission` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `permission_name` varchar(50) NOT NULL DEFAULT '' COMMENT '权限名称',
+  `permission_code` varchar(100) DEFAULT '' COMMENT '权限标识',
+  `parent_id` bigint(20) DEFAULT NULL COMMENT '父权限id',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='权限表';
+
+-- ----------------------------
+-- Records of sys_permission
+-- ----------------------------
+BEGIN;
+INSERT INTO `sys_permission` VALUES (111, '碳盘查', 'carbon_inventory', NULL);
+INSERT INTO `sys_permission` VALUES (222, '报告查看', 'carbon_inventory:view', 111);
+INSERT INTO `sys_permission` VALUES (333, '报告编辑', 'carbon_inventory:update', 111);
+INSERT INTO `sys_permission` VALUES (444, '报告提交', 'carbon_inventory:submit', 111);
+INSERT INTO `sys_permission` VALUES (555, '碳盘查管理', 'carbon_manager', NULL);
+INSERT INTO `sys_permission` VALUES (666, '发起碳盘查', 'carbon_manager:start', 555);
+INSERT INTO `sys_permission` VALUES (777, '修改截止时间', 'carbon_manager:update_deadline', 555);
+INSERT INTO `sys_permission` VALUES (888, '查看报告', 'carbon_manager:view', 555);
+INSERT INTO `sys_permission` VALUES (999, '组织信息', 'org_info', NULL);
+INSERT INTO `sys_permission` VALUES (1111, '组织树（全）', 'org_info:org_structure', 999);
+INSERT INTO `sys_permission` VALUES (1112, '动态', 'carbon_inventory:dynamic_message', 111);
+INSERT INTO `sys_permission` VALUES (1113, '通知', 'carbon_inventory:notice', 111);
+INSERT INTO `sys_permission` VALUES (2222, '账号与权限管理', 'org_info:authority', 999);
+INSERT INTO `sys_permission` VALUES (3333, '新建账号', 'org_info:authority:new_account', 2222);
+INSERT INTO `sys_permission` VALUES (4444, '编辑账号', 'org_info:authority:update_account', 2222);
+INSERT INTO `sys_permission` VALUES (5551, '动态', 'carbon_manager:dynamic_message', 555);
+INSERT INTO `sys_permission` VALUES (5552, '通知', 'carbon_manager:notice', 555);
+INSERT INTO `sys_permission` VALUES (5555, '组织信息维护', 'org_info:info_maintenance', 999);
+INSERT INTO `sys_permission` VALUES (6666, '编辑基础信息', 'org_info:info_maintenance:edit_basic_info', 5555);
+INSERT INTO `sys_permission` VALUES (7777, '更新运营信息', 'org_info:info_maintenance:update_oper_info', 5555);
+INSERT INTO `sys_permission` VALUES (9990, '基础信息（全）', 'org_info:base_info', 999);
+INSERT INTO `sys_permission` VALUES (9991, '运营信息（全）', 'org_info:org_operation_info:all', 999);
+INSERT INTO `sys_permission` VALUES (9992, '运营信息（自己+下属）', 'org_info:org_operation_info:sub', 999);
+INSERT INTO `sys_permission` VALUES (9993, '运营信息（自己）', 'org_info:org_operation_info:self', 999);
+INSERT INTO `sys_permission` VALUES (9994, '组织树（全）', 'carbon_manager:org_tree:all', 555);
+INSERT INTO `sys_permission` VALUES (9995, '组织树（本组织+下属）', 'carbon_manager:org_tree:sub', 555);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for sys_role
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_role`;
+CREATE TABLE `sys_role` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `role_name` varchar(50) DEFAULT NULL COMMENT '角色类型',
+  `role_org_type` int(2) NOT NULL COMMENT '角色组织类型',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='角色表';
+
+-- ----------------------------
+-- Records of sys_role
+-- ----------------------------
+BEGIN;
+INSERT INTO `sys_role` VALUES (11, '管理员', 1);
+INSERT INTO `sys_role` VALUES (22, '用户', 1);
+INSERT INTO `sys_role` VALUES (33, '主管', 1);
+INSERT INTO `sys_role` VALUES (44, '管理员', 2);
+INSERT INTO `sys_role` VALUES (55, '用户', 2);
+INSERT INTO `sys_role` VALUES (66, '主管', 2);
+INSERT INTO `sys_role` VALUES (77, '管理员', 3);
+INSERT INTO `sys_role` VALUES (88, '用户', 3);
+INSERT INTO `sys_role` VALUES (99, '主管', 3);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for sys_role_permission
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_role_permission`;
+CREATE TABLE `sys_role_permission` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `permission_id` bigint(20) NOT NULL COMMENT '权限id',
+  `role_id` bigint(20) NOT NULL COMMENT '角色id',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='角色-权限表';
+
+-- ----------------------------
+-- Records of sys_role_permission
+-- ----------------------------
+BEGIN;
+INSERT INTO `sys_role_permission` VALUES (1, 555, 11);
+INSERT INTO `sys_role_permission` VALUES (2, 666, 11);
+INSERT INTO `sys_role_permission` VALUES (3, 777, 11);
+INSERT INTO `sys_role_permission` VALUES (4, 888, 11);
+INSERT INTO `sys_role_permission` VALUES (5, 999, 11);
+INSERT INTO `sys_role_permission` VALUES (7, 2222, 11);
+INSERT INTO `sys_role_permission` VALUES (8, 3333, 11);
+INSERT INTO `sys_role_permission` VALUES (9, 4444, 11);
+INSERT INTO `sys_role_permission` VALUES (10, 5555, 11);
+INSERT INTO `sys_role_permission` VALUES (11, 6666, 11);
+INSERT INTO `sys_role_permission` VALUES (12, 7777, 11);
+INSERT INTO `sys_role_permission` VALUES (13, 555, 22);
+INSERT INTO `sys_role_permission` VALUES (14, 888, 22);
+INSERT INTO `sys_role_permission` VALUES (15, 999, 22);
+INSERT INTO `sys_role_permission` VALUES (17, 555, 33);
+INSERT INTO `sys_role_permission` VALUES (18, 888, 33);
+INSERT INTO `sys_role_permission` VALUES (19, 999, 33);
+INSERT INTO `sys_role_permission` VALUES (24, 555, 44);
+INSERT INTO `sys_role_permission` VALUES (25, 888, 44);
+INSERT INTO `sys_role_permission` VALUES (26, 999, 44);
+INSERT INTO `sys_role_permission` VALUES (27, 2222, 44);
+INSERT INTO `sys_role_permission` VALUES (28, 3333, 44);
+INSERT INTO `sys_role_permission` VALUES (29, 4444, 44);
+INSERT INTO `sys_role_permission` VALUES (30, 5555, 44);
+INSERT INTO `sys_role_permission` VALUES (31, 6666, 44);
+INSERT INTO `sys_role_permission` VALUES (32, 7777, 44);
+INSERT INTO `sys_role_permission` VALUES (33, 555, 55);
+INSERT INTO `sys_role_permission` VALUES (34, 888, 55);
+INSERT INTO `sys_role_permission` VALUES (35, 999, 55);
+INSERT INTO `sys_role_permission` VALUES (37, 555, 66);
+INSERT INTO `sys_role_permission` VALUES (38, 888, 66);
+INSERT INTO `sys_role_permission` VALUES (39, 999, 66);
+INSERT INTO `sys_role_permission` VALUES (44, 111, 77);
+INSERT INTO `sys_role_permission` VALUES (45, 222, 77);
+INSERT INTO `sys_role_permission` VALUES (46, 333, 77);
+INSERT INTO `sys_role_permission` VALUES (47, 444, 77);
+INSERT INTO `sys_role_permission` VALUES (48, 999, 77);
+INSERT INTO `sys_role_permission` VALUES (49, 2222, 77);
+INSERT INTO `sys_role_permission` VALUES (50, 3333, 77);
+INSERT INTO `sys_role_permission` VALUES (51, 4444, 77);
+INSERT INTO `sys_role_permission` VALUES (52, 5555, 77);
+INSERT INTO `sys_role_permission` VALUES (53, 6666, 77);
+INSERT INTO `sys_role_permission` VALUES (54, 7777, 77);
+INSERT INTO `sys_role_permission` VALUES (55, 111, 88);
+INSERT INTO `sys_role_permission` VALUES (56, 222, 88);
+INSERT INTO `sys_role_permission` VALUES (57, 333, 88);
+INSERT INTO `sys_role_permission` VALUES (59, 444, 88);
+INSERT INTO `sys_role_permission` VALUES (60, 999, 88);
+INSERT INTO `sys_role_permission` VALUES (62, 555, 99);
+INSERT INTO `sys_role_permission` VALUES (63, 888, 99);
+INSERT INTO `sys_role_permission` VALUES (64, 999, 99);
+INSERT INTO `sys_role_permission` VALUES (68, 9990, 11);
+INSERT INTO `sys_role_permission` VALUES (69, 9990, 22);
+INSERT INTO `sys_role_permission` VALUES (70, 9990, 33);
+INSERT INTO `sys_role_permission` VALUES (71, 9990, 44);
+INSERT INTO `sys_role_permission` VALUES (72, 9990, 55);
+INSERT INTO `sys_role_permission` VALUES (73, 9990, 66);
+INSERT INTO `sys_role_permission` VALUES (74, 9990, 77);
+INSERT INTO `sys_role_permission` VALUES (75, 9990, 88);
+INSERT INTO `sys_role_permission` VALUES (76, 9990, 99);
+INSERT INTO `sys_role_permission` VALUES (77, 9991, 11);
+INSERT INTO `sys_role_permission` VALUES (79, 9991, 33);
+INSERT INTO `sys_role_permission` VALUES (80, 9992, 44);
+INSERT INTO `sys_role_permission` VALUES (82, 9992, 66);
+INSERT INTO `sys_role_permission` VALUES (83, 9993, 77);
+INSERT INTO `sys_role_permission` VALUES (85, 9993, 99);
+INSERT INTO `sys_role_permission` VALUES (86, 9994, 11);
+INSERT INTO `sys_role_permission` VALUES (87, 9994, 22);
+INSERT INTO `sys_role_permission` VALUES (88, 9994, 33);
+INSERT INTO `sys_role_permission` VALUES (89, 9995, 44);
+INSERT INTO `sys_role_permission` VALUES (90, 9995, 55);
+INSERT INTO `sys_role_permission` VALUES (91, 9995, 66);
+INSERT INTO `sys_role_permission` VALUES (92, 1111, 11);
+INSERT INTO `sys_role_permission` VALUES (93, 1111, 22);
+INSERT INTO `sys_role_permission` VALUES (94, 1111, 33);
+INSERT INTO `sys_role_permission` VALUES (95, 1111, 44);
+INSERT INTO `sys_role_permission` VALUES (96, 1111, 55);
+INSERT INTO `sys_role_permission` VALUES (97, 1111, 66);
+INSERT INTO `sys_role_permission` VALUES (98, 1111, 77);
+INSERT INTO `sys_role_permission` VALUES (99, 1111, 88);
+INSERT INTO `sys_role_permission` VALUES (100, 1111, 99);
+INSERT INTO `sys_role_permission` VALUES (101, 5551, 11);
+INSERT INTO `sys_role_permission` VALUES (102, 5551, 22);
+INSERT INTO `sys_role_permission` VALUES (103, 5551, 33);
+INSERT INTO `sys_role_permission` VALUES (104, 5551, 44);
+INSERT INTO `sys_role_permission` VALUES (105, 5551, 55);
+INSERT INTO `sys_role_permission` VALUES (106, 5551, 66);
+INSERT INTO `sys_role_permission` VALUES (107, 5551, 99);
+INSERT INTO `sys_role_permission` VALUES (108, 5552, 11);
+INSERT INTO `sys_role_permission` VALUES (109, 5552, 22);
+INSERT INTO `sys_role_permission` VALUES (110, 5552, 33);
+INSERT INTO `sys_role_permission` VALUES (111, 5552, 99);
+INSERT INTO `sys_role_permission` VALUES (112, 1112, 77);
+INSERT INTO `sys_role_permission` VALUES (113, 1112, 88);
+INSERT INTO `sys_role_permission` VALUES (114, 1113, 77);
+INSERT INTO `sys_role_permission` VALUES (115, 1113, 88);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for sys_user
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_user`;
+CREATE TABLE `sys_user` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `account_number` varchar(50) NOT NULL COMMENT '账号',
+  `user_name` varchar(50) NOT NULL DEFAULT '' COMMENT '用户名',
+  `password` varchar(200) NOT NULL DEFAULT '' COMMENT '密码',
+  `salt` varchar(50) NOT NULL DEFAULT '' COMMENT '盐值',
+  `org_id` bigint(20) DEFAULT NULL COMMENT '所属组织id',
+  `created_by` varchar(32) NOT NULL DEFAULT '' COMMENT '创建人id',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(32) NOT NULL DEFAULT '' COMMENT '更新人id',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `revision` int(10) NOT NULL DEFAULT '1' COMMENT '乐观锁',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uindex` (`account_number`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户表';
+
+-- ----------------------------
+-- Records of sys_user
+-- ----------------------------
+BEGIN;
+INSERT INTO `sys_user` VALUES (1481532236233838592, 'A000001', '诸葛明', '71f27401e15331894144ea2c3052a7d9c515d8a639435371ea2b9d9b984d3d60', 'hQWeojB5ry8F5dwEnNgv', 1485429848393519104, '', '2022-01-13 15:43:06', '', '2022-01-13 15:43:06', 2, 0);
+INSERT INTO `sys_user` VALUES (1481545725996306432, 'test', '', '3d0d7146ec441fa3e680c70bd3abbed3627aeef02e1613bbb2875cf0fc90021a', 'Y513WgqPWO9jlaAzsvYP', 1478968651452387328, '', '2022-01-13 16:36:42', '', '2022-01-13 16:36:42', 1, 0);
+INSERT INTO `sys_user` VALUES (1481545992724680704, 'eee', 'er', 'bea52308a713bd7b2bc85914f43119d607eace7c29d88ba08ebb8676fb517619', 'NVN1GslJtKbrtXMBNLYh', 1478968649799831552, '', '2022-01-13 16:37:45', '', '2022-01-13 16:37:45', 1, 0);
+INSERT INTO `sys_user` VALUES (1481546178742063104, 'ewg', '34', '0f1021385b050175592f92bbba8602c421427c2fe32a353fa1edaad996cd0094', 'zzde1Ic6uq0gfsD5vqMY', 1478968649799831552, '', '2022-01-13 16:38:29', '', '2022-01-13 16:38:29', 1, 0);
+INSERT INTO `sys_user` VALUES (1481547085462507520, 'test123', '12432', 'ea802500c9a15938407d7b21413dd79c5d400fd4440fed247c60f1066966718a', '4YMJzGfJ4uxc6cwvkmG6', 1478968647144837120, '', '2022-01-13 16:42:06', '', '2022-01-13 16:42:06', 1, 1481547085462507520);
+INSERT INTO `sys_user` VALUES (1481550224605450240, 'ert', 'etewt', '81971588431bce631f1f2d9ffa80882fade1ae822c913bf684d00f07e360e860', 'hNEXgQD6CBGHS8Hmkvg4', 1478968647144837120, '', '2022-01-13 16:54:34', '', '2022-01-13 16:54:34', 2, 1481550224605450240);
+INSERT INTO `sys_user` VALUES (1481551017077248000, 'gew', 'gew', 'e9215f0b217afaad57c93f2cf69762d2d4ced8125baf2807b84c8bdf6dda3841', 'oFF1iaxrNZZJhjshtKrr', 1478968647144837120, '', '2022-01-13 16:57:43', '', '2022-01-13 16:57:43', 1, 1481551017077248000);
+INSERT INTO `sys_user` VALUES (1481553548805279744, 'a3', 'a3', 'd2e028b0474594edc835275927f527076a642ebd1536262820986c1d3569ca3d', '4kbvR3JA5qP74amPKAaG', 1478968647144837120, '', '2022-01-13 17:07:47', '', '2022-01-13 17:07:47', 3, 1481553548805279744);
+INSERT INTO `sys_user` VALUES (1481553628291534848, 'ge', 'gw', 'd763433b84916220deb5ef966b8422bcbd3f415a79b0a8f607af9ba55800a695', 'vFRPFs3jM1e5mdzA97DM', 1478968647144837120, '', '2022-01-13 17:08:06', '', '2022-01-13 17:08:06', 2, 1481553628291534848);
+INSERT INTO `sys_user` VALUES (1481862985617117184, 'F1234567', '王一', '74fed31c0b715183ad31bb2147f08815da4a560f2df93f1b729c38fbf13c0195', 'yylZCkOKbTwJdfrpfye9', 1478968648273104896, '', '2022-01-14 13:37:22', '', '2022-01-14 13:37:22', 1, 0);
+INSERT INTO `sys_user` VALUES (1481900808294502400, 'sim', '普通', 'a30c6698a5d4d811a7c5e1435b57a923a2fce56a8bb73a2df5dfd4034b2abe5c', 'BqyctWlFYsajc2QxbM5T', 1478968647144837120, '', '2022-01-14 16:07:40', '', '2022-01-14 16:07:40', 1, 0);
+INSERT INTO `sys_user` VALUES (1482168077759156224, 'admin', '管理员', '95d68d61aedf4d208ada6ff95a7df4b648fa49620286a5c7702a465f71cf94f6', 'xrY8auUmDFvEzZXnupEW', 1485429848393519104, '', '2022-01-15 09:49:42', '', '2022-01-15 09:49:42', 1, 0);
+INSERT INTO `sys_user` VALUES (1482881351152701440, 'fei', 'fei', 'fa41a019aac7199f58841818025646ef6f052beb67c7e96ba95ea40faacfa171', 'Td8ZrhxkwbDPMqRQfkRI', 1478968649799831552, '', '2022-01-17 09:03:59', '', '2022-01-17 09:03:59', 1, 0);
+INSERT INTO `sys_user` VALUES (1482911390023946240, 'X2000991', 'kitra', '9a9ec9a885e91cb236a64237f3792d6760fdc3f4690a2e108a68bd088a7582cc', '2DZGfk2eEllF2aVT3L52', 1478968649799831552, '', '2022-01-17 11:03:21', '', '2022-01-17 11:03:21', 1, 0);
+INSERT INTO `sys_user` VALUES (1483709720098377728, 'tsbg2', '施立方', '5b707eb637436d94a5516c0abf6164f0efd2e0c104916145383974f52f0b150c', 'Z79eC0N6zDAOwrqg9F2A', 1478968651452387328, '', '2022-01-19 15:55:38', '', '2022-01-19 15:55:38', 1, 0);
+INSERT INTO `sys_user` VALUES (1483988467217207296, 'A02', '深圳富联富桂精密工业有限公司', 'b9cb203d93244f039f254af32e3845f17d14ba768809dfededf9b18ca1f88a39', 'kQf2uyztWc1nfA8GfTag', 1478968649799831552, '', '2022-01-20 10:23:16', '', '2022-01-20 10:23:16', 1, 0);
+INSERT INTO `sys_user` VALUES (1483988987734528000, 'A03', '王富桂', 'a0562306d5c8c637ef3ac72a7d804785a6e988dcd5ada751cb2311604c83cb8e', 'o60hdkfJt8281g1R3YXc', 1478968649799831552, '', '2022-01-20 10:25:21', '', '2022-01-20 10:25:21', 1, 0);
+INSERT INTO `sys_user` VALUES (1484056907466543104, 'F000001', '管理员', 'cf665a071b0015284bd31190445d44feebd4e29b9d7beb1c38ce351e540a85d2', 'Uu5Vjt8nFl1Zvfsf5eYl', 1478968647144837120, '', '2022-01-20 14:55:14', '', '2022-01-20 14:55:14', 1, 0);
+INSERT INTO `sys_user` VALUES (1484339956913672192, 'tsbg11', '承德', 'e02473c8a1556eda654fbda756477d40d18c6eddb0fcf3e83faa67de58acd46c', 'eLCWwQcOQ7gUrFQRx3RM', 1478968648273104896, '', '2022-01-21 09:39:58', '', '2022-01-21 09:39:58', 1, 0);
+INSERT INTO `sys_user` VALUES (1485499720406274048, 'X2000', '刘克', '2215b1e206ccc56361e32e225b6af604c19cd7ab22f74ff1e731fda4c9483850', '30NZMnb0OOsRFrBsacfh', 1485429851061096448, '', '2022-01-24 14:28:27', '', '2022-01-24 14:28:27', 1, 0);
+INSERT INTO `sys_user` VALUES (1485501628730707968, 'FXZZG', 'fo', 'c0cf9162d0b913f8600199fbaffa5e177f43b5887ee065129c2cd358c3e2d18e', '0TPorCmGH0SJhMujOxDh', 1485429852688486400, '', '2022-01-24 14:36:02', '', '2022-01-24 14:36:02', 1, 0);
+INSERT INTO `sys_user` VALUES (1485501854300377088, 'FSZZG', 'FO', '65292519d2fa861a20d4c4e71bd53da3aab562dd7deb517ead10c5878039a25d', 'tWG6lDhSPYGX18pCBqmO', 1485429852688486400, '', '2022-01-24 14:36:56', '', '2022-01-24 14:36:56', 1, 0);
+INSERT INTO `sys_user` VALUES (1485505619829067776, 'CE001', '武田', 'e766117c157300643772618d572d16a2fa1e5c3e14e559bc6d0541dfe26ad67f', 'sfQITouoVNlje5dSTMEC', 1485429855775494144, '', '2022-01-24 14:51:54', '', '2022-01-24 14:51:54', 1, 0);
+INSERT INTO `sys_user` VALUES (1485505880043687936, 'tsbg1', 'tsbg1', '8892e62361f2065436b25a4d395b9aa2db05b576f9febaacd3f3288c4a469a64', 'eBmdvnh3829SN0qAw9Df', 1485429849513398272, '', '2022-01-24 14:52:56', '', '2022-01-24 14:52:56', 1, 0);
+INSERT INTO `sys_user` VALUES (1485506406554669056, 'cesbg1', '刘调', '5992ba874f6ae2dc548ec7b9572757673ea1fec7f836bad9940494cf94b08881', 'Ack4AKQRPsPeoY5F631f', 1485429854324264960, '', '2022-01-24 14:55:01', '', '2022-01-24 14:55:01', 1, 0);
+INSERT INTO `sys_user` VALUES (1485787396162326528, 'sz', '沈真', '9795ee0cc5cf8a9afc2fd4c029243b3c84e0df7431978e43ca9399e367a3267a', 'u5Z2mk6t4udWfucIO0tR', 1485429851061096448, '', '2022-01-25 09:31:35', '', '2022-01-25 09:31:35', 1, 0);
+INSERT INTO `sys_user` VALUES (1485787527892832256, 'fs', '符三', 'fe4f5c168f9ec9e9c49b326c1913bd21cc3e7c16c9636809e45837c0b4913721', 'oI7lmvcJP7vIDy1VvxJy', 1485429852688486400, '', '2022-01-25 09:32:06', '', '2022-01-25 09:32:06', 1, 0);
+INSERT INTO `sys_user` VALUES (1485787600533983232, 'tj', '田静', 'f060ec5b6cf996a78b05d6c014b08ba57577ddfb0ad7e8a2157637f31ac8c0bc', 'WO5prCMqM4rEF1OFxmOe', 1485429855775494144, '', '2022-01-25 09:32:23', '', '2022-01-25 09:32:23', 1, 0);
+INSERT INTO `sys_user` VALUES (1485796240699559936, 'F1331866', 'pear', 'fea6f0af7a81b634ba90e6066af50aa67bb9851c52f1f89211b628e3959067b9', '6Te5DC93eG6QBG12fAlq', 1485429851061096448, '', '2022-01-25 10:06:43', '', '2022-01-25 10:06:43', 1, 1485796240699559936);
+INSERT INTO `sys_user` VALUES (1490590134683439104, 't001', 't001', '6ed364ea9029e0e7bf75d6abfb81671efc8d6e9677aaaf51ff3cebb063ba4e94', 'wIspqTLPhZpTsoB8rqiK', 1485429851061096448, '', '2022-02-07 15:35:57', '', '2022-02-07 15:35:57', 5, 0);
+INSERT INTO `sys_user` VALUES (1490866898341072896, '田景', 'tj2', '4ece175af5d268df98ac0628bf227eb7dca8984614c0daf830ce58e85800e469', 'CpibNlGiU4sKHPjiQomv', 1485429855775494144, '', '2022-02-08 09:55:42', '', '2022-02-08 09:55:42', 1, 0);
+INSERT INTO `sys_user` VALUES (1490872547317780480, 'tj3', '田京', 'b18ac247e164eee1de75efe8a7fdc665d5f10146d5ef4f5594ce5e303b0cd75f', '6idZ231XVJvsHt47wFhK', 1485429855775494144, '', '2022-02-08 10:18:09', '', '2022-02-08 10:18:09', 1, 0);
+INSERT INTO `sys_user` VALUES (1491682453117603840, 'sz001', '林申', 'be054075c1966d70c59d5db9b78a37ea22bde48f45dd05e23231597f315e910e', 'x2SrMisQpn737lj2Uyzd', 1485429851061096448, '', '2022-02-10 15:56:26', '', '2022-02-10 15:56:26', 1, 0);
+INSERT INTO `sys_user` VALUES (1496723793341714432, 'admin2', 'admin2', '776f3f8bb71147419bad203edd4cf6e61d6ccbc76b2bd67b47d1c8d0b71be496', 'aiDvBZN5hJmHQwEBBIgM', 1485429848393519104, '', '2022-02-24 13:48:55', '', '2022-02-24 13:48:55', 1, 0);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for sys_user_role
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_user_role`;
+CREATE TABLE `sys_user_role` (
+  `id` bigint(20) NOT NULL COMMENT '主键id',
+  `user_id` bigint(20) NOT NULL COMMENT '用户id',
+  `role_id` bigint(20) NOT NULL COMMENT '角色id',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户-角色表';
+
+-- ----------------------------
+-- Records of sys_user_role
+-- ----------------------------
+BEGIN;
+INSERT INTO `sys_user_role` VALUES (1, 11111, 11);
+INSERT INTO `sys_user_role` VALUES (1481532238456819712, 1481532236233838592, 11);
+INSERT INTO `sys_user_role` VALUES (1481545726214410240, 1481545725996306432, 77);
+INSERT INTO `sys_user_role` VALUES (1481545992766623744, 1481545992724680704, 88);
+INSERT INTO `sys_user_role` VALUES (1481546178792394752, 1481546178742063104, 88);
+INSERT INTO `sys_user_role` VALUES (1481862985721974784, 1481862985617117184, 44);
+INSERT INTO `sys_user_role` VALUES (1481900808336445440, 1481900808294502400, 22);
+INSERT INTO `sys_user_role` VALUES (1482168079483015168, 1482168077759156224, 11);
+INSERT INTO `sys_user_role` VALUES (1482881351232393216, 1482881351152701440, 77);
+INSERT INTO `sys_user_role` VALUES (1482911390061694976, 1482911390023946240, 77);
+INSERT INTO `sys_user_role` VALUES (1483709720165486592, 1483709720098377728, 88);
+INSERT INTO `sys_user_role` VALUES (1483988467254956032, 1483988467217207296, 77);
+INSERT INTO `sys_user_role` VALUES (1483988987755499520, 1483988987734528000, 77);
+INSERT INTO `sys_user_role` VALUES (1484056907558817792, 1484056907466543104, 11);
+INSERT INTO `sys_user_role` VALUES (1484339956993363968, 1484339956913672192, 66);
+INSERT INTO `sys_user_role` VALUES (1485499720473382912, 1485499720406274048, 77);
+INSERT INTO `sys_user_role` VALUES (1485501628755873792, 1485501628730707968, 77);
+INSERT INTO `sys_user_role` VALUES (1485501854325542912, 1485501854300377088, 77);
+INSERT INTO `sys_user_role` VALUES (1485505619858427904, 1485505619829067776, 77);
+INSERT INTO `sys_user_role` VALUES (1485505880064659456, 1485505880043687936, 44);
+INSERT INTO `sys_user_role` VALUES (1485506406592417792, 1485506406554669056, 44);
+INSERT INTO `sys_user_role` VALUES (1485787396237824000, 1485787396162326528, 77);
+INSERT INTO `sys_user_role` VALUES (1485787527926386688, 1485787527892832256, 77);
+INSERT INTO `sys_user_role` VALUES (1485787600567537664, 1485787600533983232, 77);
+INSERT INTO `sys_user_role` VALUES (1490866898424958976, 1490866898341072896, 77);
+INSERT INTO `sys_user_role` VALUES (1490872548634791936, 1490872547317780480, 77);
+INSERT INTO `sys_user_role` VALUES (1491682453180518400, 1491682453117603840, 99);
+INSERT INTO `sys_user_role` VALUES (1494135918251085824, 1490590134683439104, 88);
+INSERT INTO `sys_user_role` VALUES (1496723793408823296, 1496723793341714432, 33);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for tb_inventory_status
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_inventory_status`;
+CREATE TABLE `tb_inventory_status` (
+  `id` bigint(64) NOT NULL COMMENT '主键id',
+  `org_id` bigint(64) NOT NULL COMMENT '组织id',
+  `year` int(4) NOT NULL COMMENT '年份',
+  `quarter` int(2) NOT NULL COMMENT '季度',
+  `status` int(2) NOT NULL COMMENT '状态',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `revision` int(10) NOT NULL COMMENT '乐观锁',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(20) NOT NULL COMMENT '更新人工号',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uindex` (`org_id`,`year`,`quarter`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='碳排报告状态表';
+
+-- ----------------------------
+-- Records of tb_inventory_status
+-- ----------------------------
+BEGIN;
+INSERT INTO `tb_inventory_status` VALUES (1496726371047706624, 1485429851061096448, 2022, 3, 1, 'fii', 1, '1485787396162326528', '2022-02-24 13:59:09', '1485787396162326528', '2022-02-24 13:59:09', 0);
+INSERT INTO `tb_inventory_status` VALUES (1496728009519009792, 1485429852688486400, 2022, 1, 1, 'fii', 1, '1485787527892832256', '2022-02-24 14:05:40', '1485787527892832256', '2022-02-24 14:05:40', 0);
+INSERT INTO `tb_inventory_status` VALUES (1496738641026879488, 1485429852688486400, 2022, 2, 1, 'fii', 1, '1485787527892832256', '2022-02-24 14:47:55', '1485787527892832256', '2022-02-24 14:47:55', 0);
+INSERT INTO `tb_inventory_status` VALUES (1496738968258088960, 1485429852688486400, 2022, 3, 1, 'fii', 1, '1485787527892832256', '2022-02-24 14:49:13', '1485787527892832256', '2022-02-24 14:49:13', 0);
+INSERT INTO `tb_inventory_status` VALUES (1496739110327554048, 1485429852688486400, 2022, 4, 1, 'fii', 1, '1485787527892832256', '2022-02-24 14:49:47', '1485787527892832256', '2022-02-24 14:49:47', 0);
+INSERT INTO `tb_inventory_status` VALUES (1496741099400728576, 1485429855775494144, 2022, 1, 1, 'fii', 1, '1485787600533983232', '2022-02-24 14:57:41', '1485787600533983232', '2022-02-24 14:57:41', 0);
+INSERT INTO `tb_inventory_status` VALUES (1496741862671781888, 1485429855775494144, 2022, 2, 1, 'fii', 1, '1485787600533983232', '2022-02-24 15:00:43', '1485787600533983232', '2022-02-24 15:00:43', 0);
+INSERT INTO `tb_inventory_status` VALUES (1498554416180105216, 1485429851061096448, 2023, 1, 1, 'fii', 1, '1485499720406274048', '2022-03-01 15:03:09', '1485499720406274048', '2022-03-01 15:03:09', 0);
+INSERT INTO `tb_inventory_status` VALUES (1498557560322658304, 1485429855775494144, 2023, 1, 1, 'fii', 1, '1485787600533983232', '2022-03-01 15:15:39', '1485787600533983232', '2022-03-01 15:15:39', 0);
+INSERT INTO `tb_inventory_status` VALUES (1498558509481070592, 1485429851061096448, 2023, 2, 1, 'fii', 1, '1485499720406274048', '2022-03-01 15:19:25', '1485499720406274048', '2022-03-01 15:19:25', 0);
+INSERT INTO `tb_inventory_status` VALUES (1498559703528116224, 1485429851061096448, 2023, 3, 1, 'fii', 1, '1490590134683439104', '2022-03-01 15:24:10', '1490590134683439104', '2022-03-01 15:24:10', 0);
+INSERT INTO `tb_inventory_status` VALUES (1498559966762635264, 1485429855775494144, 2023, 2, 1, 'fii', 1, '1485505619829067776', '2022-03-01 15:25:13', '1485505619829067776', '2022-03-01 15:25:13', 0);
+INSERT INTO `tb_inventory_status` VALUES (1498588564974342144, 1485429855775494144, 2023, 3, 1, 'fii', 1, '1485505619829067776', '2022-03-01 17:18:51', '1485505619829067776', '2022-03-01 17:18:51', 0);
+INSERT INTO `tb_inventory_status` VALUES (1498595101948121088, 1485429851061096448, 2023, 4, 1, 'fii', 1, '1490590134683439104', '2022-03-01 17:44:50', '1490590134683439104', '2022-03-01 17:44:50', 0);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for transport_emission
+-- ----------------------------
+DROP TABLE IF EXISTS `transport_emission`;
+CREATE TABLE `transport_emission` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `inventory_id` bigint(20) NOT NULL COMMENT '碳盘查报告id',
+  `type` varchar(30) NOT NULL DEFAULT '' COMMENT '分类',
+  `transportation_mode` varchar(30) NOT NULL DEFAULT '' COMMENT '交通运输方式',
+  `vehicle_type` varchar(30) NOT NULL DEFAULT '' COMMENT '车辆类型',
+  `quantity` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '数量',
+  `fuel_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '燃料单位',
+  `factor_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '排放因子单位',
+  `use_default_factor` int(2) NOT NULL DEFAULT '0' COMMENT '是否使用默认碳排放因子',
+  `carbon_emission` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '二氧化碳排放',
+  `carbon_emission_unit` varchar(30) NOT NULL DEFAULT '' COMMENT '二氧化碳排放单位',
+  `factor` decimal(24,6) NOT NULL DEFAULT '0.000000' COMMENT '排放因子',
+  `description` varchar(500) NOT NULL DEFAULT '' COMMENT '描述',
+  `revision` int(10) NOT NULL COMMENT '乐观锁',
+  `created_by` varchar(32) NOT NULL COMMENT '创建人工号',
+  `created_time` datetime NOT NULL COMMENT '创建时间',
+  `updated_by` varchar(20) NOT NULL COMMENT '更新人工号',
+  `updated_time` datetime NOT NULL COMMENT '更新时间',
+  `tenant_id` varchar(32) NOT NULL COMMENT '租户号',
+  `delete_flag` bigint(20) NOT NULL DEFAULT '0' COMMENT '逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='交通运输排放';
+
+-- ----------------------------
+-- Records of transport_emission
+-- ----------------------------
+BEGIN;
+INSERT INTO `transport_emission` VALUES (1483352183285092352, 1483351979618078720, '上游运输与配送', '铁路', '铁路运输-中国市场平均', 53255325.000000, 'tkm', 'kgCO₂e/tkm', 1, 539.476442, 'tCO₂e', 0.010130, '', 1, 'A024484593', '2022-01-18 16:14:55', 'A024484593', '2022-01-18 16:14:55', 'fii', 0);
+INSERT INTO `transport_emission` VALUES (1483378241069780992, 1483378067001970688, '上游运输与配送', '车辆', '重型汽油货车运输（载重18t）', 800000.000000, 'tkm', 'kgCO₂e/tkm', 1, 76.680000, 'tCO₂e', 0.095850, '', 1, 'A024484593', '2022-01-18 17:58:27', 'A024484593', '2022-01-18 17:58:27', 'fii', 0);
+INSERT INTO `transport_emission` VALUES (1483378301878800384, 1483378067001970688, '上游运输与配送', '航空', '飞机', 9000.000000, 'tkm', 'kgCO₂e/tmile', 1, 7.374357, 'tCO₂e', 1.318653, '', 1, 'A024484593', '2022-01-18 17:58:42', 'A024484593', '2022-01-18 17:58:42', 'fii', 0);
+INSERT INTO `transport_emission` VALUES (1483378357969227776, 1483378067001970688, '商务旅行', '航空', '长途航空（>2300里）', 200.000000, 'km', 'kgCO₂e/mile', 1, 0.020806, 'tCO₂e', 0.167421, '', 2, 'A024484593', '2022-01-18 17:58:55', 'A024484593', '2022-01-18 17:58:55', 'fii', 0);
+INSERT INTO `transport_emission` VALUES (1485500153250058240, 1485499855588691968, '上游运输与配送', '车辆', '轻型汽油货车运输（载重2t）', 10000.000000, 'tkm', 'kgCO₂e/tkm', 1, 2.882000, 'tCO₂e', 0.288200, '', 1, 'A024484593', '2022-01-24 14:30:10', 'A024484593', '2022-01-24 14:30:10', 'fii', 0);
+INSERT INTO `transport_emission` VALUES (1485866159214563328, 1485866159176814592, '上游运输与配送', '车辆', '轻型汽油货车运输（载重2t）', 20000.000000, 'tkm', 'kgCO₂e/tkm', 1, 5.764000, 'tCO₂e', 0.288200, '', 1, 'A024484593', '2022-01-25 14:44:33', 'A024484593', '2022-01-25 14:44:33', 'fii', 0);
+INSERT INTO `transport_emission` VALUES (1491309274880675840, 1485866159176814592, '商务旅行', '航空', '短途航空（<300里）', 344.000000, 'mile', 'kgCO₂e/mile', 1, 0.078092, 'tCO₂e', 0.227011, '', 1, 'A024484593', '2022-02-09 15:13:33', 'A024484593', '2022-02-09 15:13:33', 'fii', 0);
+INSERT INTO `transport_emission` VALUES (1494495551541088256, 1494495034857361408, '上游运输与配送', '车辆', '轻型汽油货车运输（载重2t）', 2000.000000, 'tkm', 'kgCO₂e/tkm', 1, 0.576400, 'tCO₂e', 0.288200, '', 1, 'A024484593', '2022-02-18 10:14:41', 'A024484593', '2022-02-18 10:14:41', 'fii', 0);
+INSERT INTO `transport_emission` VALUES (1496723176716111872, 1491292749218058240, '上游运输与配送', '水运', '集装箱船运输（载重200TEU）', 2000.000000, 'tkm', 'kgCO₂e/tkm', 1, 0.023640, 'tCO₂e', 0.011820, '', 1, 'A024484593', '2022-02-24 13:46:28', 'A024484593', '2022-02-24 13:46:28', 'fii', 0);
+INSERT INTO `transport_emission` VALUES (1496723235251818496, 1491292749218058240, '上游运输与配送', '车辆', '重型汽油货车运输（载重18t）', 20000.000000, 'tkm', 'kgCO₂e/tkm', 1, 1.917000, 'tCO₂e', 0.095850, '', 1, 'A024484593', '2022-02-24 13:46:42', 'A024484593', '2022-02-24 13:46:42', 'fii', 0);
+INSERT INTO `transport_emission` VALUES (1496727033055678464, 1496726370900905984, '上游运输与配送', '水运', '集装箱船运输（载重200TEU）', 20000000.000000, 'tkm', 'kgCO₂e/tkm', 1, 236.400000, 'tCO₂e', 0.011820, '', 1, 'A024484593', '2022-02-24 14:01:47', 'A024484593', '2022-02-24 14:01:47', 'fii', 0);
+INSERT INTO `transport_emission` VALUES (1496727086012960768, 1496726370900905984, '上游运输与配送', '铁路', '铁路运输-中国市场平均', 200000000.000000, 'tkm', 'kgCO₂e/tkm', 1, 2026.000000, 'tCO₂e', 0.010130, '', 2, 'A024484593', '2022-02-24 14:02:00', 'A024484593', '2022-02-24 14:02:00', 'fii', 0);
+COMMIT;
+
+SET FOREIGN_KEY_CHECKS = 1;
