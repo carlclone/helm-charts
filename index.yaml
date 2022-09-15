@@ -21,7 +21,7 @@ entries:
     sources:
     - https://github.com/elastic/apm
     urls:
-    - https://carlclone.github.io/helm-charts/cec-20220915104457.tgz
+    - https://carlclone.github.io/helm-charts/CEC-7.13.2.tgz
     version: 7.13.2
   apm-server:
   - apiVersion: v1
