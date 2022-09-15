@@ -3,7 +3,7 @@ entries:
   CEC:
   - apiVersion: v1
     appVersion: 7.13.2
-    created: "2022-09-15T10:26:47.499877+08:00"
+    created: "2022-09-15T10:32:59.997851+08:00"
     description: Fii的碳管家Carbon Assistant（CA-by-Fii）通过0门槛的表单式操作引导企业计算直接控制下的温室气体排放（范围1）以及间接温室气体排放（范围2和范围3）。对于跨国公司，碳管家支持管理员发布自上而下的碳盘查任务，允许多个组织协作进行填报，同时可根据区域要求实现完整的碳盘查和分析，通过业务活动数据输入自动生成符合
       ISO14064 / GHG 协议的报告。
     digest: 0fc58fc26f8b9ac5594727a77728c11a97b9ba752759668b6db8836d15e77047
@@ -23,13 +23,35 @@ entries:
     urls:
     - https://carlclone.github.io/helm-charts/cec-20220915102647.tgz
     version: 7.13.2
+  apm-server:
+  - apiVersion: v1
+    appVersion: 7.13.2
+    created: "2022-09-15T10:33:00.002472+08:00"
+    description: Official Elastic helm chart for Elastic APM Server
+    digest: e64f3d89d3da34a9e64b8cb58aac552cc79593c4da71bb0998845f5ab0e60439
+    home: https://github.com/elastic/helm-charts
+    icon: https://helm.elastic.co/icons/apm.png
+    keywords:
+    - apm
+    - elastic
+    maintainers:
+    - email: helm-charts@elastic.co
+      name: Elastic
+    - email: support@kubegems.io
+      name: KubeGems
+    name: apm-server
+    sources:
+    - https://github.com/elastic/apm
+    urls:
+    - https://carlclone.github.io/helm-charts/test-20220915103259.tgz
+    version: 7.13.2
   gsping-helm:
   - apiVersion: v1
     appVersion: v1.0.0
-    created: "2022-09-15T10:26:47.500774+08:00"
+    created: "2022-09-15T10:32:59.999861+08:00"
     digest: 3ef8389800e9c3ef41aa17413c094a8a72bd9c97f1b3a4b7b41eaa3530a437ca
     name: gsping-helm
     urls:
     - https://carlclone.github.io/helm-charts/gsping-20220909142218.tgz
     version: 1.0.5
-generated: "2022-09-15T10:26:47.497807+08:00"
+generated: "2022-09-15T10:32:59.995087+08:00"
