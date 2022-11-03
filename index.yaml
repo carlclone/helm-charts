@@ -3,7 +3,7 @@ entries:
   CEC:
   - apiVersion: v1
     appVersion: 7.13.3
-    created: "2022-11-03T11:22:47.723743+08:00"
+    created: "2022-11-03T11:23:29.060707+08:00"
     description: Fii的碳管家Carbon Assistant（CA-by-Fii）通过0门槛的表单式操作引导企业计算直接控制下的温室气体排放（范围1）以及间接温室气体排放（范围2和范围3）。对于跨国公司，碳管家支持管理员发布自上而下的碳盘查任务，允许多个组织协作进行填报，同时可根据区域要求实现完整的碳盘查和分析，通过业务活动数据输入自动生成符合
       ISO14064 / GHG 协议的报告。
     digest: 91e5dbdcddc8f4094ff1eaf82c387686e5081f30f2ef5c75da3b2119c575a08c
@@ -26,7 +26,7 @@ entries:
   CEC-env-prod:
   - apiVersion: v1
     appVersion: 7.31.9998
-    created: "2022-11-03T11:22:47.725837+08:00"
+    created: "2022-11-03T11:23:29.062824+08:00"
     description: Fii的碳管家Carbon Assistant（CA-by-Fii）通过0门槛的表单式操作引导企业计算直接控制下的温室气体排放（范围1）以及间接温室气体排放（范围2和范围3）。对于跨国公司，碳管家支持管理员发布自上而下的碳盘查任务，允许多个组织协作进行填报，同时可根据区域要求实现完整的碳盘查和分析，通过业务活动数据输入自动生成符合
       ISO14064 / GHG 协议的报告。
     digest: c2437cd670122a4d31e53d3488060be127261f53ef722cbea1d13e542f303cf5
@@ -48,7 +48,7 @@ entries:
     version: 7.31.9998
   - apiVersion: v1
     appVersion: 7.13.999
-    created: "2022-11-03T11:22:47.724736+08:00"
+    created: "2022-11-03T11:23:29.061763+08:00"
     description: Fii的碳管家Carbon Assistant（CA-by-Fii）通过0门槛的表单式操作引导企业计算直接控制下的温室气体排放（范围1）以及间接温室气体排放（范围2和范围3）。对于跨国公司，碳管家支持管理员发布自上而下的碳盘查任务，允许多个组织协作进行填报，同时可根据区域要求实现完整的碳盘查和分析，通过业务活动数据输入自动生成符合
       ISO14064 / GHG 协议的报告。
     digest: ed31e42ab54bc9dd01fc508ec1b18f72280baa3c38f1c1c2e1afc22957908537
@@ -71,7 +71,7 @@ entries:
   apm-server:
   - apiVersion: v1
     appVersion: 7.13.2
-    created: "2022-11-03T11:22:47.728581+08:00"
+    created: "2022-11-03T11:23:29.065765+08:00"
     description: Official Elastic helm chart for Elastic APM Server
     digest: 12280bd33887358e2e008dd38267d30d436136ae12509ac34e43cba5747948e5
     home: https://github.com/elastic/helm-charts
@@ -95,11 +95,11 @@ entries:
       category: Database
     apiVersion: v2
     appVersion: 6.0.12
-    created: "2022-11-03T11:22:47.726859+08:00"
+    created: "2022-11-03T11:23:29.063779+08:00"
     description: Open source, advanced key-value store. It is often referred to as
       a data structure server since keys can contain strings, hashes, lists, sets
       and sorted sets.
-    digest: 5d08c57aa2cf1af04debf5b0a5b5f9777d5e2e6abccf4d2701375f2e399a7344
+    digest: 992f76a5de82d0c23cd8dcff8d1ed95f707b31256b787b939088c2c3823efb79
     home: https://github.com/bitnami/charts/tree/master/bitnami/redis
     icon: https://bitnami.com/assets/stacks/redis/img/redis-stack-220x234.png
     keywords:
@@ -117,15 +117,15 @@ entries:
     - https://github.com/bitnami/bitnami-docker-redis
     - http://redis.io/
     urls:
-    - https://carlclone.github.io/helm-charts/codeless-20221103112247.tgz
+    - https://carlclone.github.io/helm-charts/codeless-20221103112328.tgz
     version: 12.8.8
   gsping-helm:
   - apiVersion: v1
     appVersion: v1.0.0
-    created: "2022-11-03T11:22:47.727512+08:00"
+    created: "2022-11-03T11:23:29.064382+08:00"
     digest: 3ef8389800e9c3ef41aa17413c094a8a72bd9c97f1b3a4b7b41eaa3530a437ca
     name: gsping-helm
     urls:
     - https://carlclone.github.io/helm-charts/gsping-20220909142218.tgz
     version: 1.0.5
-generated: "2022-11-03T11:22:47.722365+08:00"
+generated: "2022-11-03T11:23:29.059216+08:00"
